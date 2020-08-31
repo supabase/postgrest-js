@@ -1,8 +1,7 @@
 node_modules
-package-lock.json
 dist
-umd
 docs
+*.log
 
 # nyc
 coverage

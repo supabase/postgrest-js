@@ -11,19 +11,17 @@
   "license": "MIT",
   "author": "Supabase",
   "files": [
-    "dist",
-    "umd"
+    "dist"
   ],
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
   "repository": "supabase/postgrest-js",
   "scripts": {
-    "clean": "rimraf dist umd docs",
+    "clean": "rimraf dist docs",
     "format": "prettier --write \"{src,tests}/**/*.ts\"",
     "build": "run-s clean format build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
-    "build:umd": "tsc -p tsconfig.umd.json",
     "test": "run-s build test:*",
     "watch": "run-s clean build:main && run-p \"build:main -- -w\" \"test:unit -- --watch\""
   },

@@ -1,14 +1,17 @@
-import { PostgrestBuilder } from './builder'
+import { PostgrestBuilder, PostgrestQueryBuilder } from './builder'
 
 export class PostgrestClient {
   url: string
   headers: { [key: string]: string }
-  schema: string
+  schema?: string
 
-  constructor(url: string, options?: any) {
+  constructor(
+    url: string,
+    { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
+  ) {
     this.url = url
-    this.headers = options.headers
-    this.schema = options.schema
+    this.headers = headers
+    this.schema = schema
   }
 
   auth(token: string): this {
@@ -16,13 +19,15 @@ export class PostgrestClient {
     return this
   }
 
-  from<T>(table: string): PostgrestBuilder<T> {
+  from<T>(table: string): PostgrestQueryBuilder<T> {
     const url = `${this.url}/${table}`
-    return new PostgrestBuilder(url, { headers: this.headers, schema: this.schema })
+    return new PostgrestQueryBuilder(url, { headers: this.headers, schema: this.schema })
   }
 
-  rpc<T>(fn: string, params?: any): PostgrestBuilder<T> {
+  rpc<T>(fn: string, params?: object): PostgrestBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
-    return new PostgrestBuilder(url, { headers: this.headers, schema: this.schema }).rpc(params)
+    return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
+      params
+    )
   }
 }
