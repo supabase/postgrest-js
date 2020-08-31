@@ -50,6 +50,6 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "superagent": "^5.2.1"
+    "superagent": "^6.1.0"
   }
 }
