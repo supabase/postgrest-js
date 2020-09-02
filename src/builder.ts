@@ -1,4 +1,5 @@
-import axios from 'axios'
+import fetch from 'isomorphic-unfetch'
+import { URL } from 'url'
 
 // https://postgrest.org/en/stable/api.html?highlight=options#errors-and-http-status-codes
 interface PostgrestError {
@@ -8,7 +9,11 @@ interface PostgrestError {
   code: string
 }
 
-type PostgrestResponse<T> = T | T[] | PostgrestError
+// type PostgrestResponse<T> = T | T[] | PostgrestError
+
+interface PostgrestResponse<T> extends Omit<Response, 'body'> {
+  body: T | T[] | PostgrestError
+}
 
 /**
  * Base builder
@@ -16,11 +21,10 @@ type PostgrestResponse<T> = T | T[] | PostgrestError
 
 export abstract class PostgrestBuilder<T> implements PromiseLike<any> {
   method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
-  url!: string
+  url!: URL
   headers!: { [key: string]: string }
-  params: { [key: string]: string } = {}
   schema?: string
-  data?: T | T[] | Partial<T>
+  body?: Partial<T> | Partial<T>[]
 
   constructor(builder: PostgrestBuilder<T>) {
     Object.assign(this, builder)
@@ -39,18 +43,15 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<any> {
       this.headers['Content-Type'] = 'application/json'
     }
 
-    return axios
-      .request<PostgrestResponse<T>>({
-        method: this.method,
-        url: this.url,
-        headers: this.headers,
-        params: this.params,
-        data: this.data,
-      })
-      .then((response) => {
-        // Maintain backward compatibility with prev. implementation (body property instead of data)
-        ;(response as any).body = response.data
-        return response
+    return fetch(this.url.toString(), {
+      method: this.method,
+      headers: this.headers,
+      body: JSON.stringify(this.body),
+    })
+      .then(async (res) => {
+        // HACK: Coerce the type to PostgrestResponse<T>
+        ;(res as any).body = await res.json()
+        return (res as unknown) as PostgrestResponse<T>
       })
       .then(onfulfilled, onrejected)
   }
@@ -66,7 +67,7 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
   ) {
     super({} as PostgrestBuilder<T>)
-    this.url = url
+    this.url = new URL(url)
     this.headers = headers
     this.schema = schema
   }
@@ -87,23 +88,23 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
         return c
       })
       .join('')
-    this.params = { select: cleanedColumns }
+    this.url.searchParams.set('select', cleanedColumns)
     return new PostgrestFilterBuilder(this)
   }
 
-  insert(data: T | T[], { upsert = false } = {}): PostgrestBuilder<T> {
+  insert(body: Partial<T> | Partial<T>[], { upsert = false } = {}): PostgrestBuilder<T> {
     this.method = 'POST'
     this.headers['Prefer'] = upsert
       ? 'return=representation,resolution=merge-duplicates'
       : 'return=representation'
-    this.data = data
+    this.body = body
     return this
   }
 
-  update(data: Partial<T>): PostgrestFilterBuilder<T> {
+  update(body: Partial<T>): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
     this.headers['Prefer'] = 'return=representation'
-    this.data = data
+    this.body = body
     return new PostgrestFilterBuilder(this)
   }
 
@@ -116,7 +117,7 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
   /** @internal */
   rpc(params?: object): PostgrestBuilder<T> {
     this.method = 'POST'
-    this.data = params
+    this.body = params
     return this
   }
 }
@@ -135,9 +136,10 @@ class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
     }: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: string } = {}
   ): PostgrestTransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'order' : `"${foreignTable}".order`
-    this.params[key] = `"${column}".${ascending ? 'asc' : 'desc'}.${
-      nullsFirst ? 'nullsfirst' : 'nullslast'
-    }`
+    this.url.searchParams.set(
+      key,
+      `"${column}".${ascending ? 'asc' : 'desc'}.${nullsFirst ? 'nullsfirst' : 'nullslast'}`
+    )
     return this
   }
 
@@ -146,7 +148,7 @@ class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
     { foreignTable }: { foreignTable?: string } = {}
   ): PostgrestTransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'limit' : `"${foreignTable}".limit`
-    this.params[key] = `${count}`
+    this.url.searchParams.set(key, `${count}`)
     return this
   }
 
@@ -157,9 +159,9 @@ class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
   ): PostgrestTransformBuilder<T> {
     const keyOffset = typeof foreignTable === 'undefined' ? 'offset' : `"${foreignTable}".offset`
     const keyLimit = typeof foreignTable === 'undefined' ? 'limit' : `"${foreignTable}".limit`
-    this.params[keyOffset] = `${from}`
+    this.url.searchParams.set(keyOffset, `${from}`)
     // Range is inclusive, so add 1
-    this.params[keyLimit] = `${to - from + 1}`
+    this.url.searchParams.set(keyLimit, `${to - from + 1}`)
     return this
   }
 
@@ -201,62 +203,62 @@ type FilterOperator =
 
 class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
   not(column: keyof T, operator: FilterOperator, filter: any): this {
-    this.params[`"${column}"`] = `not.${operator}.${filter}`
+    this.url.searchParams.append(`"${column}"`, `not.${operator}.${filter}`)
     return this
   }
 
   or(filters: string): this {
-    this.params['or'] = `(${filters})`
+    this.url.searchParams.append('or', `(${filters})`)
     return this
   }
 
   eq(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `eq.${value}`
+    this.url.searchParams.append(`"${column}"`, `eq.${value}`)
     return this
   }
 
   neq(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `neq.${value}`
+    this.url.searchParams.append(`"${column}"`, `neq.${value}`)
     return this
   }
 
   gt(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `gt.${value}`
+    this.url.searchParams.append(`"${column}"`, `gt.${value}`)
     return this
   }
 
   gte(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `gte.${value}`
+    this.url.searchParams.append(`"${column}"`, `gte.${value}`)
     return this
   }
 
   lt(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `lt.${value}`
+    this.url.searchParams.append(`"${column}"`, `lt.${value}`)
     return this
   }
 
   lte(column: keyof T, value: T[keyof T]): this {
-    this.params[`"${column}"`] = `lte.${value}`
+    this.url.searchParams.append(`"${column}"`, `lte.${value}`)
     return this
   }
 
   like(column: keyof T, pattern: string): this {
-    this.params[`"${column}"`] = `like.${pattern}`
+    this.url.searchParams.append(`"${column}"`, `like.${pattern}`)
     return this
   }
 
   ilike(column: keyof T, pattern: string): this {
-    this.params[`"${column}"`] = `ilike.${pattern}`
+    this.url.searchParams.append(`"${column}"`, `ilike.${pattern}`)
     return this
   }
 
   is(column: keyof T, value: boolean | null): this {
-    this.params[`"${column}"`] = `is.${value}`
+    this.url.searchParams.append(`"${column}"`, `is.${value}`)
     return this
   }
 
   in(column: keyof T, values: T[keyof T][]): this {
-    this.params[`"${column}"`] = `in.(${cleanFilterArray(values)})`
+    this.url.searchParams.append(`"${column}"`, `in.(${cleanFilterArray(values)})`)
     return this
   }
 
@@ -264,13 +266,13 @@ class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
     if (typeof filter === 'string') {
       // range types can be inclusive '[', ']' or exclusive '(', ')' so just
       // keep it simple and accept a string
-      this.params[`"${column}"`] = `cs.${filter}`
+      this.url.searchParams.append(`"${column}"`, `cs.${filter}`)
     } else if (Array.isArray(filter)) {
       // array
-      this.params[`"${column}"`] = `cs.{${cleanFilterArray(filter)}}`
+      this.url.searchParams.append(`"${column}"`, `cs.{${cleanFilterArray(filter)}}`)
     } else {
       // json
-      this.params[`"${column}"`] = `cs.${JSON.stringify(filter)}`
+      this.url.searchParams.append(`"${column}"`, `cs.${JSON.stringify(filter)}`)
     }
     return this
   }
@@ -278,85 +280,85 @@ class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
   cd(column: keyof T, filter: string | T[keyof T][] | object): this {
     if (typeof filter === 'string') {
       // range
-      this.params[`"${column}"`] = `cd.${filter}`
+      this.url.searchParams.append(`"${column}"`, `cd.${filter}`)
     } else if (Array.isArray(filter)) {
       // array
-      this.params[`"${column}"`] = `cd.{${cleanFilterArray(filter)}}`
+      this.url.searchParams.append(`"${column}"`, `cd.{${cleanFilterArray(filter)}}`)
     } else {
       // json
-      this.params[`"${column}"`] = `cd.${JSON.stringify(filter)}`
+      this.url.searchParams.append(`"${column}"`, `cd.${JSON.stringify(filter)}`)
     }
     return this
   }
 
   sl(column: keyof T, range: string): this {
-    this.params[`"${column}"`] = `sl.${range}`
+    this.url.searchParams.append(`"${column}"`, `sl.${range}`)
     return this
   }
 
   sr(column: keyof T, range: string): this {
-    this.params[`"${column}"`] = `sr.${range}`
+    this.url.searchParams.append(`"${column}"`, `sr.${range}`)
     return this
   }
 
   nxl(column: keyof T, range: string): this {
-    this.params[`"${column}"`] = `nxl.${range}`
+    this.url.searchParams.append(`"${column}"`, `nxl.${range}`)
     return this
   }
 
   nxr(column: keyof T, range: string): this {
-    this.params[`"${column}"`] = `nxr.${range}`
+    this.url.searchParams.append(`"${column}"`, `nxr.${range}`)
     return this
   }
 
   adj(column: keyof T, range: string): this {
-    this.params[`"${column}"`] = `adj.${range}`
+    this.url.searchParams.append(`"${column}"`, `adj.${range}`)
     return this
   }
 
   ov(column: keyof T, filter: string | T[keyof T][]): this {
     if (typeof filter === 'string') {
       // range
-      this.params[`"${column}"`] = `cd.${filter}`
+      this.url.searchParams.append(`"${column}"`, `cd.${filter}`)
     } else {
       // array
-      this.params[`"${column}"`] = `cd.{${cleanFilterArray(filter)}}`
+      this.url.searchParams.append(`"${column}"`, `cd.{${cleanFilterArray(filter)}}`)
     }
     return this
   }
 
   fts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.params[`"${column}"`] = `fts${configPart}.${query}`
+    this.url.searchParams.append(`"${column}"`, `fts${configPart}.${query}`)
     return this
   }
 
   plfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.params[`"${column}"`] = `plfts${configPart}.${query}`
+    this.url.searchParams.append(`"${column}"`, `plfts${configPart}.${query}`)
     return this
   }
 
   phfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.params[`"${column}"`] = `phfts${configPart}.${query}`
+    this.url.searchParams.append(`"${column}"`, `phfts${configPart}.${query}`)
     return this
   }
 
   wfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.params[`"${column}"`] = `wfts${configPart}.${query}`
+    this.url.searchParams.append(`"${column}"`, `wfts${configPart}.${query}`)
     return this
   }
 
   filter(column: keyof T, operator: FilterOperator, filter: any): this {
-    this.params[`"${column}"`] = `${operator}.${filter}`
+    this.url.searchParams.append(`"${column}"`, `${operator}.${filter}`)
     return this
   }
 
   match(query: { [key: string]: string }) {
     Object.keys(query).forEach((key) => {
-      this.params[`"${key}"`] = `eq.${query[key]}`
+      this.url.searchParams.append(`"${key}"`, `eq.${query[key]}`)
     })
     return this
   }
