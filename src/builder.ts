@@ -203,7 +203,7 @@ type FilterOperator =
 
 class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
   not(column: keyof T, operator: FilterOperator, filter: any): this {
-    this.url.searchParams.append(`"${column}"`, `not.${operator}.${filter}`)
+    this.url.searchParams.append(`${column}`, `not.${operator}.${filter}`)
     return this
   }
 
@@ -213,52 +213,52 @@ class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
   }
 
   eq(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `eq.${value}`)
+    this.url.searchParams.append(`${column}`, `eq.${value}`)
     return this
   }
 
   neq(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `neq.${value}`)
+    this.url.searchParams.append(`${column}`, `neq.${value}`)
     return this
   }
 
   gt(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `gt.${value}`)
+    this.url.searchParams.append(`${column}`, `gt.${value}`)
     return this
   }
 
   gte(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `gte.${value}`)
+    this.url.searchParams.append(`${column}`, `gte.${value}`)
     return this
   }
 
   lt(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `lt.${value}`)
+    this.url.searchParams.append(`${column}`, `lt.${value}`)
     return this
   }
 
   lte(column: keyof T, value: T[keyof T]): this {
-    this.url.searchParams.append(`"${column}"`, `lte.${value}`)
+    this.url.searchParams.append(`${column}`, `lte.${value}`)
     return this
   }
 
   like(column: keyof T, pattern: string): this {
-    this.url.searchParams.append(`"${column}"`, `like.${pattern}`)
+    this.url.searchParams.append(`${column}`, `like.${pattern}`)
     return this
   }
 
   ilike(column: keyof T, pattern: string): this {
-    this.url.searchParams.append(`"${column}"`, `ilike.${pattern}`)
+    this.url.searchParams.append(`${column}`, `ilike.${pattern}`)
     return this
   }
 
   is(column: keyof T, value: boolean | null): this {
-    this.url.searchParams.append(`"${column}"`, `is.${value}`)
+    this.url.searchParams.append(`${column}`, `is.${value}`)
     return this
   }
 
   in(column: keyof T, values: T[keyof T][]): this {
-    this.url.searchParams.append(`"${column}"`, `in.(${cleanFilterArray(values)})`)
+    this.url.searchParams.append(`${column}`, `in.(${cleanFilterArray(values)})`)
     return this
   }
 
@@ -266,13 +266,13 @@ class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
     if (typeof filter === 'string') {
       // range types can be inclusive '[', ']' or exclusive '(', ')' so just
       // keep it simple and accept a string
-      this.url.searchParams.append(`"${column}"`, `cs.${filter}`)
+      this.url.searchParams.append(`${column}`, `cs.${filter}`)
     } else if (Array.isArray(filter)) {
       // array
-      this.url.searchParams.append(`"${column}"`, `cs.{${cleanFilterArray(filter)}}`)
+      this.url.searchParams.append(`${column}`, `cs.{${cleanFilterArray(filter)}}`)
     } else {
       // json
-      this.url.searchParams.append(`"${column}"`, `cs.${JSON.stringify(filter)}`)
+      this.url.searchParams.append(`${column}`, `cs.${JSON.stringify(filter)}`)
     }
     return this
   }
@@ -280,85 +280,85 @@ class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
   cd(column: keyof T, filter: string | T[keyof T][] | object): this {
     if (typeof filter === 'string') {
       // range
-      this.url.searchParams.append(`"${column}"`, `cd.${filter}`)
+      this.url.searchParams.append(`${column}`, `cd.${filter}`)
     } else if (Array.isArray(filter)) {
       // array
-      this.url.searchParams.append(`"${column}"`, `cd.{${cleanFilterArray(filter)}}`)
+      this.url.searchParams.append(`${column}`, `cd.{${cleanFilterArray(filter)}}`)
     } else {
       // json
-      this.url.searchParams.append(`"${column}"`, `cd.${JSON.stringify(filter)}`)
+      this.url.searchParams.append(`${column}`, `cd.${JSON.stringify(filter)}`)
     }
     return this
   }
 
   sl(column: keyof T, range: string): this {
-    this.url.searchParams.append(`"${column}"`, `sl.${range}`)
+    this.url.searchParams.append(`${column}`, `sl.${range}`)
     return this
   }
 
   sr(column: keyof T, range: string): this {
-    this.url.searchParams.append(`"${column}"`, `sr.${range}`)
+    this.url.searchParams.append(`${column}`, `sr.${range}`)
     return this
   }
 
   nxl(column: keyof T, range: string): this {
-    this.url.searchParams.append(`"${column}"`, `nxl.${range}`)
+    this.url.searchParams.append(`${column}`, `nxl.${range}`)
     return this
   }
 
   nxr(column: keyof T, range: string): this {
-    this.url.searchParams.append(`"${column}"`, `nxr.${range}`)
+    this.url.searchParams.append(`${column}`, `nxr.${range}`)
     return this
   }
 
   adj(column: keyof T, range: string): this {
-    this.url.searchParams.append(`"${column}"`, `adj.${range}`)
+    this.url.searchParams.append(`${column}`, `adj.${range}`)
     return this
   }
 
   ov(column: keyof T, filter: string | T[keyof T][]): this {
     if (typeof filter === 'string') {
       // range
-      this.url.searchParams.append(`"${column}"`, `cd.${filter}`)
+      this.url.searchParams.append(`${column}`, `ov.${filter}`)
     } else {
       // array
-      this.url.searchParams.append(`"${column}"`, `cd.{${cleanFilterArray(filter)}}`)
+      this.url.searchParams.append(`${column}`, `ov.{${cleanFilterArray(filter)}}`)
     }
     return this
   }
 
   fts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.url.searchParams.append(`"${column}"`, `fts${configPart}.${query}`)
+    this.url.searchParams.append(`${column}`, `fts${configPart}.${query}`)
     return this
   }
 
   plfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.url.searchParams.append(`"${column}"`, `plfts${configPart}.${query}`)
+    this.url.searchParams.append(`${column}`, `plfts${configPart}.${query}`)
     return this
   }
 
   phfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.url.searchParams.append(`"${column}"`, `phfts${configPart}.${query}`)
+    this.url.searchParams.append(`${column}`, `phfts${configPart}.${query}`)
     return this
   }
 
   wfts(column: keyof T, query: string, { config }: { config?: string } = {}): this {
     const configPart = typeof config === 'undefined' ? '' : `(${config})`
-    this.url.searchParams.append(`"${column}"`, `wfts${configPart}.${query}`)
+    this.url.searchParams.append(`${column}`, `wfts${configPart}.${query}`)
     return this
   }
 
   filter(column: keyof T, operator: FilterOperator, filter: any): this {
-    this.url.searchParams.append(`"${column}"`, `${operator}.${filter}`)
+    this.url.searchParams.append(`${column}`, `${operator}.${filter}`)
     return this
   }
 
   match(query: { [key: string]: string }) {
     Object.keys(query).forEach((key) => {
-      this.url.searchParams.append(`"${key}"`, `eq.${query[key]}`)
+      this.url.searchParams.append(`${key}`, `eq.${query[key]}`)
     })
     return this
   }
