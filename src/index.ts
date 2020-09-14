@@ -19,12 +19,12 @@ export class PostgrestClient {
     return this
   }
 
-  from<T>(table: string): PostgrestQueryBuilder<T> {
+  from<T = any>(table: string): PostgrestQueryBuilder<T> {
     const url = `${this.url}/${table}`
     return new PostgrestQueryBuilder(url, { headers: this.headers, schema: this.schema })
   }
 
-  rpc<T>(fn: string, params?: object): PostgrestBuilder<T> {
+  rpc<T = any>(fn: string, params?: object): PostgrestBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
     return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
       params
