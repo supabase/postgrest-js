@@ -9,10 +9,14 @@ interface PostgrestError {
   code: string
 }
 
-// type PostgrestResponse<T> = T | T[] | PostgrestError
-
-interface PostgrestResponse<T> extends Omit<Response, 'body'> {
-  body: T | T[] | PostgrestError
+// Response format: https://github.com/supabase/supabase-js/issues/32
+interface PostgrestResponse<T> {
+  error: PostgrestError | null
+  data: T | T[] | null
+  status: number
+  statusText: string
+  // For backward compatibility: body === data
+  body: T | T[] | null
 }
 
 /**
@@ -30,7 +34,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<any> {
     Object.assign(this, builder)
   }
 
-  then(onfulfilled?: any, onrejected?: any): Promise<any> {
+  then(onfulfilled?: (value: any) => any, onrejected?: (value: any) => any): Promise<any> {
     // https://postgrest.org/en/stable/api.html#switching-schemas
     if (typeof this.schema === 'undefined') {
       // skip
@@ -49,9 +53,21 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<any> {
       body: JSON.stringify(this.body),
     })
       .then(async (res) => {
-        // HACK: Coerce the type to PostgrestResponse<T>
-        ;(res as any).body = await res.json()
-        return (res as unknown) as PostgrestResponse<T>
+        let error, data
+        if (res.ok) {
+          error = null
+          data = await res.json()
+        } else {
+          error = await res.json()
+          data = null
+        }
+        return {
+          error,
+          data,
+          status: res.status,
+          statusText: res.statusText,
+          body: data,
+        } as PostgrestResponse<T>
       })
       .then(onfulfilled, onrejected)
   }
