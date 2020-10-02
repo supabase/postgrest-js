@@ -595,6 +595,46 @@ Object {
 }
 `;
 
+exports[`on_conflict insert 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
+      "catchphrase": "'fat' 'rat'",
+      "data": null,
+      "status": "ONLINE",
+      "username": "dragarcia",
+    },
+  ],
+  "data": Array [
+    Object {
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
+      "catchphrase": "'fat' 'rat'",
+      "data": null,
+      "status": "ONLINE",
+      "username": "dragarcia",
+    },
+  ],
+  "error": null,
+  "status": 201,
+  "statusText": "Created",
+}
+`;
+
 exports[`stored procedure 1`] = `
 Object {
   "body": "ONLINE",

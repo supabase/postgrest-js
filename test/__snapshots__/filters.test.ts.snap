@@ -301,7 +301,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -331,7 +338,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -369,7 +383,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -399,7 +420,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -574,7 +602,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -597,7 +632,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -628,7 +670,7 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -651,7 +693,7 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -682,7 +724,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -705,7 +754,14 @@ Object {
       "username": "awailas",
     },
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -761,6 +817,13 @@ Object {
       "status": "OFFLINE",
       "username": "kiwicopple",
     },
+    Object {
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
   ],
   "data": Array [
     Object {
@@ -777,6 +840,13 @@ Object {
       "status": "OFFLINE",
       "username": "kiwicopple",
     },
+    Object {
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
   ],
   "error": null,
   "status": 200,
@@ -788,7 +858,14 @@ exports[`ov 1`] = `
 Object {
   "body": Array [
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
@@ -797,7 +874,14 @@ Object {
   ],
   "data": Array [
     Object {
-      "age_range": "[20,30)",
+      "age_range": "[20,26)",
+      "catchphrase": "'bat'",
+      "data": null,
+      "status": "OFFLINE",
+      "username": "izqalan",
+    },
+    Object {
+      "age_range": "[20,31)",
       "catchphrase": "'fat' 'rat'",
       "data": null,
       "status": "ONLINE",
