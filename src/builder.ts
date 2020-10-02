@@ -118,7 +118,6 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param values  The values to insert.
    * @param upsert  If `true`, performs an UPSERT.
    * @param on_conflict By specifying the `on_conflict` query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
-   * { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
    */
   insert(
     values: Partial<T> | Partial<T>[],
