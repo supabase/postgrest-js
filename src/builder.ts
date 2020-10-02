@@ -117,17 +117,17 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    *
    * @param values  The values to insert.
    * @param upsert  If `true`, performs an UPSERT.
-   * @param on_conflict By specifying the `on_conflict` query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+   * @param onConflict By specifying the `on_conflict` query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
    */
   insert(
     values: Partial<T> | Partial<T>[],
-    { upsert = false, on_conflict }: { upsert?: boolean; on_conflict?: string } = {}
+    { upsert = false, onConflict }: { upsert?: boolean; onConflict?: string } = {}
   ): PostgrestBuilder<T> {
     this.method = 'POST'
     this.headers['Prefer'] = upsert
       ? 'return=representation,resolution=merge-duplicates'
       : 'return=representation'
-    if (upsert === true && on_conflict !== undefined) this.url.searchParams.set('on_conflict', on_conflict)
+    if (upsert && onConflict !== undefined) this.url.searchParams.set('on_conflict', onConflict)
     this.body = values
     return this
   }

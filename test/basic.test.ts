@@ -30,12 +30,9 @@ test('switch schema', async () => {
 })
 
 test('on_conflict insert', async () => {
-  let res = await postgrest
+  const res = await postgrest
     .from('users')
-    .insert([
-      { username: 'izqalan', catchphrase: 'bat', status: 'OFFLINE', age_range: [20, 25]},
-      { username: 'dragarcia', catchphrase: "'fat' 'cat'", status: 'OFFLINE', age_range: [20, 30]}
-    ], { upsert: true , on_conflict: 'username'});
+    .insert({ username: 'dragarcia' }, { upsert: true, onConflict: 'username' })
   expect(res).toMatchSnapshot()
 })
 

@@ -599,33 +599,19 @@ exports[`on_conflict insert 1`] = `
 Object {
   "body": Array [
     Object {
-      "age_range": "[20,26)",
-      "catchphrase": "'bat'",
+      "age_range": "[20,30)",
+      "catchphrase": "'fat' 'rat'",
       "data": null,
-      "status": "OFFLINE",
-      "username": "izqalan",
-    },
-    Object {
-      "age_range": "[20,31)",
-      "catchphrase": "'cat' 'fat'",
-      "data": null,
-      "status": "OFFLINE",
+      "status": "ONLINE",
       "username": "dragarcia",
     },
   ],
   "data": Array [
     Object {
-      "age_range": "[20,26)",
-      "catchphrase": "'bat'",
+      "age_range": "[20,30)",
+      "catchphrase": "'fat' 'rat'",
       "data": null,
-      "status": "OFFLINE",
-      "username": "izqalan",
-    },
-    Object {
-      "age_range": "[20,31)",
-      "catchphrase": "'cat' 'fat'",
-      "data": null,
-      "status": "OFFLINE",
+      "status": "ONLINE",
       "username": "dragarcia",
     },
   ],
