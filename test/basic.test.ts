@@ -34,7 +34,7 @@ test('on_conflict insert', async () => {
     .from('users')
     .insert([
       { username: 'izqalan', catchphrase: 'bat', status: 'OFFLINE', age_range: [20, 25]},
-      { username: 'dragarcia', catchphrase: "'fat' 'rat'", status: 'ONLINE', age_range: [20, 30]}
+      { username: 'dragarcia', catchphrase: "'fat' 'cat'", status: 'OFFLINE', age_range: [20, 30]}
     ], { upsert: true , on_conflict: 'username'});
   expect(res).toMatchSnapshot()
 })

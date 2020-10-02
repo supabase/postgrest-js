@@ -52,9 +52,9 @@ Object {
     },
     Object {
       "age_range": "[20,31)",
-      "catchphrase": "'fat' 'rat'",
+      "catchphrase": "'cat' 'fat'",
       "data": null,
-      "status": "ONLINE",
+      "status": "OFFLINE",
       "username": "dragarcia",
     },
     Object {
@@ -89,9 +89,9 @@ Object {
     },
     Object {
       "age_range": "[20,31)",
-      "catchphrase": "'fat' 'rat'",
+      "catchphrase": "'cat' 'fat'",
       "data": null,
-      "status": "ONLINE",
+      "status": "OFFLINE",
       "username": "dragarcia",
     },
     Object {
