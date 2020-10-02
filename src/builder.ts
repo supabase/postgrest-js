@@ -128,10 +128,7 @@ export class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     this.headers['Prefer'] = upsert
       ? 'return=representation,resolution=merge-duplicates'
       : 'return=representation'
-    
     if (upsert === true && on_conflict !== undefined) this.url.searchParams.set('on_conflict', on_conflict)
-    console.log('conflict: '+this.url.toString() + '\nheader: ' + this.headers['Prefer']);
-    console.log(values)
     this.body = values
     return this
   }
