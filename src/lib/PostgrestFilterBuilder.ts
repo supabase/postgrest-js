@@ -1,6 +1,4 @@
-
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
-
 
 /**
  * Filters

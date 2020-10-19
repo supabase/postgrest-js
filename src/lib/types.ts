@@ -26,7 +26,6 @@ interface PostgrestResponse<T> {
   body: T | T[] | null
 }
 
-
 export abstract class PostgrestBuilder<T> implements PromiseLike<any> {
   method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
   url!: URL
