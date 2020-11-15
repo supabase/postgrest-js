@@ -81,7 +81,8 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
         let error, data
         if (res.ok) {
           error = null
-          data = await res.json()
+          const isReturnMinimal = this.headers['Prefer']?.split(',').includes('return=minimal')
+          data = isReturnMinimal ? null : await res.json()
         } else {
           error = await res.json()
           data = null

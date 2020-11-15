@@ -131,3 +131,10 @@ test('allow ordering on JSON column', async () => {
   const { data } = await postgrest.from('users').select().order('data->something')
   expect(data).toMatchSnapshot()
 })
+
+test('Prefer: return=minimal', async () => {
+  const { data } = await postgrest.from('users').insert({ username: 'bar' }, { returnInserted: false })
+  expect(data).toMatchSnapshot()
+
+  await postgrest.from('users').delete().eq('username', 'bar')
+})

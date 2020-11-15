@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Prefer: return=minimal 1`] = `null`;
+
 exports[`allow ordering on JSON column 1`] = `
 Array [
   Object {
