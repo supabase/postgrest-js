@@ -47,7 +47,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param values  The values to insert.
    * @param upsert  If `true`, performs an UPSERT.
    * @param onConflict  By specifying the `on_conflict` query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
-   * @param returning  If `true`, return the inserted row(s) in the response.
+   * @param returning By default the new record is returned. Set this to 'minimal' if you don't need this value.
    */
   insert(
     values: Partial<T> | Partial<T>[],
@@ -67,7 +67,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     prefersHeaders.push(`return=${returning}`)
     if (upsert) prefersHeaders.push('resolution=merge-duplicates')
     this.headers['Prefer'] = prefersHeaders.join(',')
-    
+
     if (upsert && onConflict !== undefined) this.url.searchParams.set('on_conflict', onConflict)
     this.body = values
     return new PostgrestFilterBuilder(this)
@@ -77,11 +77,11 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * Performs an UPDATE on the table.
    *
    * @param values  The values to update.
-   * @param returnUpdated  If `true`, return the updated row(s) in the response.
+   * @param returning By default the updated record is returned. Set this to 'minimal' if you don't need this value.
    */
-  update(values: Partial<T>, { returnUpdated = true } = {}): PostgrestFilterBuilder<T> {
+  update(values: Partial<T>, { returning = 'representation' } = {}): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
-    this.headers['Prefer'] = `return=${returnUpdated ? 'representation' : 'minimal'}`
+    this.headers['Prefer'] = `return=${returning}`
     this.body = values
     return new PostgrestFilterBuilder(this)
   }
