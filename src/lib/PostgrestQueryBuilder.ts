@@ -79,7 +79,10 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param values  The values to update.
    * @param returning  By default the updated record is returned. Set this to 'minimal' if you don't need this value.
    */
-  update(values: Partial<T>, { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
+  update(
+    values: Partial<T>,
+    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}
+  ): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
     this.headers['Prefer'] = `return=${returning}`
     this.body = values
@@ -91,7 +94,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    *
    * @param returning  If `true`, return the deleted row(s) in the response.
    */
-  delete({ returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
+  delete({
+    returning = 'representation',
+  }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
     this.headers['Prefer'] = `return=${returning}`
     return new PostgrestFilterBuilder(this)
