@@ -133,7 +133,9 @@ test('allow ordering on JSON column', async () => {
 })
 
 test('Prefer: return=minimal', async () => {
-  const { data } = await postgrest.from('users').insert({ username: 'bar' }, { returning: 'minimal' })
+  const { data } = await postgrest
+    .from('users')
+    .insert({ username: 'bar' }, { returning: 'minimal' })
   expect(data).toMatchSnapshot()
 
   await postgrest.from('users').delete().eq('username', 'bar')

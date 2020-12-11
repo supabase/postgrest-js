@@ -47,7 +47,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param values  The values to insert.
    * @param upsert  If `true`, performs an UPSERT.
    * @param onConflict  By specifying the `on_conflict` query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
-   * @param returning By default the new record is returned. Set this to 'minimal' if you don't need this value.
+   * @param returning  By default the new record is returned. Set this to 'minimal' if you don't need this value.
    */
   insert(
     values: Partial<T> | Partial<T>[],
@@ -58,7 +58,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     }: {
       upsert?: boolean
       onConflict?: string
-      returning?: 'representation' | 'minimal'
+      returning?: 'minimal' | 'representation'
     } = {}
   ): PostgrestFilterBuilder<T> {
     this.method = 'POST'
@@ -77,9 +77,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * Performs an UPDATE on the table.
    *
    * @param values  The values to update.
-   * @param returning By default the updated record is returned. Set this to 'minimal' if you don't need this value.
+   * @param returning  By default the updated record is returned. Set this to 'minimal' if you don't need this value.
    */
-  update(values: Partial<T>, { returning = 'representation' } = {}): PostgrestFilterBuilder<T> {
+  update(values: Partial<T>, { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
     this.headers['Prefer'] = `return=${returning}`
     this.body = values
@@ -89,11 +89,11 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
   /**
    * Performs a DELETE on the table.
    *
-   * @param returnDeleted  If `true`, return the deleted row(s) in the response.
+   * @param returning  If `true`, return the deleted row(s) in the response.
    */
-  delete({ returning = 'representation' } = {}): PostgrestFilterBuilder<T> {
+  delete({ returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
-    this.headers['Prefer'] = `return=${returnDeleted ? 'representation' : 'minimal'}`
+    this.headers['Prefer'] = `return=${returning}`
     return new PostgrestFilterBuilder(this)
   }
 

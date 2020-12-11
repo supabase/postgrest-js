@@ -40,7 +40,9 @@ interface PostgrestSingleResponseSuccess<T> extends PostgrestResponseBase {
   // For backward compatibility: body === data
   body: T
 }
-export type PostgrestSingleResponse<T> = PostgrestSingleResponseSuccess<T> | PostgrestResponseFailure
+export type PostgrestSingleResponse<T> =
+  | PostgrestSingleResponseSuccess<T>
+  | PostgrestResponseFailure
 
 export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestResponse<T>> {
   protected method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
