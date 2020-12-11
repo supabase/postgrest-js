@@ -91,7 +91,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    *
    * @param returnDeleted  If `true`, return the deleted row(s) in the response.
    */
-  delete({ returnDeleted = true } = {}): PostgrestFilterBuilder<T> {
+  delete({ returning = 'representation' } = {}): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
     this.headers['Prefer'] = `return=${returnDeleted ? 'representation' : 'minimal'}`
     return new PostgrestFilterBuilder(this)
