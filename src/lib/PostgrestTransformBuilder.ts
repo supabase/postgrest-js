@@ -1,7 +1,5 @@
 import { PostgrestBuilder, PostgrestSingleResponse } from './types'
 
-type CountMethod = 'exact' | 'planned' | 'estimated'
-
 /**
  * Post-filters (transforms)
  */
@@ -11,10 +9,8 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * Performs vertical filtering with SELECT.
    *
    * @param columns  The columns to retrieve, separated by commas.
-   * @param head  When set to true, select will void data.
-   * @param count  Count algorithm to use to count rows in a table.
    */
-  select(columns = '*', { head, count }: { head?: boolean; count?: CountMethod } = {}): this {
+  select(columns = '*'): this {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = columns
@@ -30,11 +26,6 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
       })
       .join('')
     this.url.searchParams.set('select', cleanedColumns)
-
-    if (count) {
-      // TODO append prefer header
-      // this.headers['Prefer'] += `count=${count}`
-    }
     return this
   }
 

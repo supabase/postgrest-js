@@ -17,8 +17,13 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * Performs vertical filtering with SELECT.
    *
    * @param columns  The columns to retrieve, separated by commas.
+   * @param head  When set to true, select will void data.
+   * @param count  Count algorithm to use to count rows in a table.
    */
-  select(columns = '*'): PostgrestFilterBuilder<T> {
+  select(
+    columns = '*',
+    { head, count }: { head?: boolean; count?: 'exact' | 'planned' | 'estimated' } = {}
+  ): PostgrestFilterBuilder<T> {
     this.method = 'GET'
     // Remove whitespaces except when quoted
     let quoted = false
@@ -35,6 +40,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       })
       .join('')
     this.url.searchParams.set('select', cleanedColumns)
+    if (count) {
+      this.headers['Prefer'] = `count=${count}`
+    }
     return new PostgrestFilterBuilder(this)
   }
 
