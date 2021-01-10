@@ -27,6 +27,7 @@ Object {
       "username": "awailas",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -114,6 +115,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 2,
@@ -161,6 +163,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -194,6 +197,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -234,6 +238,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -288,6 +293,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 2,
@@ -356,6 +362,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -417,6 +424,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -478,6 +486,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -532,6 +541,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 2,
@@ -572,6 +582,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -633,6 +644,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -680,6 +692,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -706,6 +719,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -747,6 +761,7 @@ Object {
       "messages": Array [],
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "messages": Array [
@@ -806,6 +821,7 @@ Object {
       "messages": Array [],
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "messages": Array [
@@ -865,6 +881,7 @@ Object {
       "messages": Array [],
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "messages": Array [
@@ -924,6 +941,7 @@ Object {
       "messages": Array [],
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "messages": Array [
@@ -983,6 +1001,7 @@ Object {
       "messages": Array [],
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "messages": Array [
@@ -1022,6 +1041,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1048,6 +1068,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1074,6 +1095,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1100,6 +1122,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 2,
@@ -1133,6 +1156,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -1166,6 +1190,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1213,6 +1238,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1281,6 +1307,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1328,6 +1355,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1354,6 +1382,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1380,6 +1409,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -1413,6 +1443,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "channel_id": 1,
@@ -1446,6 +1477,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1464,6 +1496,7 @@ Object {
 exports[`missing table 1`] = `
 Object {
   "body": null,
+  "count": null,
   "data": null,
   "error": Object {
     "code": "42P01",
@@ -1487,6 +1520,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1527,6 +1561,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[25,35)",
@@ -1581,6 +1616,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1635,6 +1671,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[25,35)",
@@ -1675,6 +1712,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1701,6 +1739,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[20,30)",
@@ -1734,6 +1773,7 @@ Object {
       "username": "kiwicopple",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1788,6 +1828,7 @@ Object {
       "username": "awailas",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1835,6 +1876,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[20,30)",
@@ -1868,6 +1910,7 @@ Object {
       "username": "kiwicopple",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1901,6 +1944,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -1941,6 +1985,7 @@ Object {
       "username": "dragarcia",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[25,35)",
@@ -1977,6 +2022,7 @@ Object {
       "status": "ONLINE",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "status": "ONLINE",
@@ -1995,6 +2041,7 @@ Object {
       "status": "ONLINE",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "status": "ONLINE",
@@ -2015,6 +2062,7 @@ Object {
     "status": "ONLINE",
     "username": "supabot",
   },
+  "count": null,
   "data": Object {
     "age_range": "[1,2)",
     "catchphrase": "'cat' 'fat'",
@@ -2037,6 +2085,7 @@ Object {
     "status": "ONLINE",
     "username": "foo",
   },
+  "count": null,
   "data": Object {
     "age_range": null,
     "catchphrase": null,
@@ -2061,6 +2110,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -2094,6 +2144,7 @@ Object {
       "username": "awailas",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[25,35)",
@@ -2119,6 +2170,7 @@ Object {
 exports[`stored procedure 1`] = `
 Object {
   "body": "ONLINE",
+  "count": null,
   "data": "ONLINE",
   "error": null,
   "status": 200,
@@ -2160,6 +2212,7 @@ Object {
       "username": "leroyjenkins",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
@@ -2209,6 +2262,7 @@ Object {
       "username": "supabot",
     },
   ],
+  "count": null,
   "data": Array [
     Object {
       "age_range": "[1,2)",
