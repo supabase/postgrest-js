@@ -43,6 +43,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     if (count) {
       this.headers['Prefer'] = `count=${count}`
     }
+    if (head) {
+      this.method = 'HEAD'
+    }
     return new PostgrestFilterBuilder(this)
   }
 
