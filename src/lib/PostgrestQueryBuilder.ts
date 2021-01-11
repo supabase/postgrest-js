@@ -22,7 +22,13 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    */
   select(
     columns = '*',
-    { head, count }: { head?: boolean; count?: 'exact' | 'planned' | 'estimated' } = {}
+    {
+      head = false,
+      count = null,
+    }: {
+      head?: boolean
+      count?: null | 'exact' | 'planned' | 'estimated'
+    } = {}
   ): PostgrestFilterBuilder<T> {
     this.method = 'GET'
     // Remove whitespaces except when quoted
