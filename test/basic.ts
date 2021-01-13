@@ -140,3 +140,28 @@ test('Prefer: return=minimal', async () => {
 
   await postgrest.from('users').delete().eq('username', 'bar')
 })
+
+test('select with head:true', async () => {
+  const res = await postgrest.from('users').select('*', { head: true })
+  expect(res).toMatchSnapshot()
+})
+
+test('select with head:true, count:exact', async () => {
+  const res = await postgrest.from('users').select('*', { head: true, count: 'exact' })
+  expect(res).toMatchSnapshot()
+})
+
+test('select with head:true, count:planned', async () => {
+  const res = await postgrest.from('users').select('*', { head: true, count: 'planned' })
+  expect(res).toMatchSnapshot()
+})
+
+test('select with head:true, count:estimated', async () => {
+  const res = await postgrest.from('users').select('*', { head: true, count: 'estimated' })
+  expect(res).toMatchSnapshot()
+})
+
+test('select with count:exact', async () => {
+  const res = await postgrest.from('users').select('*', { count: 'exact' })
+  expect(res).toMatchSnapshot()
+})
