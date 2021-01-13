@@ -73,6 +73,11 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       upsert?: boolean
       onConflict?: string
       returning?: 'minimal' | 'representation'
+    } = {},
+    {
+      count = null,
+    }: {
+      count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
     this.method = 'POST'
@@ -84,6 +89,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
 
     if (upsert && onConflict !== undefined) this.url.searchParams.set('on_conflict', onConflict)
     this.body = values
+    if (count) {
+      this.headers['Prefer'] = `count=${count}`
+    }
     return new PostgrestFilterBuilder(this)
   }
 
@@ -95,11 +103,19 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    */
   update(
     values: Partial<T>,
-    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {}
+    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {},
+    {
+      count = null,
+    }: {
+      count?: null | 'exact' | 'planned' | 'estimated'
+    } = {}
   ): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
     this.headers['Prefer'] = `return=${returning}`
     this.body = values
+    if (count) {
+      this.headers['Prefer'] = `count=${count}`
+    }
     return new PostgrestFilterBuilder(this)
   }
 
@@ -108,18 +124,41 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    *
    * @param returning  If `true`, return the deleted row(s) in the response.
    */
-  delete({
-    returning = 'representation',
-  }: { returning?: 'minimal' | 'representation' } = {}): PostgrestFilterBuilder<T> {
+  delete(
+    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {},
+    {
+      count = null,
+    }: {
+      count?: null | 'exact' | 'planned' | 'estimated'
+    } = {}
+  ): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
     this.headers['Prefer'] = `return=${returning}`
+    if (count) {
+      this.headers['Prefer'] = `count=${count}`
+    }
     return new PostgrestFilterBuilder(this)
   }
 
   /** @internal */
-  rpc(params?: object): PostgrestTransformBuilder<T> {
+  rpc(
+    params?: object,
+    {
+      head = false,
+      count = null,
+    }: {
+      head?: boolean
+      count?: null | 'exact' | 'planned' | 'estimated'
+    } = {}
+  ): PostgrestTransformBuilder<T> {
     this.method = 'POST'
     this.body = params
+    if (count) {
+      this.headers['Prefer'] = `count=${count}`
+    }
+    if (head) {
+      this.method = 'HEAD'
+    }
     return new PostgrestTransformBuilder(this)
   }
 }
