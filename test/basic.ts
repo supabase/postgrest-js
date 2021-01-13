@@ -165,3 +165,61 @@ test('select with count:exact', async () => {
   const res = await postgrest.from('users').select('*', { count: 'exact' })
   expect(res).toMatchSnapshot()
 })
+
+describe("insert, update, delete with count: 'exact'", () => {
+  test("insert with count: 'exact'", async () => {
+    let res = await postgrest
+      .from('messages')
+      .insert({ message: 'foo', username: 'supabot', channel_id: 1 }, { count: 'exact' })
+    expect(res).toMatchSnapshot()
+
+    res = await postgrest.from('messages').select()
+    expect(res).toMatchSnapshot()
+  })
+
+  test("upsert with count: 'exact'", async () => {
+    let res = await postgrest
+      .from('messages')
+      .insert(
+        { id: 3, message: 'foo', username: 'supabot', channel_id: 2 },
+        { upsert: true, count: 'exact' }
+      )
+    expect(res).toMatchSnapshot()
+
+    res = await postgrest.from('messages').select()
+    expect(res).toMatchSnapshot()
+  })
+
+  test("bulk insert with count: 'exact'", async () => {
+    let res = await postgrest.from('messages').insert(
+      [
+        { message: 'foo', username: 'supabot', channel_id: 1 },
+        { message: 'foo', username: 'supabot', channel_id: 1 },
+      ],
+      { count: 'exact' }
+    )
+    expect(res).toMatchSnapshot()
+
+    res = await postgrest.from('messages').select()
+    expect(res).toMatchSnapshot()
+  })
+
+  test("update with count: 'exact'", async () => {
+    let res = await postgrest
+      .from('messages')
+      .update({ channel_id: 2 }, { count: 'exact' })
+      .eq('message', 'foo')
+    expect(res).toMatchSnapshot()
+
+    res = await postgrest.from('messages').select()
+    expect(res).toMatchSnapshot()
+  })
+
+  test('basic delete', async () => {
+    let res = await postgrest.from('messages').delete().eq('message', 'foo')
+    expect(res).toMatchSnapshot()
+
+    res = await postgrest.from('messages').select()
+    expect(res).toMatchSnapshot()
+  })
+})

@@ -69,14 +69,11 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       upsert = false,
       onConflict,
       returning = 'representation',
+      count = null,
     }: {
       upsert?: boolean
       onConflict?: string
       returning?: 'minimal' | 'representation'
-    } = {},
-    {
-      count = null,
-    }: {
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
@@ -90,7 +87,8 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     if (upsert && onConflict !== undefined) this.url.searchParams.set('on_conflict', onConflict)
     this.body = values
     if (count) {
-      this.headers['Prefer'] = `count=${count}`
+      prefersHeaders.push(`count=${count}`)
+      this.headers['Prefer'] = prefersHeaders.join(',')
     }
     return new PostgrestFilterBuilder(this)
   }
@@ -103,18 +101,22 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    */
   update(
     values: Partial<T>,
-    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {},
     {
+      returning = 'representation',
       count = null,
     }: {
+      returning?: 'minimal' | 'representation'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
-    this.headers['Prefer'] = `return=${returning}`
+    let prefersHeaders = []
+    prefersHeaders.push(`return=${returning}`)
+    this.headers['Prefer'] = prefersHeaders.join(',')
     this.body = values
     if (count) {
-      this.headers['Prefer'] = `count=${count}`
+      prefersHeaders.push(`count=${count}`)
+      this.headers['Prefer'] = prefersHeaders.join(',')
     }
     return new PostgrestFilterBuilder(this)
   }
@@ -124,18 +126,20 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    *
    * @param returning  If `true`, return the deleted row(s) in the response.
    */
-  delete(
-    { returning = 'representation' }: { returning?: 'minimal' | 'representation' } = {},
-    {
-      count = null,
-    }: {
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+  delete({
+    returning = 'representation',
+    count = null,
+  }: {
+    returning?: 'minimal' | 'representation'
+    count?: null | 'exact' | 'planned' | 'estimated'
+  } = {}): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
-    this.headers['Prefer'] = `return=${returning}`
+    let prefersHeaders = []
+    prefersHeaders.push(`return=${returning}`)
+    this.headers['Prefer'] = prefersHeaders.join(',')
     if (count) {
-      this.headers['Prefer'] = `count=${count}`
+      prefersHeaders.push(`count=${count}`)
+      this.headers['Prefer'] = prefersHeaders.join(',')
     }
     return new PostgrestFilterBuilder(this)
   }

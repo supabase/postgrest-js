@@ -1275,6 +1275,598 @@ Object {
 }
 `;
 
+exports[`insert, update, delete with count: 'exact' basic delete 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' basic delete 2`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' bulk insert with count: 'exact' 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": 2,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 201,
+  "statusText": "Created",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' bulk insert with count: 'exact' 2`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' insert with count: 'exact' 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": 1,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 201,
+  "statusText": "Created",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' insert with count: 'exact' 2`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' update with count: 'exact' 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": 4,
+  "data": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' update with count: 'exact' 2`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 7,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 8,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' upsert with count: 'exact' 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": 1,
+  "data": Array [
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 201,
+  "statusText": "Created",
+}
+`;
+
+exports[`insert, update, delete with count: 'exact' upsert with count: 'exact' 2`] = `
+Object {
+  "body": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "count": null,
+  "data": Array [
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 1,
+      "message": "Hello World 👋",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 2,
+      "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 1,
+      "data": null,
+      "id": 6,
+      "message": "foo",
+      "username": "supabot",
+    },
+    Object {
+      "channel_id": 2,
+      "data": null,
+      "id": 3,
+      "message": "foo",
+      "username": "supabot",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
 exports[`is 1`] = `
 Object {
   "body": Array [
