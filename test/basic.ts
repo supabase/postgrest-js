@@ -166,6 +166,20 @@ test('select with count:exact', async () => {
   expect(res).toMatchSnapshot()
 })
 
+test("stored procedure with count: 'exact'", async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot', count: 'exact' })
+  expect(res).toMatchSnapshot()
+})
+
+test("stored procedure with count: 'exact', head: true", async () => {
+  const res = await postgrest.rpc('get_status', {
+    name_param: 'supabot',
+    count: 'exact',
+    head: true,
+  })
+  expect(res).toMatchSnapshot()
+})
+
 describe("insert, update, delete with count: 'exact'", () => {
   test("insert with count: 'exact'", async () => {
     let res = await postgrest
@@ -215,8 +229,8 @@ describe("insert, update, delete with count: 'exact'", () => {
     expect(res).toMatchSnapshot()
   })
 
-  test('basic delete', async () => {
-    let res = await postgrest.from('messages').delete().eq('message', 'foo')
+  test("basic delete count: 'exact'", async () => {
+    let res = await postgrest.from('messages').delete({ count: 'exact' }).eq('message', 'foo')
     expect(res).toMatchSnapshot()
 
     res = await postgrest.from('messages').select()
