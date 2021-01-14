@@ -153,12 +153,16 @@ test('select with head:true, count:exact', async () => {
 
 test('select with head:true, count:planned', async () => {
   const res = await postgrest.from('users').select('*', { head: true, count: 'planned' })
-  expect(res).toMatchSnapshot()
+  expect(res).toMatchSnapshot({
+    count: expect.any(Number),
+  })
 })
 
 test('select with head:true, count:estimated', async () => {
   const res = await postgrest.from('users').select('*', { head: true, count: 'estimated' })
-  expect(res).toMatchSnapshot()
+  expect(res).toMatchSnapshot({
+    count: expect.any(Number),
+  })
 })
 
 test('select with count:exact', async () => {

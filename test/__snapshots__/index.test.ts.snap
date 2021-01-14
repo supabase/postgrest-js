@@ -2728,7 +2728,7 @@ Object {
 exports[`select with head:true, count:estimated 1`] = `
 Object {
   "body": null,
-  "count": 510,
+  "count": Any<Number>,
   "data": null,
   "error": null,
   "status": 206,
@@ -2750,7 +2750,7 @@ Object {
 exports[`select with head:true, count:planned 1`] = `
 Object {
   "body": null,
-  "count": 510,
+  "count": Any<Number>,
   "data": null,
   "error": null,
   "status": 206,
