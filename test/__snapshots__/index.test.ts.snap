@@ -2645,6 +2645,51 @@ Object {
 }
 `;
 
+exports[`select with array columns 1`] = `
+Object {
+  "body": Array [
+    Object {
+      "age_range": "[1,2)",
+      "username": "supabot",
+    },
+    Object {
+      "age_range": "[25,35)",
+      "username": "kiwicopple",
+    },
+    Object {
+      "age_range": "[25,35)",
+      "username": "awailas",
+    },
+    Object {
+      "age_range": "[20,30)",
+      "username": "dragarcia",
+    },
+  ],
+  "count": 4,
+  "data": Array [
+    Object {
+      "age_range": "[1,2)",
+      "username": "supabot",
+    },
+    Object {
+      "age_range": "[25,35)",
+      "username": "kiwicopple",
+    },
+    Object {
+      "age_range": "[25,35)",
+      "username": "awailas",
+    },
+    Object {
+      "age_range": "[20,30)",
+      "username": "dragarcia",
+    },
+  ],
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
 exports[`select with count:exact 1`] = `
 Object {
   "body": Array [

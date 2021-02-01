@@ -114,17 +114,14 @@ describe('types', () => {
   describe('without schema', () => {
     test('everything works without any types passed in', async () => {
       // eq should show User's properties in LSP/IntelliSense
-      const { data: users } = await postgrest
-        .from('users')
-        .select()
-        .eq('username', 'supabot')
+      const { data: users } = await postgrest.from('users').select().eq('username', 'supabot')
 
       // Should not error on any property
-      users?.[0].username
-      users?.[0].somethingElse
+      users[0].username
+      users[0].somethingElse
 
       // Should not error when using properties
-      const username: string = users?.[0].username
+      const username: string = users[0].username
     })
   })
 
@@ -163,15 +160,15 @@ describe('types', () => {
       const { data: users } = await typedClient.from('users').select('*').eq('username', 'supabot')
 
       // Should not error on any property
-      users?.[0].username
+      users[0].username
       // Should error on incorrect property
       // @ts-expect-error
-      users?.[0].somethingElse
+      users[0].somethingElse
 
       // Returns correct types
-      const username: string = users![0].username
+      const username: string = users[0].username
       // @ts-expect-error
-      const notUsername: number = users![0].catchphrase
+      const notUsername: number = users[0].catchphrase
     })
   })
 })
@@ -222,6 +219,11 @@ test('select with head:true, count:estimated', async () => {
 
 test('select with count:exact', async () => {
   const res = await postgrest.from('users').select('*', { count: 'exact' })
+  expect(res).toMatchSnapshot()
+})
+
+test('select with array columns', async () => {
+  const res = await postgrest.from('users').select(['username', 'age_range'], { count: 'exact' })
   expect(res).toMatchSnapshot()
 })
 
