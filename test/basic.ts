@@ -116,7 +116,7 @@ describe('types', () => {
       // eq should show User's properties in LSP/IntelliSense
       const { data: users } = await postgrest
         .from('users')
-        .select('username')
+        .select()
         .eq('username', 'supabot')
 
       // Should not error on any property

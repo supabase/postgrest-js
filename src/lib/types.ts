@@ -54,7 +54,7 @@ export type PostgrestSingleResponse<T> =
   | PostgrestSingleResponseSuccess<T>
   | PostgrestResponseFailure
 
-export abstract class PostgrestBuilder<T extends Record<string, unknown>>
+export abstract class PostgrestBuilder<T extends TableBase>
   implements PromiseLike<PostgrestResponse<T>> {
   protected method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
   protected url!: URL

@@ -1,10 +1,10 @@
-import { PostgrestBuilder, PostgrestSingleResponse } from './types'
+import { PostgrestBuilder, PostgrestSingleResponse, TableBase } from './types'
 
 /**
  * Post-filters (transforms)
  */
 
-export default class PostgrestTransformBuilder<T extends Record<string, unknown>> extends PostgrestBuilder<T> {
+export default class PostgrestTransformBuilder<T extends TableBase> extends PostgrestBuilder<T> {
   /**
    * Performs vertical filtering with SELECT.
    *

@@ -2,12 +2,12 @@ import { PostgrestBuilder, TableBase } from './types'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
 
-export default class PostgrestQueryBuilder<Type extends TableBase> extends PostgrestBuilder<Type> {
+export default class PostgrestQueryBuilder<T extends TableBase> extends PostgrestBuilder<T> {
   constructor(
     url: string,
     { headers = {}, schema }: { headers?: Record<string, string>; schema?: string } = {}
   ) {
-    super({} as PostgrestBuilder<Type>)
+    super({} as PostgrestBuilder<T>)
     this.url = new URL(url)
     this.headers = { ...headers }
     this.schema = schema
@@ -21,7 +21,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
    * @param count  Count algorithm to use to count rows in a table.
    */
   select(
-    columns: '*' | string | keyof Type | Array<keyof Type> = '*',
+    columns: '*' | string | keyof T | Array<keyof T> = '*',
     {
       head = false,
       count = null,
@@ -29,7 +29,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
       head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Type> {
+  ): PostgrestFilterBuilder<T> {
     this.method = 'GET'
 
     if (Array.isArray(columns)) {
@@ -72,7 +72,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
    * @param returning  By default the new record is returned. Set this to 'minimal' if you don't need this value.
    */
   insert(
-    values: Partial<Type> | Partial<Type>[],
+    values: Partial<T> | Partial<T>[],
     {
       upsert = false,
       onConflict,
@@ -84,7 +84,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
       returning?: 'minimal' | 'representation'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Type> {
+  ): PostgrestFilterBuilder<T> {
     this.method = 'POST'
 
     let prefersHeaders = []
@@ -109,7 +109,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
    * @param returning  By default the updated record is returned. Set this to 'minimal' if you don't need this value.
    */
   update(
-    values: Partial<Type>,
+    values: Partial<T>,
     {
       returning = 'representation',
       count = null,
@@ -117,7 +117,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
       returning?: 'minimal' | 'representation'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Type> {
+  ): PostgrestFilterBuilder<T> {
     this.method = 'PATCH'
     let prefersHeaders = []
     prefersHeaders.push(`return=${returning}`)
@@ -140,7 +140,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
   }: {
     returning?: 'minimal' | 'representation'
     count?: null | 'exact' | 'planned' | 'estimated'
-  } = {}): PostgrestFilterBuilder<Type> {
+  } = {}): PostgrestFilterBuilder<T> {
     this.method = 'DELETE'
     let prefersHeaders = []
     prefersHeaders.push(`return=${returning}`)
@@ -161,7 +161,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
       head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestTransformBuilder<Type> {
+  ): PostgrestTransformBuilder<T> {
     this.method = 'POST'
     this.body = params
     if (count) {
