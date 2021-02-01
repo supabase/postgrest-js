@@ -4,7 +4,7 @@ import PostgrestTransformBuilder from './PostgrestTransformBuilder'
  * Filters
  */
 
-const cleanFilterArray = <T>(filter: T[keyof T][]) => filter.map((s) => `"${s}"`).join(',')
+const cleanFilterArray = <T extends Record<string, unknown>>(filter: T[keyof T][]) => filter.map((s) => `"${s}"`).join(',')
 
 type FilterOperator =
   | 'eq'
@@ -30,7 +30,7 @@ type FilterOperator =
   | 'phfts'
   | 'wfts'
 
-export default class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder<T> {
+export default class PostgrestFilterBuilder<T extends Record<string, unknown>> extends PostgrestTransformBuilder<T> {
   /**
    * Finds all rows which doesn't satisfy the filter.
    *

@@ -1,13 +1,13 @@
-import { PostgrestBuilder } from './types'
+import { PostgrestBuilder, TableBase } from './types'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
 
-export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
+export default class PostgrestQueryBuilder<Type extends TableBase> extends PostgrestBuilder<Type> {
   constructor(
     url: string,
-    { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
+    { headers = {}, schema }: { headers?: Record<string, string>; schema?: string } = {}
   ) {
-    super({} as PostgrestBuilder<T>)
+    super({} as PostgrestBuilder<Type>)
     this.url = new URL(url)
     this.headers = { ...headers }
     this.schema = schema
@@ -21,7 +21,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param count  Count algorithm to use to count rows in a table.
    */
   select(
-    columns = '*',
+    columns: '*' | keyof Type | Array<keyof Type> = '*',
     {
       head = false,
       count = null,
@@ -29,11 +29,16 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<T> {
+  ): PostgrestFilterBuilder<Type> {
     this.method = 'GET'
+
+    if (Array.isArray(columns)) {
+      columns = columns.join(',')
+    }
+
     // Remove whitespaces except when quoted
     let quoted = false
-    const cleanedColumns = columns
+    const cleanedColumns = (columns as string)
       .split('')
       .map((c) => {
         if (/\s/.test(c) && !quoted) {
@@ -46,12 +51,15 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       })
       .join('')
     this.url.searchParams.set('select', cleanedColumns)
+
     if (count) {
       this.headers['Prefer'] = `count=${count}`
     }
+
     if (head) {
       this.method = 'HEAD'
     }
+
     return new PostgrestFilterBuilder(this)
   }
 
@@ -64,7 +72,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param returning  By default the new record is returned. Set this to 'minimal' if you don't need this value.
    */
   insert(
-    values: Partial<T> | Partial<T>[],
+    values: Partial<Type> | Partial<Type>[],
     {
       upsert = false,
       onConflict,
@@ -76,7 +84,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       returning?: 'minimal' | 'representation'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<T> {
+  ): PostgrestFilterBuilder<Type> {
     this.method = 'POST'
 
     let prefersHeaders = []
@@ -88,9 +96,9 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
     if (count) {
       prefersHeaders.push(`count=${count}`)
     }
-    
+
     this.headers['Prefer'] = prefersHeaders.join(',')
-      
+
     return new PostgrestFilterBuilder(this)
   }
 
@@ -101,7 +109,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param returning  By default the updated record is returned. Set this to 'minimal' if you don't need this value.
    */
   update(
-    values: Partial<T>,
+    values: Partial<Type>,
     {
       returning = 'representation',
       count = null,
@@ -109,7 +117,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       returning?: 'minimal' | 'representation'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<T> {
+  ): PostgrestFilterBuilder<Type> {
     this.method = 'PATCH'
     let prefersHeaders = []
     prefersHeaders.push(`return=${returning}`)
@@ -132,7 +140,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
   }: {
     returning?: 'minimal' | 'representation'
     count?: null | 'exact' | 'planned' | 'estimated'
-  } = {}): PostgrestFilterBuilder<T> {
+  } = {}): PostgrestFilterBuilder<Type> {
     this.method = 'DELETE'
     let prefersHeaders = []
     prefersHeaders.push(`return=${returning}`)
@@ -153,7 +161,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
       head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestTransformBuilder<T> {
+  ): PostgrestTransformBuilder<Type> {
     this.method = 'POST'
     this.body = params
     if (count) {

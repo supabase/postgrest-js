@@ -4,7 +4,7 @@ import { PostgrestBuilder, PostgrestSingleResponse } from './types'
  * Post-filters (transforms)
  */
 
-export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
+export default class PostgrestTransformBuilder<T extends Record<string, unknown>> extends PostgrestBuilder<T> {
   /**
    * Performs vertical filtering with SELECT.
    *

@@ -1,7 +1,8 @@
 import PostgrestQueryBuilder from './lib/PostgrestQueryBuilder'
 import PostgrestTransformBuilder from './lib/PostgrestTransformBuilder'
+import { SchemaBase, TableBase } from './lib/types'
 
-export default class PostgrestClient {
+export default class PostgrestClient<Schema extends SchemaBase = SchemaBase> {
   url: string
   headers: { [key: string]: string }
   schema?: string
@@ -37,9 +38,13 @@ export default class PostgrestClient {
    *
    * @param table  The table name to operate on.
    */
-  from<T = any>(table: string): PostgrestQueryBuilder<T> {
+  from<Type extends TableBase>(table: string): PostgrestQueryBuilder<Type>
+  from<Key extends keyof Schema>(table: Key): PostgrestQueryBuilder<Schema[Key]> {
     const url = `${this.url}/${table}`
-    return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema })
+    return new PostgrestQueryBuilder<Schema[Key]>(url, {
+      headers: this.headers,
+      schema: this.schema,
+    })
   }
 
   /**
@@ -48,10 +53,11 @@ export default class PostgrestClient {
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
    */
-  rpc<T = any>(fn: string, params?: object): PostgrestTransformBuilder<T> {
+  rpc<Type extends TableBase>(fn: string, params?: object): PostgrestTransformBuilder<Type> {
     const url = `${this.url}/rpc/${fn}`
-    return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
-      params
-    )
+    return new PostgrestQueryBuilder<Type>(url, {
+      headers: this.headers,
+      schema: this.schema,
+    }).rpc(params)
   }
 }
