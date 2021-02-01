@@ -21,7 +21,7 @@ export default class PostgrestQueryBuilder<Type extends TableBase> extends Postg
    * @param count  Count algorithm to use to count rows in a table.
    */
   select(
-    columns: '*' | keyof Type | Array<keyof Type> = '*',
+    columns: '*' | string | keyof Type | Array<keyof Type> = '*',
     {
       head = false,
       count = null,

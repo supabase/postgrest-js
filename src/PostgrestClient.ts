@@ -38,7 +38,6 @@ export default class PostgrestClient<Schema extends SchemaBase = SchemaBase> {
    *
    * @param table  The table name to operate on.
    */
-  from<Type extends TableBase>(table: string): PostgrestQueryBuilder<Type>
   from<Key extends keyof Schema>(table: Key): PostgrestQueryBuilder<Schema[Key]> {
     const url = `${this.url}/${table}`
     return new PostgrestQueryBuilder<Schema[Key]>(url, {

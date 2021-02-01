@@ -1,6 +1,6 @@
 import fetch from 'cross-fetch'
 
-export type TableBase = Record<string, unknown>
+export type TableBase = Record<string, any>
 
 export type SchemaBase = Record<string, TableBase>
 

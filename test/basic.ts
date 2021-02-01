@@ -102,8 +102,8 @@ test('connection error', async () => {
   expect(isErrorCaught).toBe(true)
 })
 
-test('custom type', async () => {
-  interface User {
+describe('types', () => {
+  type User = {
     username: string
     data: object | null
     age_range: string | null
@@ -111,14 +111,69 @@ test('custom type', async () => {
     catchphrase: 'string' | null
   }
 
-  // TODO: Find a cleaner way to weave a custom type
-  // eq should show User's properties in LSP/IntelliSense
-  const { data: users } = <{ data: User[] }>(
-    await postgrest.from<User>('users').select().eq('username', 'supabot')
-  )
-  const user = users[0]
-  // Autocomplete should show properties of user after '.'
-  user.username
+  describe('without schema', () => {
+    test('everything works without any types passed in', async () => {
+      // eq should show User's properties in LSP/IntelliSense
+      const { data: users } = await postgrest
+        .from('users')
+        .select('username')
+        .eq('username', 'supabot')
+
+      // Should not error on any property
+      users?.[0].username
+      users?.[0].somethingElse
+
+      // Should not error when using properties
+      const username: string = users?.[0].username
+    })
+  })
+
+  type Session = {
+    id: string
+    expires: string
+  }
+
+  type Schema = {
+    users: User
+    sessions: Session
+  }
+
+  describe('with schema', () => {
+    const typedClient = new PostgrestClient<Schema>(REST_URL)
+
+    test('enforces table and column names', async () => {
+      // Should error on incorrect table name
+      // @ts-expect-error
+      typedClient.from('asdasd')
+
+      // Should error on incorrect column name
+      // @ts-expect-error
+      typedClient.from('sessions').select('expires').eq('asdsdasd')
+
+      // Allows array, comma-separated, and * selects
+      typedClient.from('users').select('username,age_range').eq('username', 'supabot')
+      typedClient.from('users').select(['username', 'age_range']).eq('username', 'supabot')
+      typedClient.from('users').select('*').eq('username', 'supabot')
+
+      // Reports incorrect columns in array select
+      // @ts-expect-error
+      typedClient.from('users').select(['username', 'age_']).eq('username', 'supabot')
+
+      // eq and select should show User's properties in LSP/IntelliSense
+      const { data: users } = await typedClient.from('users').select('*').eq('username', 'supabot')
+
+      // Should not error on any property
+      users?.[0].username
+      // Should error on incorrect property
+      // @ts-expect-error
+      users?.[0].somethingElse
+
+      // Returns correct types
+      const username: string = users![0].username
+      // @ts-expect-error
+      const notUsername: number = users![0].catchphrase
+    })
+  })
 })
 
 test("don't mutate PostgrestClient.headers", async () => {
