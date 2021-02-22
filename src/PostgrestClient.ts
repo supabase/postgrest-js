@@ -1,4 +1,5 @@
 import PostgrestQueryBuilder from './lib/PostgrestQueryBuilder'
+import PostgrestRpcBuilder from './lib/PostgrestRpcBuilder'
 import PostgrestTransformBuilder from './lib/PostgrestTransformBuilder'
 
 export default class PostgrestClient {
@@ -59,7 +60,7 @@ export default class PostgrestClient {
   } = {}): PostgrestTransformBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
     const headers = isVoid ? {...this.headers, 'Prefer': 'return=minimal'} : this.headers
-    return new PostgrestQueryBuilder<T>(url, { headers, schema: this.schema }).rpc(
+    return new PostgrestRpcBuilder<T>(url, { headers, schema: this.schema }).rpc(
       params, {head, count}
     )
   }

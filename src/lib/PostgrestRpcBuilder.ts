@@ -2,6 +2,16 @@ import { PostgrestBuilder } from './types'
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
 
 export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
+  constructor(
+    url: string,
+    { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
+  ) {
+    super({} as PostgrestBuilder<T>)
+    this.url = new URL(url)
+    this.headers = { ...headers }
+    this.schema = schema
+  }
+  
   rpc(
     params?: object,
     {
