@@ -15,22 +15,19 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
   rpc(
     params?: object,
     {
-      head = false,
       count = null,
     }: {
-      head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestTransformBuilder<T> {
     this.method = 'POST'
     this.body = params
+
     if (count) {
       if (this.headers['Prefer'] !== undefined) this.headers['Prefer'] += `,count=${count}`
       else this.headers['Prefer'] = `count=${count}`
     }
-    if (head) {
-      this.method = 'HEAD'
-    }
+    
     return new PostgrestTransformBuilder(this)
   }
 }

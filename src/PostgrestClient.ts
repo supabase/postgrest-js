@@ -49,12 +49,10 @@ export default class PostgrestClient {
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
    * @param isVoid  Support void function
-   * @param head  When set to true, select will void data.
    * @param count  Count algorithm to use to count rows in a table.
    */
   rpc<T = any>(fn: string, params?: object, {
     isVoid = false,
-    head = false,
     count = null,
   }: {
     isVoid?: boolean,
@@ -64,7 +62,7 @@ export default class PostgrestClient {
     const url = `${this.url}/rpc/${fn}`
     const headers = isVoid ? {...this.headers, 'Prefer': 'return=minimal'} : this.headers
     return new PostgrestRpcBuilder<T>(url, { headers, schema: this.schema }).rpc(
-      params, {head, count}
+      params, {count}
     )
   }
 }
