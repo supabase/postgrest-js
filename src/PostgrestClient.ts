@@ -48,10 +48,17 @@ export default class PostgrestClient {
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
    */
-  rpc<T = any>(fn: string, params?: object): PostgrestTransformBuilder<T> {
+  rpc<T = any>(fn: string, params?: object, isVoid?:boolean, {
+    head = false,
+    count = null,
+  }: {
+    head?: boolean
+    count?: null | 'exact' | 'planned' | 'estimated'
+  } = {}): PostgrestTransformBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
-    return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
-      params
+    const headers = isVoid ? {...this.headers, 'Prefer': 'return=minimal'} : this.headers
+    return new PostgrestQueryBuilder<T>(url, { headers, schema: this.schema }).rpc(
+      params, {head, count}
     )
   }
 }
