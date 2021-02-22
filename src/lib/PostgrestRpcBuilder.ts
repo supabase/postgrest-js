@@ -15,7 +15,8 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
     this.method = 'POST'
     this.body = params
     if (count) {
-      this.headers['Prefer'] = `count=${count}`
+      if (this.headers['Prefer'] !== undefined) this.headers['Prefer'] += `,count=${count}`
+      else this.headers['Prefer'] = `count=${count}`
     }
     if (head) {
       this.method = 'HEAD'

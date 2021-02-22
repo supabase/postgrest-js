@@ -48,10 +48,12 @@ export default class PostgrestClient {
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
    */
-  rpc<T = any>(fn: string, params?: object, isVoid?:boolean, {
+  rpc<T = any>(fn: string, params?: object, {
+    isVoid = false,
     head = false,
     count = null,
   }: {
+    isVoid?: boolean,
     head?: boolean
     count?: null | 'exact' | 'planned' | 'estimated'
   } = {}): PostgrestTransformBuilder<T> {
