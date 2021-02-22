@@ -48,6 +48,9 @@ export default class PostgrestClient {
    *
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
+   * @param isVoid  Support void function
+   * @param head  When set to true, select will void data.
+   * @param count  Count algorithm to use to count rows in a table.
    */
   rpc<T = any>(fn: string, params?: object, {
     isVoid = false,
