@@ -56,7 +56,6 @@ export default class PostgrestClient {
     count = null,
   }: {
     isVoid?: boolean,
-    head?: boolean
     count?: null | 'exact' | 'planned' | 'estimated'
   } = {}): PostgrestTransformBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
