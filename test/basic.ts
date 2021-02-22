@@ -171,13 +171,12 @@ test('select with count:exact', async () => {
 })
 
 test("stored procedure with count: 'exact'", async () => {
-  const res = await postgrest.rpc('get_status', { name_param: 'supabot', count: 'exact' })
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot'}, {count: 'exact' })
   expect(res).toMatchSnapshot()
 })
 
 test("stored procedure with count: 'exact', head: true", async () => {
-  const res = await postgrest.rpc('get_status', {
-    name_param: 'supabot',
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, {
     count: 'exact',
     head: true,
   })
