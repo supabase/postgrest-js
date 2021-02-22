@@ -13,6 +13,11 @@ test('stored procedure', async () => {
   expect(res).toMatchSnapshot()
 })
 
+test('stored procedure returns void', async () => {
+  const res = await postgrest.rpc('void_func')
+  expect(res).toMatchSnapshot()
+})
+
 test('custom headers', async () => {
   const postgrest = new PostgrestClient(REST_URL, { headers: { apikey: 'foo' } })
   expect((postgrest.from('users').select() as any).headers['apikey']).toEqual('foo')

@@ -2883,6 +2883,17 @@ Object {
 }
 `;
 
+exports[`stored procedure returns void 1`] = `
+Object {
+  "body": null,
+  "count": null,
+  "data": null,
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
 exports[`stored procedure with count: 'exact' 1`] = `
 Object {
   "body": "ONLINE",
