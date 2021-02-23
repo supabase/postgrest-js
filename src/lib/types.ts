@@ -91,13 +91,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
           const isReturnMinimal = this.headers['Prefer']?.split(',').includes('return=minimal')
           if (this.method !== 'HEAD' && !isReturnMinimal) {
             const text = await res.text()
-            if (text && text !== '') {
-              try {
-                data = JSON.parse(text)
-              } catch (_) {
-                error = { message: 'Failed to parse json response' }
-              }
-            }
+            if (text && text !== '') data = JSON.parse(text)
           }
 
           const countHeader = this.headers['Prefer']?.match(/count=(exact|planned|estimated)/)
@@ -106,12 +100,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
             count = parseInt(contentRange[1])
           }
         } else {
-          const text = await res.text()
-          try {
-            error = JSON.parse(text)
-          } catch (_) {
-            error = { message: text }
-          }
+          error = await res.json()
         }
 
         const postgrestResponse: PostgrestResponse<T> = {
