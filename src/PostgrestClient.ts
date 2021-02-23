@@ -50,14 +50,19 @@ export default class PostgrestClient {
    * @param params  The parameters to pass to the function call.
    * @param count  Count algorithm to use to count rows in a table.
    */
-  rpc<T = any>(fn: string, params?: object, {
-    count = null,
-  }: {
-    count?: null | 'exact' | 'planned' | 'estimated'
-  } = {}): PostgrestTransformBuilder<T> {
+  rpc<T = any>(
+    fn: string,
+    params?: object,
+    {
+      count = null,
+    }: {
+      count?: null | 'exact' | 'planned' | 'estimated'
+    } = {}
+  ): PostgrestTransformBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
-    return new PostgrestRpcBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
-      params, {count}
-    )
+    return new PostgrestRpcBuilder<T>(url, {
+      headers: this.headers,
+      schema: this.schema,
+    }).rpc(params, { count })
   }
 }

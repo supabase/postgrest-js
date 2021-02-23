@@ -11,7 +11,7 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
     this.headers = { ...headers }
     this.schema = schema
   }
-  
+
   rpc(
     params?: object,
     {
@@ -27,7 +27,7 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
       if (this.headers['Prefer'] !== undefined) this.headers['Prefer'] += `,count=${count}`
       else this.headers['Prefer'] = `count=${count}`
     }
-    
+
     return new PostgrestTransformBuilder(this)
   }
 }

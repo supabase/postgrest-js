@@ -94,7 +94,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
             if (text && text !== '') {
               try {
                 data = JSON.parse(text)
-              } catch (err) {
+              } catch (_) {
                 error = { message: 'Failed to parse json response' }
               }
             }
@@ -109,7 +109,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
           const text = await res.text()
           try {
             error = JSON.parse(text)
-          } catch (err) {
+          } catch (_) {
             error = { message: text }
           }
         }
