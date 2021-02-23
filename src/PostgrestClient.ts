@@ -48,19 +48,15 @@ export default class PostgrestClient {
    *
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
-   * @param isVoid  Support void function
    * @param count  Count algorithm to use to count rows in a table.
    */
   rpc<T = any>(fn: string, params?: object, {
-    isVoid = false,
     count = null,
   }: {
-    isVoid?: boolean,
     count?: null | 'exact' | 'planned' | 'estimated'
   } = {}): PostgrestTransformBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
-    const headers = isVoid ? {...this.headers, 'Prefer': 'return=minimal'} : this.headers
-    return new PostgrestRpcBuilder<T>(url, { headers, schema: this.schema }).rpc(
+    return new PostgrestRpcBuilder<T>(url, { headers: this.headers, schema: this.schema }).rpc(
       params, {count}
     )
   }
