@@ -12,6 +12,9 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
     this.schema = schema
   }
 
+  /**
+   * Perform a stored procedure call.
+   */
   rpc(
     params?: object,
     {
