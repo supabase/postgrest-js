@@ -93,4 +93,13 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
     return this as PromiseLike<PostgrestSingleResponse<T>>
   }
+
+  /**
+   * Retrieves only one row from the result. Result must be one row (e.g. using
+   * `limit`), otherwise this will result in an error.
+   */
+  maybeSingle(): PromiseLike<PostgrestSingleResponse<T>> {
+    this.headers['Accept'] = 'application/vnd.pgrst.object+json'
+    return this as PromiseLike<PostgrestSingleResponse<T>>
+  }
 }
