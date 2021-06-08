@@ -39,7 +39,7 @@ test('single on insert', async () => {
 })
 
 test('maybeSingle', async () => {
-  const res = await postgrest.from('users').select().limit(0).maybeSingle()
+  const res = await postgrest.from('users').select().eq('username', 'goldstein').maybeSingle()
   expect(res).toMatchSnapshot()
 })
 

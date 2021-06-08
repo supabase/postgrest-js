@@ -1747,8 +1747,8 @@ Object {
   "count": null,
   "data": null,
   "error": null,
-  "status": 416,
-  "statusText": "Requested Range Not Satisfiable",
+  "status": 200,
+  "statusText": "OK",
 }
 `;
 
