@@ -1,4 +1,4 @@
-import { PostgrestBuilder, PostgrestSingleResponse } from './types'
+import { PostgrestBuilder, PostgrestMaybeSingleResponse, PostgrestSingleResponse } from './types'
 
 /**
  * Post-filters (transforms)
@@ -95,11 +95,29 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
   }
 
   /**
-   * Retrieves only one row from the result. Result must be one row (e.g. using
-   * `limit`), otherwise this will result in an error.
+   * Retrieves at most one row from the result. Result must be at most one row
+   * (e.g. using `eq` on a UNIQUE column), otherwise this will result in an
+   * error.
    */
-  maybeSingle(): PromiseLike<PostgrestSingleResponse<T>> {
+  maybeSingle(): PromiseLike<PostgrestMaybeSingleResponse<T>> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
-    return this as PromiseLike<PostgrestSingleResponse<T>>
+    const _this = new PostgrestTransformBuilder(this)
+    _this.then = ((onfulfilled: any, onrejected: any) =>
+      this.then((res: any): any => {
+        // console.log(JSON.stringify(res, null, 2))
+        if (res.error?.details.includes('Results contain 0 rows')) {
+          return onfulfilled({
+            error: null,
+            data: null,
+            count: res.count,
+            status: 200,
+            statusText: 'OK',
+            body: null,
+          })
+        }
+
+        return onfulfilled(res)
+      }, onrejected)) as any
+    return _this as PromiseLike<PostgrestMaybeSingleResponse<T>>
   }
 }
