@@ -104,7 +104,6 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
     const _this = new PostgrestTransformBuilder(this)
     _this.then = ((onfulfilled: any, onrejected: any) =>
       this.then((res: any): any => {
-        // console.log(JSON.stringify(res, null, 2))
         if (res.error?.details.includes('Results contain 0 rows')) {
           return onfulfilled({
             error: null,
@@ -119,5 +118,13 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
         return onfulfilled(res)
       }, onrejected)) as any
     return _this as PromiseLike<PostgrestMaybeSingleResponse<T>>
+  }
+
+  /**
+   * Set the response type to CSV.
+   */
+  csv(): this {
+    this.headers['Accept'] = 'text/csv'
+    return this
   }
 }
