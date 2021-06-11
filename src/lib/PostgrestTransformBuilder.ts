@@ -1,16 +1,23 @@
-import { PostgrestBuilder, PostgrestMaybeSingleResponse, PostgrestSingleResponse } from './types'
+import {
+  PostgrestBuilder,
+  PostgrestMaybeSingleResponse,
+  PostgrestSingleResponse,
+  TransformBuilder,
+} from './types'
 
 /**
  * Post-filters (transforms)
  */
 
-export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
+export default class PostgrestTransformBuilder<T>
+  extends PostgrestBuilder<T>
+  implements TransformBuilder<T> {
   /**
    * Performs vertical filtering with SELECT.
    *
    * @param columns  The columns to retrieve, separated by commas.
    */
-  select(columns = '*'): this {
+  select(columns = '*'): TransformBuilder<T> {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = columns
@@ -44,7 +51,7 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
       nullsFirst = false,
       foreignTable,
     }: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: string } = {}
-  ): this {
+  ): TransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'order' : `${foreignTable}.order`
     const existingOrder = this.url.searchParams.get(key)
 
@@ -63,7 +70,7 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * @param count  The maximum no. of rows to limit to.
    * @param foreignTable  The foreign table to use (for foreign columns).
    */
-  limit(count: number, { foreignTable }: { foreignTable?: string } = {}): this {
+  limit(count: number, { foreignTable }: { foreignTable?: string } = {}): TransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'limit' : `${foreignTable}.limit`
     this.url.searchParams.set(key, `${count}`)
     return this
@@ -76,7 +83,11 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * @param to  The last index to which to limit the result, inclusive.
    * @param foreignTable  The foreign table to use (for foreign columns).
    */
-  range(from: number, to: number, { foreignTable }: { foreignTable?: string } = {}): this {
+  range(
+    from: number,
+    to: number,
+    { foreignTable }: { foreignTable?: string } = {}
+  ): TransformBuilder<T> {
     const keyOffset = typeof foreignTable === 'undefined' ? 'offset' : `${foreignTable}.offset`
     const keyLimit = typeof foreignTable === 'undefined' ? 'limit' : `${foreignTable}.limit`
     this.url.searchParams.set(keyOffset, `${from}`)
@@ -123,7 +134,7 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
   /**
    * Set the response type to CSV.
    */
-  csv(): this {
+  csv(): TransformBuilder<T> {
     this.headers['Accept'] = 'text/csv'
     return this
   }

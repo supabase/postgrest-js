@@ -1,10 +1,10 @@
 import PostgrestQueryBuilder from './lib/PostgrestQueryBuilder'
 import PostgrestRpcBuilder from './lib/PostgrestRpcBuilder'
-import PostgrestFilterBuilder from './lib/PostgrestFilterBuilder'
+import { Client, ClientConfig, FilterBuilder, QueryBuilder, RpcOptions } from './lib/types'
 
-export default class PostgrestClient {
+export default class PostgrestClient implements Client {
   url: string
-  headers: { [key: string]: string }
+  headers: Record<string, string>
   schema?: string
 
   /**
@@ -14,10 +14,7 @@ export default class PostgrestClient {
    * @param headers  Custom headers.
    * @param schema  Postgres schema to switch to.
    */
-  constructor(
-    url: string,
-    { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
-  ) {
+  constructor(url: string, { headers = {}, schema }: ClientConfig = {}) {
     this.url = url
     this.headers = headers
     this.schema = schema
@@ -28,7 +25,7 @@ export default class PostgrestClient {
    *
    * @param token  The JWT token to use.
    */
-  auth(token: string): this {
+  auth(token: string): Client {
     this.headers['Authorization'] = `Bearer ${token}`
     return this
   }
@@ -38,7 +35,7 @@ export default class PostgrestClient {
    *
    * @param table  The table name to operate on.
    */
-  from<T = any>(table: string): PostgrestQueryBuilder<T> {
+  from<T = any>(table: string): QueryBuilder<T> {
     const url = `${this.url}/${table}`
     return new PostgrestQueryBuilder<T>(url, { headers: this.headers, schema: this.schema })
   }
@@ -53,12 +50,8 @@ export default class PostgrestClient {
   rpc<T = any>(
     fn: string,
     params?: object,
-    {
-      count = null,
-    }: {
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+    { count }: RpcOptions = { count: null }
+  ): FilterBuilder<T> {
     const url = `${this.url}/rpc/${fn}`
     return new PostgrestRpcBuilder<T>(url, {
       headers: this.headers,

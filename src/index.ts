@@ -4,3 +4,5 @@ import PostgrestQueryBuilder from './lib/PostgrestQueryBuilder'
 import { PostgrestBuilder } from './lib/types'
 
 export { PostgrestClient, PostgrestFilterBuilder, PostgrestQueryBuilder, PostgrestBuilder }
+
+export * from './lib/types'

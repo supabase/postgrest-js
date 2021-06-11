@@ -1,7 +1,7 @@
-import { PostgrestBuilder } from './types'
+import { PostgrestBuilder, RpcBuilder, RpcOptions } from './types'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 
-export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
+export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> implements RpcBuilder<T> {
   constructor(
     url: string,
     { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
@@ -15,14 +15,7 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
   /**
    * Perform a stored procedure call.
    */
-  rpc(
-    params?: object,
-    {
-      count = null,
-    }: {
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+  rpc(params?: object, { count = null }: RpcOptions = {}): PostgrestFilterBuilder<T> {
     this.method = 'POST'
     this.body = params
 

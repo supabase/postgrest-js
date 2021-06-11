@@ -1,11 +1,20 @@
-import { PostgrestBuilder } from './types'
+import {
+  DeleteOptions,
+  FilterBuilder,
+  InsertOptions,
+  PostgrestBuilder,
+  QueryBuilder,
+  QueryBuilderConfig,
+  SelectOptions,
+  UpdateOptions,
+  UpsertOptions,
+} from './types'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 
-export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
-  constructor(
-    url: string,
-    { headers = {}, schema }: { headers?: { [key: string]: string }; schema?: string } = {}
-  ) {
+export default class PostgrestQueryBuilder<T>
+  extends PostgrestBuilder<T>
+  implements QueryBuilder<T> {
+  constructor(url: string, { headers = {}, schema }: QueryBuilderConfig = {}) {
     super({} as PostgrestBuilder<T>)
     this.url = new URL(url)
     this.headers = { ...headers }
@@ -19,16 +28,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param head  When set to true, select will void data.
    * @param count  Count algorithm to use to count rows in a table.
    */
-  select(
-    columns = '*',
-    {
-      head = false,
-      count = null,
-    }: {
-      head?: boolean
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+  select(columns = '*', { head = false, count = null }: SelectOptions = {}): FilterBuilder<T> {
     this.method = 'GET'
     // Remove whitespaces except when quoted
     let quoted = false
@@ -61,39 +61,15 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param returning  By default the new record is returned. Set this to 'minimal' if you don't need this value.
    * @param count  Count algorithm to use to count rows in a table.
    */
-  insert(
-    values: Partial<T> | Partial<T>[],
-    options?: {
-      returning?: 'minimal' | 'representation'
-      count?: null | 'exact' | 'planned' | 'estimated'
-    }
-  ): PostgrestFilterBuilder<T>
+  insert(values: Partial<T> | Partial<T>[], options?: InsertOptions): FilterBuilder<T>
   /**
    * @deprecated Use `upsert()` instead.
    */
+  insert(values: Partial<T> | Partial<T>[], options?: InsertOptions): FilterBuilder<T>
   insert(
     values: Partial<T> | Partial<T>[],
-    options?: {
-      upsert?: boolean
-      onConflict?: string
-      returning?: 'minimal' | 'representation'
-      count?: null | 'exact' | 'planned' | 'estimated'
-    }
-  ): PostgrestFilterBuilder<T>
-  insert(
-    values: Partial<T> | Partial<T>[],
-    {
-      upsert = false,
-      onConflict,
-      returning = 'representation',
-      count = null,
-    }: {
-      upsert?: boolean
-      onConflict?: string
-      returning?: 'minimal' | 'representation'
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+    { upsert = false, onConflict, returning = 'representation', count = null }: InsertOptions = {}
+  ): FilterBuilder<T> {
     this.method = 'POST'
 
     const prefersHeaders = [`return=${returning}`]
@@ -128,16 +104,8 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    */
   upsert(
     values: Partial<T> | Partial<T>[],
-    {
-      onConflict,
-      returning = 'representation',
-      count = null,
-    }: {
-      onConflict?: string
-      returning?: 'minimal' | 'representation'
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+    { onConflict, returning = 'representation', count = null }: UpsertOptions = {}
+  ): FilterBuilder<T> {
     this.method = 'POST'
 
     const prefersHeaders = ['resolution=merge-duplicates', `return=${returning}`]
@@ -162,14 +130,8 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    */
   update(
     values: Partial<T>,
-    {
-      returning = 'representation',
-      count = null,
-    }: {
-      returning?: 'minimal' | 'representation'
-      count?: null | 'exact' | 'planned' | 'estimated'
-    } = {}
-  ): PostgrestFilterBuilder<T> {
+    { returning = 'representation', count = null }: UpdateOptions = {}
+  ): FilterBuilder<T> {
     this.method = 'PATCH'
     const prefersHeaders = [`return=${returning}`]
     this.body = values
@@ -186,13 +148,7 @@ export default class PostgrestQueryBuilder<T> extends PostgrestBuilder<T> {
    * @param returning  If `true`, return the deleted row(s) in the response.
    * @param count  Count algorithm to use to count rows in a table.
    */
-  delete({
-    returning = 'representation',
-    count = null,
-  }: {
-    returning?: 'minimal' | 'representation'
-    count?: null | 'exact' | 'planned' | 'estimated'
-  } = {}): PostgrestFilterBuilder<T> {
+  delete({ returning = 'representation', count = null }: DeleteOptions = {}): FilterBuilder<T> {
     this.method = 'DELETE'
     const prefersHeaders = [`return=${returning}`]
     if (count) {
