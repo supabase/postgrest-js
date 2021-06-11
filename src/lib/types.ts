@@ -53,20 +53,20 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
   protected headers!: { [key: string]: string }
   protected schema?: string
   protected body?: Partial<T> | Partial<T>[]
-  protected unwrapError?: boolean
+  protected shouldThrowOnError?: boolean
 
   constructor(builder: PostgrestBuilder<T>) {
     Object.assign(this, builder)
   }
 
   /**
-   * If there's an error with the query, unwrap will reject the promise by
+   * If there's an error with the query, throwOnError will reject the promise by
    * throwing the error instead of returning it as part of a successful response.
    *
    * {@link https://github.com/supabase/supabase-js/issues/92}
    */
-  unwrap(): PostgrestBuilder<T> {
-    this.unwrapError = true
+  throwOnError(): PostgrestBuilder<T> {
+    this.shouldThrowOnError = true
     return this
   }
 
@@ -115,7 +115,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
         } else {
           error = await res.json()
 
-          if (error && this.unwrapError) {
+          if (error && this.shouldThrowOnError) {
             throw error
           }
         }

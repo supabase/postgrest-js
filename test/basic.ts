@@ -95,11 +95,11 @@ test('missing table', async () => {
   expect(res).toMatchSnapshot()
 })
 
-test('unwrap throws errors instead of returning them', async () => {
+test('throwOnError throws errors instead of returning them', async () => {
   let isErrorCaught = false
 
   try {
-    await postgrest.from('missing_table').select().unwrap()
+    await postgrest.from('missing_table').select().throwOnError()
   } catch (error) {
     expect(error).toMatchSnapshot()
     isErrorCaught = true
@@ -120,14 +120,14 @@ test('connection error', async () => {
   expect(isErrorCaught).toBe(true)
 })
 
-test('connection error when unwrapping too', async () => {
+test('connection errors should work the same with throwOnError', async () => {
   const postgrest = new PostgrestClient('http://this.url.does.not.exist')
   let isErrorCaught = false
   await postgrest
     .from('user')
     .select()
-    .unwrap()
-    .then(undefined, error => {
+    .throwOnError()
+    .then(undefined, (error) => {
       expect(error).toMatchSnapshot()
       isErrorCaught = true
     })

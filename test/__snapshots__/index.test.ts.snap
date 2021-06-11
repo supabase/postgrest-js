@@ -626,7 +626,7 @@ Object {
 }
 `;
 
-exports[`connection error when unwrapping too 1`] = `[FetchError: request to http://this.url.does.not.exist/user?select=* failed, reason: getaddrinfo ENOTFOUND this.url.does.not.exist]`;
+exports[`connection errors should work the same with throwOnError 1`] = `[FetchError: request to http://this.url.does.not.exist/user?select=* failed, reason: getaddrinfo ENOTFOUND this.url.does.not.exist]`;
 
 exports[`don't mutate PostgrestClient.headers 1`] = `null`;
 
@@ -2254,7 +2254,7 @@ Object {
 }
 `;
 
-exports[`unwrap throws errors instead of returning them 1`] = `
+exports[`throwOnError throws errors instead of returning them 1`] = `
 Object {
   "code": "42P01",
   "details": null,
