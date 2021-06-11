@@ -1,8 +1,10 @@
 import {
+  LimitOptions,
+  OrderOptions,
   PostgrestBuilder,
   PostgrestMaybeSingleResponse,
-  PostgrestSingleResponse,
-  TransformBuilder,
+  PostgrestSingleResponse, RangeOptions,
+  TransformBuilder
 } from './types'
 
 /**
@@ -50,7 +52,7 @@ export default class PostgrestTransformBuilder<T>
       ascending = true,
       nullsFirst = false,
       foreignTable,
-    }: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: string } = {}
+    }: OrderOptions = {}
   ): TransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'order' : `${foreignTable}.order`
     const existingOrder = this.url.searchParams.get(key)
@@ -70,7 +72,7 @@ export default class PostgrestTransformBuilder<T>
    * @param count  The maximum no. of rows to limit to.
    * @param foreignTable  The foreign table to use (for foreign columns).
    */
-  limit(count: number, { foreignTable }: { foreignTable?: string } = {}): TransformBuilder<T> {
+  limit(count: number, { foreignTable }: LimitOptions = {}): TransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'limit' : `${foreignTable}.limit`
     this.url.searchParams.set(key, `${count}`)
     return this
@@ -86,7 +88,7 @@ export default class PostgrestTransformBuilder<T>
   range(
     from: number,
     to: number,
-    { foreignTable }: { foreignTable?: string } = {}
+    { foreignTable }: RangeOptions = {}
   ): TransformBuilder<T> {
     const keyOffset = typeof foreignTable === 'undefined' ? 'offset' : `${foreignTable}.offset`
     const keyLimit = typeof foreignTable === 'undefined' ? 'limit' : `${foreignTable}.limit`
