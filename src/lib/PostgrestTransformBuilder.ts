@@ -3,8 +3,9 @@ import {
   OrderOptions,
   PostgrestBuilder,
   PostgrestMaybeSingleResponse,
-  PostgrestSingleResponse, RangeOptions,
-  TransformBuilder
+  PostgrestSingleResponse,
+  RangeOptions,
+  TransformBuilder,
 } from './types'
 
 /**
@@ -48,11 +49,7 @@ export default class PostgrestTransformBuilder<T>
    */
   order(
     column: keyof T,
-    {
-      ascending = true,
-      nullsFirst = false,
-      foreignTable,
-    }: OrderOptions = {}
+    { ascending = true, nullsFirst = false, foreignTable }: OrderOptions = {}
   ): TransformBuilder<T> {
     const key = typeof foreignTable === 'undefined' ? 'order' : `${foreignTable}.order`
     const existingOrder = this.url.searchParams.get(key)
@@ -85,11 +82,7 @@ export default class PostgrestTransformBuilder<T>
    * @param to  The last index to which to limit the result, inclusive.
    * @param foreignTable  The foreign table to use (for foreign columns).
    */
-  range(
-    from: number,
-    to: number,
-    { foreignTable }: RangeOptions = {}
-  ): TransformBuilder<T> {
+  range(from: number, to: number, { foreignTable }: RangeOptions = {}): TransformBuilder<T> {
     const keyOffset = typeof foreignTable === 'undefined' ? 'offset' : `${foreignTable}.offset`
     const keyLimit = typeof foreignTable === 'undefined' ? 'limit' : `${foreignTable}.limit`
     this.url.searchParams.set(keyOffset, `${from}`)

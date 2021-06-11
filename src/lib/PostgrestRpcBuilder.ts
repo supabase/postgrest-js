@@ -2,10 +2,7 @@ import { FilterBuilder, PostgrestBuilder, RpcBuilder, RpcBuilderConfig, RpcOptio
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 
 export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> implements RpcBuilder<T> {
-  constructor(
-    url: string,
-    { headers = {}, schema }: RpcBuilderConfig = {}
-  ) {
+  constructor(url: string, { headers = {}, schema }: RpcBuilderConfig = {}) {
     super({} as PostgrestBuilder<T>)
     this.url = new URL(url)
     this.headers = { ...headers }

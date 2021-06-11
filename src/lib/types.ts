@@ -82,10 +82,10 @@ export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null>
 export interface Builder<T> extends PromiseLike<PostgrestResponse<T>> {
   then<TResult1 = PostgrestResponse<T>, TResult2 = never>(
     onfulfilled?:
-      | ( (value: PostgrestResponse<T>) => TResult1 | PromiseLike<TResult1> )
+      | ((value: PostgrestResponse<T>) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
-    onrejected?: ( (reason: any) => TResult2 | PromiseLike<TResult2> ) | undefined | null
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): PromiseLike<TResult1 | TResult2>
 }
 
@@ -127,7 +127,7 @@ export interface QueryBuilderConfig {
 }
 
 export interface QueryBuilder<T> {
-  select(columns: string, options?: SelectOptions): FilterBuilder<T>
+  select(columns?: string, options?: SelectOptions): FilterBuilder<T>
 
   insert(values: Partial<T> | Partial<T>[], options?: InsertOptions): FilterBuilder<T>
 
@@ -270,19 +270,17 @@ export abstract class PostgrestBuilder<T> implements Builder<T> {
 
   then<TResult1 = PostgrestResponse<T>, TResult2 = never>(
     onfulfilled?:
-      | ( (value: PostgrestResponse<T>) => TResult1 | PromiseLike<TResult1> )
+      | ((value: PostgrestResponse<T>) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
-    onrejected?: ( (reason: any) => TResult2 | PromiseLike<TResult2> ) | undefined | null
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): PromiseLike<TResult1 | TResult2> {
     // https://postgrest.org/en/stable/api.html#switching-schemas
     if (typeof this.schema === 'undefined') {
       // skip
-    }
-    else if ([ 'GET', 'HEAD' ].includes(this.method)) {
+    } else if (['GET', 'HEAD'].includes(this.method)) {
       this.headers['Accept-Profile'] = this.schema
-    }
-    else {
+    } else {
       this.headers['Content-Profile'] = this.schema
     }
     if (this.method !== 'GET' && this.method !== 'HEAD') {
@@ -292,7 +290,7 @@ export abstract class PostgrestBuilder<T> implements Builder<T> {
     return fetch(this.url.toString(), {
       method: this.method,
       headers: this.headers,
-      body: JSON.stringify(this.body)
+      body: JSON.stringify(this.body),
     })
       .then(async (res) => {
         let error = null
@@ -313,8 +311,7 @@ export abstract class PostgrestBuilder<T> implements Builder<T> {
           if (countHeader && contentRange && contentRange.length > 1) {
             count = parseInt(contentRange[1])
           }
-        }
-        else {
+        } else {
           error = await res.json()
         }
 
@@ -324,7 +321,7 @@ export abstract class PostgrestBuilder<T> implements Builder<T> {
           count,
           status: res.status,
           statusText: res.statusText,
-          body: data
+          body: data,
         }
         return postgrestResponse
       })
