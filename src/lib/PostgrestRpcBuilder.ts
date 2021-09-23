@@ -18,13 +18,25 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
   rpc(
     params?: object,
     {
+      method = 'POST',
       count = null,
     }: {
+      method?: 'POST' | 'GET' | 'HEAD'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
-    this.method = 'POST'
-    this.body = params
+    if (method == 'HEAD' || method == 'GET') {
+      this.method = method
+
+      if (params) {
+        Object.entries(params).forEach(([name, value]) => {
+          this.url.searchParams.append(name, value)
+        })
+      }
+    } else {
+      this.method = 'POST'
+      this.body = params
+    }
 
     if (count) {
       if (this.headers['Prefer'] !== undefined) this.headers['Prefer'] += `,count=${count}`

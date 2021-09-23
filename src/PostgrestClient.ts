@@ -55,8 +55,10 @@ export default class PostgrestClient {
     fn: string,
     params?: object,
     {
+      method = 'POST',
       count = null,
     }: {
+      method?: 'POST' | 'GET' | 'HEAD'
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
@@ -64,6 +66,6 @@ export default class PostgrestClient {
     return new PostgrestRpcBuilder<T>(url, {
       headers: this.headers,
       schema: this.schema,
-    }).rpc(params, { count })
+    }).rpc(params, { method, count })
   }
 }

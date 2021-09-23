@@ -13,6 +13,20 @@ test('rpc', async () => {
   expect(res).toMatchSnapshot()
 })
 
+test('rpc with GET request', async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, { method: 'GET' })
+  expect(res).toMatchSnapshot()
+})
+
+test('rpc with HEAD request', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { method: 'HEAD', count: 'exact' }
+  )
+  expect(res).toMatchSnapshot()
+})
+
 test('rpc returns void', async () => {
   const res = await postgrest.rpc('void_func')
   expect(res).toMatchSnapshot()
