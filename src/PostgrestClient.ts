@@ -50,6 +50,10 @@ export default class PostgrestClient {
    * @param fn  The function name to call.
    * @param params  The parameters to pass to the function call.
    * @param count  Count algorithm to use to count rows in a table.
+   * @param method  The HTTP request method the query is sent with.
+   *                "HEAD"/"GET" queries will invoke the function in a read-only transaction.
+   *                "HEAD" can be used with `count` to get the number of rows in a table
+   *                without returning any data.
    */
   rpc<T = any>(
     fn: string,
