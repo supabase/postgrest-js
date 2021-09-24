@@ -18,15 +18,15 @@ export default class PostgrestRpcBuilder<T> extends PostgrestBuilder<T> {
   rpc(
     params?: object,
     {
-      method = 'POST',
+      head = false,
       count = null,
     }: {
-      method?: 'POST' | 'GET' | 'HEAD'
+      head?: boolean
       count?: null | 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<T> {
-    if (method == 'HEAD' || method == 'GET') {
-      this.method = method
+    if (head) {
+      this.method = 'HEAD'
 
       if (params) {
         Object.entries(params).forEach(([name, value]) => {
