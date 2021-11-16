@@ -59,7 +59,21 @@ export default class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder
    * @param value  The value to filter with.
    */
   not(column: keyof T, operator: FilterOperator, value: any): this {
-    this.url.searchParams.append(`${column}`, `not.${operator}.${value}`)
+    if (Array.isArray(value)) {
+      // array
+      const cleanedValues = value
+        .map((s) => {
+          // handle postgrest reserved characters
+          // https://postgrest.org/en/v7.0.0/api.html#reserved-characters
+          if (typeof s === 'string' && new RegExp('[,()]').test(s)) return `"${s}"`
+          else return `${s}`
+        })
+        .join(',')
+
+      this.url.searchParams.append(`${column}`, `not.${operator}.(${cleanedValues})`)
+    } else {
+      this.url.searchParams.append(`${column}`, `not.${operator}.${value}`)
+    }
     return this
   }
 
