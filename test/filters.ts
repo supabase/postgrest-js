@@ -36,7 +36,7 @@ test('not', async () => {
   `)
 })
 
-test('not in', async () => {
+test('not in multiple value', async () => {
   const res = await postgrest.from('users').select('status').not('status', 'in', ['OFFLINE', 'ONLINE'])
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -47,6 +47,40 @@ test('not in', async () => {
       "status": 200,
       "statusText": "OK",
     }
+  `)
+})
+
+test('not in single value', async () => {
+  const res = await postgrest.from('users').select('status').not('status', 'in', ['OFFLINE'])
+  expect(res).toMatchInlineSnapshot(`
+  Object {
+    "body": Array [
+      Object {
+        "status": "ONLINE",
+      },
+      Object {
+        "status": "ONLINE",
+      },
+      Object {
+        "status": "ONLINE",
+      },
+    ],
+    "count": null,
+    "data": Array [
+      Object {
+        "status": "ONLINE",
+      },
+      Object {
+        "status": "ONLINE",
+      },
+      Object {
+        "status": "ONLINE",
+      },
+    ],
+    "error": null,
+    "status": 200,
+    "statusText": "OK",
+  }
   `)
 })
 
