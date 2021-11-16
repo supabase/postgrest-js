@@ -36,6 +36,20 @@ test('not', async () => {
   `)
 })
 
+test('not in', async () => {
+  const res = await postgrest.from('users').select('status').not('status', 'in', ['OFFLINE', 'ONLINE'])
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "body": Array [],
+      "count": null,
+      "data": Array [],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
 test('or', async () => {
   const res = await postgrest
     .from('users')
