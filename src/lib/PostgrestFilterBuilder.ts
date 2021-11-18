@@ -59,6 +59,10 @@ export default class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder
    * @param value  The value to filter with.
    */
   not(column: keyof T, operator: FilterOperator, value: any): this {
+    if (operator == 'in') {
+      return this.notIn(column,  value)
+    }
+    
     this.url.searchParams.append(`${column}`, `not.${operator}.${value}`)
     return this
   }
@@ -200,6 +204,26 @@ export default class PostgrestFilterBuilder<T> extends PostgrestTransformBuilder
       })
       .join(',')
     this.url.searchParams.append(`${column}`, `in.(${cleanedValues})`)
+    return this
+  }
+                                         
+  /**
+   * Finds all rows whose value on the stated `column` is not found on the
+   * specified `values`.
+   *
+   * @param column  The column to filter on.
+   * @param values  The values to filter with.
+   */
+  notIn(column: keyof T, values: T[keyof T][]): this {
+    const cleanedValues = values
+      .map((s) => {
+        // handle postgrest reserved characters
+        // https://postgrest.org/en/v7.0.0/api.html#reserved-characters
+        if (typeof s === 'string' && new RegExp('[,()]').test(s)) return `"${s}"`
+        else return `${s}`
+      })
+      .join(',')
+    this.url.searchParams.append(`${column}`, `not.in.(${cleanedValues})`)
     return this
   }
 
