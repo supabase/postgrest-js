@@ -49,6 +49,7 @@ export type PostgrestSingleResponse<T> =
   | PostgrestSingleResponseSuccess<T>
   | PostgrestResponseFailure
 export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null>
+type Converter = (key: string, value: any) => any
 
 export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestResponse<T>> {
   protected method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
@@ -59,12 +60,17 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
   protected shouldThrowOnError = false
   protected signal?: AbortSignal
   protected fetch: Fetch
+  protected converter?: { fromJSON: Converter; toJSON: Converter }
 
   constructor(builder: PostgrestBuilder<T>) {
     Object.assign(this, builder)
     this.fetch = builder.fetch || crossFetch
   }
 
+  withConverter(converter?: { fromJSON: Converter; toJSON: Converter }) {
+    this.converter = converter
+    return this
+  }
   /**
    * If there's an error with the query, throwOnError will reject the promise by
    * throwing the error instead of returning it as part of a successful response.
@@ -98,7 +104,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
     let res = this.fetch(this.url.toString(), {
       method: this.method,
       headers: this.headers,
-      body: JSON.stringify(this.body),
+      body: JSON.stringify(this.body, this.converter?.toJSON),
       signal: this.signal,
     }).then(async (res) => {
       let error = null
@@ -114,7 +120,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
           } else if (this.headers['Accept'] === 'text/csv') {
             data = text
           } else {
-            data = JSON.parse(text)
+            data = JSON.parse(text, this.converter?.fromJSON)
           }
         }
 
