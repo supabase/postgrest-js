@@ -366,3 +366,10 @@ test('select with no match', async () => {
     }
   `)
 })
+
+test('toString', async () => {
+  const string1 = postgrest.from('users').select('*').or('username.eq.missing').eq('username', 'missing').toString()
+  const string2 = postgrest.from('users').select('*').eq('username', 'missing').or('username.eq.missing').toString()
+  expect(string1).toEqual(string2)
+  expect(string1).toEqual('http://localhost:3000/users?or=%28username.eq.missing%29&select=*&username=eq.missing"')
+})

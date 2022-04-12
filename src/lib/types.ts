@@ -75,6 +75,15 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
   }
 
   /**
+   * Returns a stringified copy of the URL with sorted search params
+   */
+  toString() {
+    const copiedURL = new URL(this.url.toString())
+    copiedURL.searchParams.sort()
+    return copiedURL.toString()
+  }
+
+  /**
    * If there's an error with the query, throwOnError will reject the promise by
    * throwing the error instead of returning it as part of a successful response.
    *
