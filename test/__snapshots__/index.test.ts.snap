@@ -1,5 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`503 temporarily failure - retried and successful 1`] = `
+Object {
+  "body": Object {
+    "hello": "world",
+  },
+  "count": null,
+  "data": Object {
+    "hello": "world",
+  },
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
+exports[`524 failure - cf timeout - retried 1`] = `
+Object {
+  "body": Object {
+    "hello": "world",
+  },
+  "count": null,
+  "data": Object {
+    "hello": "world",
+  },
+  "error": null,
+  "status": 200,
+  "statusText": "OK",
+}
+`;
+
 exports[`Prefer: return=minimal 1`] = `null`;
 
 exports[`allow ordering on JSON column 1`] = `
@@ -33,6 +63,19 @@ Array [
     "username": "dragarcia",
   },
 ]
+`;
+
+exports[`bad request - not retried 1`] = `
+Object {
+  "body": null,
+  "count": null,
+  "data": null,
+  "error": Object {
+    "message": "",
+  },
+  "status": 400,
+  "statusText": "Bad Request",
+}
 `;
 
 exports[`basic insert, update, delete basic delete 1`] = `
@@ -1119,6 +1162,19 @@ Object {
   "error": null,
   "status": 200,
   "statusText": "OK",
+}
+`;
+
+exports[`generic failure table - not retried 1`] = `
+Object {
+  "body": null,
+  "count": null,
+  "data": null,
+  "error": Object {
+    "message": "",
+  },
+  "status": 500,
+  "statusText": "Internal Server Error",
 }
 `;
 

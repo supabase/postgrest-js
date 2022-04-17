@@ -50,6 +50,12 @@ export type PostgrestSingleResponse<T> =
   | PostgrestResponseFailure
 export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null>
 
+const delay = (ms: number) => {
+  return new Promise((resolve) => setTimeout(() => resolve(), ms))
+}
+
+const RetryableErrorCodes = new Set([503, 504, 522, 523, 524])
+
 export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestResponse<T>> {
   protected method!: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
   protected url!: URL
@@ -88,6 +94,35 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
     return this
   }
 
+  retryingFetch(url: string, opts: any, retries: number, retryDelayMs: number): Promise<Response> {
+    // no automatic retries for non-read methods
+    if (!['GET', 'HEAD'].includes(this.method)) {
+      return Promise.resolve(this.fetch(url, opts))
+    }
+    return new Promise((resolve, reject) => {
+      const retryingWrapper = (retriesRemaining: number) => {
+        this.fetch(url, opts)
+          .then((res) => {
+            if (!res.ok && RetryableErrorCodes.has(res.status)) {
+              throw new Error(res.statusText)
+            }
+            return res
+          })
+          .then((res) => resolve(res))
+          .catch(async (err) => {
+            if (retriesRemaining > 0) {
+              console.debug(`fetch failed, retrying in ${retryDelayMs}ms.`)
+              await delay(retryDelayMs)
+              retryingWrapper(--retriesRemaining)
+            } else {
+              reject(err)
+            }
+          })
+      }
+      return retryingWrapper(retries)
+    })
+  }
+
   then<TResult1 = PostgrestResponse<T>, TResult2 = never>(
     onfulfilled?:
       | ((value: PostgrestResponse<T>) => TResult1 | PromiseLike<TResult1>)
@@ -107,61 +142,12 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
       this.headers['Content-Type'] = 'application/json'
     }
 
-    let res = this.fetch(this.url.toString(), {
+    let res = this.retryingFetch(this.url.toString(), {
       method: this.method,
       headers: this.headers,
       body: JSON.stringify(this.body),
       signal: this.signal,
-    }).then(async (res) => {
-      let error = null
-      let data = null
-      let count = null
-
-      if (res.ok) {
-        const isReturnMinimal = this.headers['Prefer']?.split(',').includes('return=minimal')
-        if (this.method !== 'HEAD' && !isReturnMinimal) {
-          const text = await res.text()
-          if (!text) {
-            // discard `text`
-          } else if (this.headers['Accept'] === 'text/csv') {
-            data = text
-          } else {
-            data = JSON.parse(text)
-          }
-        }
-
-        const countHeader = this.headers['Prefer']?.match(/count=(exact|planned|estimated)/)
-        const contentRange = res.headers.get('content-range')?.split('/')
-        if (countHeader && contentRange && contentRange.length > 1) {
-          count = parseInt(contentRange[1])
-        }
-      } else {
-        const body = await res.text()
-
-        try {
-          error = JSON.parse(body)
-        } catch {
-          error = {
-            message: body,
-          }
-        }
-
-        if (error && this.shouldThrowOnError) {
-          throw error
-        }
-      }
-
-      const postgrestResponse = {
-        error,
-        data,
-        count,
-        status: res.status,
-        statusText: res.statusText,
-        body: data,
-      }
-
-      return postgrestResponse
-    })
+    }, 3, 500).then(this.processResponse)
     if (!this.shouldThrowOnError) {
       res = res.catch((fetchError) => ({
         error: {
@@ -177,7 +163,57 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
         statusText: 'Bad Request',
       }))
     }
-
     return res.then(onfulfilled, onrejected)
+  }
+
+  processResponse = async <TResult1 = PostgrestResponse<T>>(res: Response): Promise<PostgrestResponse<T>> => {
+    let error = null
+    let data = null
+    let count = null
+
+    if (res.ok) {
+      const isReturnMinimal = this.headers['Prefer']?.split(',').includes('return=minimal')
+      if (this.method !== 'HEAD' && !isReturnMinimal) {
+        const text = await res.text()
+        if (!text) {
+          // discard `text`
+        } else if (this.headers['Accept'] === 'text/csv') {
+          data = text
+        } else {
+          data = JSON.parse(text)
+        }
+      }
+
+      const countHeader = this.headers['Prefer']?.match(/count=(exact|planned|estimated)/)
+      const contentRange = res.headers.get('content-range')?.split('/')
+      if (countHeader && contentRange && contentRange.length > 1) {
+        count = parseInt(contentRange[1])
+      }
+    } else {
+      const body = await res.text()
+
+      try {
+        error = JSON.parse(body)
+      } catch {
+        error = {
+          message: body,
+        }
+      }
+
+      if (error && this.shouldThrowOnError) {
+        throw error
+      }
+    }
+
+    const postgrestResponse = {
+      error,
+      data,
+      count,
+      status: res.status,
+      statusText: res.statusText,
+      body: data,
+    }
+
+    return postgrestResponse
   }
 }

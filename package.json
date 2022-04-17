@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.13",
     "@types/node-fetch": "^2.5.7",
+    "fastify": "^3.28.0",
     "genversion": "^3.0.1",
     "jest": "^26.4.1",
     "node-abort-controller": "^3.0.0",
