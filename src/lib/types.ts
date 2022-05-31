@@ -73,7 +73,7 @@ export abstract class PostgrestBuilder<T> implements PromiseLike<PostgrestRespon
     }
     this.fetch = (...args) => _fetch(...args)
     this.shouldThrowOnError = builder.shouldThrowOnError || false
-    this.allowEmpty = false
+    this.allowEmpty = builder.allowEmpty || false
   }
 
   /**
