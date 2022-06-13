@@ -43,3 +43,19 @@ export type PostgrestSingleResponse<T> =
   | PostgrestSingleResponseSuccess<T>
   | PostgrestResponseFailure
 export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | undefined>
+
+export type GenericTable = {
+  Row: Record<string, unknown>
+  Insert: Record<string, unknown>
+  Update: Record<string, unknown>
+}
+
+export type GenericFunction = {
+  Args: Record<string, unknown>
+  Returns: unknown
+}
+
+export type GenericSchema = {
+  Tables: Record<string, GenericTable>
+  Functions: Record<string, GenericFunction>
+}

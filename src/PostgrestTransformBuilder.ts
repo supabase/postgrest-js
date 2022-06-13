@@ -1,20 +1,26 @@
 import PostgrestBuilder from './PostgrestBuilder'
+import { GetResult } from './select-query-parser'
 import { PostgrestMaybeSingleResponse, PostgrestSingleResponse } from './types'
 
 /**
  * Post-filters (transforms)
  */
 
-export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
+export default class PostgrestTransformBuilder<
+  Table extends Record<string, unknown>,
+  Result
+> extends PostgrestBuilder<Result> {
   /**
    * Performs vertical filtering with SELECT.
    *
    * @param columns  The columns to retrieve, separated by commas.
    */
-  select(columns = '*'): this {
+  select<Query extends string = '*', NewResult = GetResult<Table, Query extends '*' ? '*' : Query>>(
+    columns?: Query
+  ): PostgrestTransformBuilder<Table, NewResult> {
     // Remove whitespaces except when quoted
     let quoted = false
-    const cleanedColumns = columns
+    const cleanedColumns = (columns ?? '*')
       .split('')
       .map((c) => {
         if (/\s/.test(c) && !quoted) {
@@ -31,7 +37,7 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
       this.headers['Prefer'] += ','
     }
     this.headers['Prefer'] += 'return=representation'
-    return this
+    return this as unknown as PostgrestTransformBuilder<Table, NewResult>
   }
 
   /**
@@ -42,15 +48,23 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * @param nullsFirst  If `true`, `null`s appear first.
    * @param foreignTable  The foreign table to use (if `column` is a foreign column).
    */
+  order<ColumnName extends string & keyof Table>(
+    column: ColumnName,
+    options?: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: undefined }
+  ): this
   order(
-    column: keyof T,
+    column: string,
+    options?: { ascending?: boolean; nullsFirst?: boolean; foreignTable: string }
+  ): this
+  order(
+    column: string,
     {
       ascending = true,
       nullsFirst = true,
       foreignTable,
     }: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: string } = {}
   ): this {
-    const key = typeof foreignTable === 'undefined' ? 'order' : `${foreignTable}.order`
+    const key = foreignTable ? `${foreignTable}.order` : 'order'
     const existingOrder = this.url.searchParams.get(key)
 
     this.url.searchParams.set(
@@ -102,9 +116,9 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * Retrieves only one row from the result. Result must be one row (e.g. using
    * `limit`), otherwise this will result in an error.
    */
-  single(): PromiseLike<PostgrestSingleResponse<T>> {
+  single(): PromiseLike<PostgrestSingleResponse<Result>> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
-    return this as PromiseLike<PostgrestSingleResponse<T>>
+    return this as PromiseLike<PostgrestSingleResponse<Result>>
   }
 
   /**
@@ -112,10 +126,10 @@ export default class PostgrestTransformBuilder<T> extends PostgrestBuilder<T> {
    * (e.g. using `eq` on a UNIQUE column), otherwise this will result in an
    * error.
    */
-  maybeSingle(): PromiseLike<PostgrestMaybeSingleResponse<T>> {
+  maybeSingle(): PromiseLike<PostgrestMaybeSingleResponse<Result>> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
     this.allowEmpty = true
-    return this as PromiseLike<PostgrestMaybeSingleResponse<T>>
+    return this as PromiseLike<PostgrestMaybeSingleResponse<Result>>
   }
 
   /**
