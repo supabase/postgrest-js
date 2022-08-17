@@ -189,7 +189,7 @@ export default class PostgrestTransformBuilder<
     this.headers[
       'Accept'
     ] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`
-    if (format == 'json') return this as PromiseLike<PostgrestResponse<Record<string, unknown>>>
+    if (format === 'json') return this as PromiseLike<PostgrestResponse<Record<string, unknown>>>
     else return this as PromiseLike<PostgrestSingleResponse<string>>
   }
 }
