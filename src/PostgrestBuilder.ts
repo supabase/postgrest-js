@@ -1,19 +1,22 @@
 import crossFetch from 'cross-fetch'
-import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import PostgrestQueryBuilder from './PostgrestQueryBuilder'
-import PostgrestTransformBuilder from './PostgrestTransformBuilder'
+import type PostgrestFilterBuilder from './PostgrestFilterBuilder'
+import type PostgrestQueryBuilder from './PostgrestQueryBuilder'
+import type PostgrestTransformBuilder from './PostgrestTransformBuilder'
 
 import type { Fetch, PostgrestResponse } from './types'
 
-type EnableThrowOnError<T> = T extends PostgrestBuilder<infer Result, any>
-  ? PostgrestBuilder<Result, true>
-  : T extends PostgrestFilterBuilder<infer Schema, infer Row, infer Result, any>
+type EnableThrowOnError<T> = T extends PostgrestFilterBuilder<
+  infer Schema,
+  infer Row,
+  infer Result,
+  any
+>
   ? PostgrestFilterBuilder<Schema, Row, Result, true>
+  : T extends PostgrestTransformBuilder<infer Schema, infer Row, infer Result, any>
+  ? PostgrestTransformBuilder<Schema, Row, Result, true>
   : T extends PostgrestQueryBuilder<infer Schema, infer Relation, any>
   ? PostgrestQueryBuilder<Schema, Relation, true>
-  : T extends PostgrestTransformBuilder<infer Schema, infer Row, infer Result, any>
-  ? PostgrestTransformBuilder<Schema, Row, Result, any>
-  : T
+  : any
 
 export default abstract class PostgrestBuilder<Result, ThrowOnError>
   implements PromiseLike<PostgrestResponse<Result, ThrowOnError>>
@@ -55,7 +58,7 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError>
    */
   throwOnError(): EnableThrowOnError<this> {
     this.shouldThrowOnError = true
-    return this as EnableThrowOnError<this>
+    return this as any
   }
 
   then<TResult1 = PostgrestResponse<Result, ThrowOnError>, TResult2 = never>(

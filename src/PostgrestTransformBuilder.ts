@@ -139,9 +139,9 @@ export default class PostgrestTransformBuilder<
    * Query result must be one row (e.g. using `.limit(1)`), otherwise this
    * returns an error.
    */
-  single(): PromiseLike<PostgrestSingleResponse<Result>> {
+  single(): PromiseLike<PostgrestSingleResponse<Result, ThrowOnError>> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
-    return this as PromiseLike<PostgrestSingleResponse<Result>>
+    return this as unknown as PromiseLike<PostgrestSingleResponse<Result, ThrowOnError>>
   }
 
   /**
@@ -159,17 +159,19 @@ export default class PostgrestTransformBuilder<
   /**
    * Return `data` as a string in CSV format.
    */
-  csv(): PromiseLike<PostgrestSingleResponse<string>> {
+  csv(): PromiseLike<PostgrestSingleResponse<string, ThrowOnError>> {
     this.headers['Accept'] = 'text/csv'
-    return this as PromiseLike<PostgrestSingleResponse<string>>
+    return this as unknown as PromiseLike<PostgrestSingleResponse<string, ThrowOnError>>
   }
 
   /**
    * Return `data` as an object in [GeoJSON](https://geojson.org) format.
    */
-  geojson(): PromiseLike<PostgrestSingleResponse<Record<string, unknown>>> {
+  geojson(): PromiseLike<PostgrestSingleResponse<Record<string, unknown>, ThrowOnError>> {
     this.headers['Accept'] = 'application/geo+json'
-    return this as PromiseLike<PostgrestSingleResponse<Record<string, unknown>>>
+    return this as unknown as PromiseLike<
+      PostgrestSingleResponse<Record<string, unknown>, ThrowOnError>
+    >
   }
 
   /**
@@ -209,7 +211,7 @@ export default class PostgrestTransformBuilder<
     format?: 'json' | 'text'
   } = {}):
     | PromiseLike<PostgrestResponse<Record<string, unknown>, ThrowOnError>>
-    | PromiseLike<PostgrestSingleResponse<string>> {
+    | PromiseLike<PostgrestSingleResponse<string, ThrowOnError>> {
     const options = [
       analyze ? 'analyze' : null,
       verbose ? 'verbose' : null,
@@ -226,7 +228,7 @@ export default class PostgrestTransformBuilder<
     ] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`
     if (format === 'json')
       return this as PromiseLike<PostgrestResponse<Record<string, unknown>, ThrowOnError>>
-    else return this as PromiseLike<PostgrestSingleResponse<string>>
+    else return this as unknown as PromiseLike<PostgrestSingleResponse<string, ThrowOnError>>
   }
 
   /**
