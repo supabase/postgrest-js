@@ -30,7 +30,7 @@ test('range', async () => {
 })
 
 test('single', async () => {
-  const res = await postgrest.from('users').select().limit(1).throwOnError().single()
+  const res = await postgrest.from('users').select().limit(1).single()
   expect(res).toMatchSnapshot()
 })
 
