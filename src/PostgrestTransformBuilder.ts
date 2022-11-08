@@ -10,8 +10,9 @@ import {
 export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
-  Result
-> extends PostgrestBuilder<Result> {
+  Result,
+  ThrowOnError
+> extends PostgrestBuilder<Result, ThrowOnError> {
   /**
    * Perform a SELECT on the query result.
    *
@@ -23,7 +24,7 @@ export default class PostgrestTransformBuilder<
    */
   select<Query extends string = '*', NewResult = GetResult<Schema, Row, Query>>(
     columns?: Query
-  ): PostgrestTransformBuilder<Schema, Row, NewResult> {
+  ): PostgrestTransformBuilder<Schema, Row, NewResult, ThrowOnError> {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = (columns ?? '*')
@@ -43,7 +44,7 @@ export default class PostgrestTransformBuilder<
       this.headers['Prefer'] += ','
     }
     this.headers['Prefer'] += 'return=representation'
-    return this as unknown as PostgrestTransformBuilder<Schema, Row, NewResult>
+    return this as unknown as PostgrestTransformBuilder<Schema, Row, NewResult, ThrowOnError>
   }
 
   /**
@@ -207,7 +208,7 @@ export default class PostgrestTransformBuilder<
     wal?: boolean
     format?: 'json' | 'text'
   } = {}):
-    | PromiseLike<PostgrestResponse<Record<string, unknown>>>
+    | PromiseLike<PostgrestResponse<Record<string, unknown>, ThrowOnError>>
     | PromiseLike<PostgrestSingleResponse<string>> {
     const options = [
       analyze ? 'analyze' : null,
@@ -223,7 +224,8 @@ export default class PostgrestTransformBuilder<
     this.headers[
       'Accept'
     ] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`
-    if (format === 'json') return this as PromiseLike<PostgrestResponse<Record<string, unknown>>>
+    if (format === 'json')
+      return this as PromiseLike<PostgrestResponse<Record<string, unknown>, ThrowOnError>>
     else return this as PromiseLike<PostgrestSingleResponse<string>>
   }
 
@@ -246,7 +248,7 @@ export default class PostgrestTransformBuilder<
    *
    * @typeParam NewResult - The new result type to override with
    */
-  returns<NewResult>(): PostgrestTransformBuilder<Schema, Row, NewResult> {
-    return this as unknown as PostgrestTransformBuilder<Schema, Row, NewResult>
+  returns<NewResult>(): PostgrestTransformBuilder<Schema, Row, NewResult, ThrowOnError> {
+    return this as unknown as PostgrestTransformBuilder<Schema, Row, NewResult, ThrowOnError>
   }
 }

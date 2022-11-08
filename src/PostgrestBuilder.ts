@@ -1,9 +1,22 @@
 import crossFetch from 'cross-fetch'
+import PostgrestFilterBuilder from './PostgrestFilterBuilder'
+import PostgrestQueryBuilder from './PostgrestQueryBuilder'
+import PostgrestTransformBuilder from './PostgrestTransformBuilder'
 
 import type { Fetch, PostgrestResponse } from './types'
 
-export default abstract class PostgrestBuilder<Result>
-  implements PromiseLike<PostgrestResponse<Result>>
+type EnableThrowOnError<T> = T extends PostgrestBuilder<infer Result, any>
+  ? PostgrestBuilder<Result, true>
+  : T extends PostgrestFilterBuilder<infer Schema, infer Row, infer Result, any>
+  ? PostgrestFilterBuilder<Schema, Row, Result, true>
+  : T extends PostgrestQueryBuilder<infer Schema, infer Relation, any>
+  ? PostgrestQueryBuilder<Schema, Relation, true>
+  : T extends PostgrestTransformBuilder<infer Schema, infer Row, infer Result, any>
+  ? PostgrestTransformBuilder<Schema, Row, Result, any>
+  : T
+
+export default abstract class PostgrestBuilder<Result, ThrowOnError>
+  implements PromiseLike<PostgrestResponse<Result, ThrowOnError>>
 {
   protected method: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
   protected url: URL
@@ -15,7 +28,7 @@ export default abstract class PostgrestBuilder<Result>
   protected fetch: Fetch
   protected allowEmpty: boolean
 
-  constructor(builder: PostgrestBuilder<Result>) {
+  constructor(builder: PostgrestBuilder<Result, ThrowOnError>) {
     this.method = builder.method
     this.url = builder.url
     this.headers = builder.headers
@@ -40,14 +53,14 @@ export default abstract class PostgrestBuilder<Result>
    *
    * {@link https://github.com/supabase/supabase-js/issues/92}
    */
-  throwOnError(): this {
+  throwOnError(): EnableThrowOnError<this> {
     this.shouldThrowOnError = true
-    return this
+    return this as EnableThrowOnError<this>
   }
 
-  then<TResult1 = PostgrestResponse<Result>, TResult2 = never>(
+  then<TResult1 = PostgrestResponse<Result, ThrowOnError>, TResult2 = never>(
     onfulfilled?:
-      | ((value: PostgrestResponse<Result>) => TResult1 | PromiseLike<TResult1>)
+      | ((value: PostgrestResponse<Result, ThrowOnError>) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null

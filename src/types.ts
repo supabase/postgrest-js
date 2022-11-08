@@ -32,7 +32,9 @@ interface PostgrestResponseFailure extends PostgrestResponseBase {
   data: null
   count: null
 }
-export type PostgrestResponse<T> = PostgrestResponseSuccess<T> | PostgrestResponseFailure
+export type PostgrestResponse<T, ThrowOnError> =
+  | PostgrestResponseSuccess<T>
+  | PostgrestResponseFailure
 
 interface PostgrestSingleResponseSuccess<T> extends PostgrestResponseBase {
   error: null

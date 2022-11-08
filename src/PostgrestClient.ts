@@ -63,15 +63,18 @@ export default class PostgrestClient<
    */
   from<
     TableName extends string & keyof Schema['Tables'],
-    Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<Schema, Table>
-  from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
-    relation: ViewName
-  ): PostgrestQueryBuilder<Schema, View>
-  from(relation: string): PostgrestQueryBuilder<Schema, any>
-  from(relation: string): PostgrestQueryBuilder<Schema, any> {
+    Table extends Schema['Tables'][TableName],
+    ThrowOnError
+  >(relation: TableName): PostgrestQueryBuilder<Schema, Table, ThrowOnError>
+  from<
+    ViewName extends string & keyof Schema['Views'],
+    View extends Schema['Views'][ViewName],
+    ThrowOnError
+  >(relation: ViewName): PostgrestQueryBuilder<Schema, View, ThrowOnError>
+  from(relation: string): PostgrestQueryBuilder<Schema, any, false>
+  from(relation: string): PostgrestQueryBuilder<Schema, any, false> {
     const url = new URL(`${this.url}/${relation}`)
-    return new PostgrestQueryBuilder<Schema, any>(url, {
+    return new PostgrestQueryBuilder<Schema, any, false>(url, {
       headers: { ...this.headers },
       schema: this.schema,
       fetch: this.fetch,
@@ -101,7 +104,8 @@ export default class PostgrestClient<
    */
   rpc<
     FunctionName extends string & keyof Schema['Functions'],
-    Function_ extends Schema['Functions'][FunctionName]
+    Function_ extends Schema['Functions'][FunctionName],
+    ThrowOnError
   >(
     fn: FunctionName,
     args: Function_['Args'] = {},
@@ -119,7 +123,8 @@ export default class PostgrestClient<
         ? Function_['Returns'][number]
         : never
       : never,
-    Function_['Returns']
+    Function_['Returns'],
+    ThrowOnError
   > {
     let method: 'HEAD' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)
@@ -147,6 +152,6 @@ export default class PostgrestClient<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<Function_['Returns']>)
+    } as unknown as PostgrestBuilder<Function_['Returns'], ThrowOnError>)
   }
 }
