@@ -44,7 +44,10 @@ interface PostgrestSingleResponseSuccess<T> extends PostgrestResponseBase {
 export type PostgrestSingleResponse<T, ThrowOnError> = ThrowOnError extends true
   ? PostgrestSingleResponseSuccess<T>
   : PostgrestSingleResponseSuccess<T> | PostgrestResponseFailure
-export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null, false>
+export type PostgrestMaybeSingleResponse<T, ThrowOnError> = PostgrestSingleResponse<
+  T | null,
+  ThrowOnError
+>
 
 export type GenericTable = {
   Row: Record<string, unknown>

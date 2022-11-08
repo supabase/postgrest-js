@@ -150,10 +150,10 @@ export default class PostgrestTransformBuilder<
    * Query result must be zero or one row (e.g. using `.limit(1)`), otherwise
    * this returns an error.
    */
-  maybeSingle(): PromiseLike<PostgrestMaybeSingleResponse<Result>> {
+  maybeSingle(): PromiseLike<PostgrestMaybeSingleResponse<Result, ThrowOnError>> {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
     this.allowEmpty = true
-    return this as PromiseLike<PostgrestMaybeSingleResponse<Result>>
+    return this as unknown as PromiseLike<PostgrestMaybeSingleResponse<Result, ThrowOnError>>
   }
 
   /**
