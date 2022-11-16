@@ -28,8 +28,9 @@ type FilterOperator =
 export default class PostgrestFilterBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
-  Result
-> extends PostgrestTransformBuilder<Schema, Row, Result> {
+  Result,
+  ThrowOnError
+> extends PostgrestTransformBuilder<Schema, Row, Result, ThrowOnError> {
   /**
    * Match only rows where `column` is equal to `value`.
    *

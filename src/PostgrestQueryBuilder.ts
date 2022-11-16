@@ -5,7 +5,8 @@ import { Fetch, GenericSchema, GenericTable, GenericView } from './types'
 
 export default class PostgrestQueryBuilder<
   Schema extends GenericSchema,
-  Relation extends GenericTable | GenericView
+  Relation extends GenericTable | GenericView,
+  ThrowOnError
 > {
   url: URL
   headers: Record<string, string>
@@ -52,10 +53,7 @@ export default class PostgrestQueryBuilder<
    * `"estimated"`: Uses exact count for low numbers and planned count for high
    * numbers.
    */
-  select<
-    Query extends string = '*',
-    Result = GetResult<Schema, Relation['Row'], Query>
-  >(
+  select<Query extends string = '*', Result = GetResult<Schema, Relation['Row'], Query>>(
     columns?: Query,
     {
       head = false,
@@ -64,7 +62,7 @@ export default class PostgrestQueryBuilder<
       head?: boolean
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Schema, Relation['Row'], Result> {
+  ): PostgrestFilterBuilder<Schema, Relation['Row'], Result, ThrowOnError> {
     const method = head ? 'HEAD' : 'GET'
     // Remove whitespaces except when quoted
     let quoted = false
@@ -92,7 +90,7 @@ export default class PostgrestQueryBuilder<
       schema: this.schema,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<Result>)
+    } as unknown as PostgrestBuilder<Result, ThrowOnError>)
   }
 
   /**
@@ -124,7 +122,7 @@ export default class PostgrestQueryBuilder<
     }: {
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined> {
+  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined, ThrowOnError> {
     const method = 'POST'
 
     const prefersHeaders = []
@@ -153,7 +151,7 @@ export default class PostgrestQueryBuilder<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<undefined>)
+    } as unknown as PostgrestBuilder<undefined, ThrowOnError>)
   }
 
   /**
@@ -200,7 +198,7 @@ export default class PostgrestQueryBuilder<
       ignoreDuplicates?: boolean
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined> {
+  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined, ThrowOnError> {
     const method = 'POST'
 
     const prefersHeaders = [`resolution=${ignoreDuplicates ? 'ignore' : 'merge'}-duplicates`]
@@ -223,7 +221,7 @@ export default class PostgrestQueryBuilder<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<undefined>)
+    } as unknown as PostgrestBuilder<undefined, ThrowOnError>)
   }
 
   /**
@@ -254,7 +252,7 @@ export default class PostgrestQueryBuilder<
     }: {
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined> {
+  ): PostgrestFilterBuilder<Schema, Relation['Row'], undefined, ThrowOnError> {
     const method = 'PATCH'
     const prefersHeaders = []
     const body = values
@@ -274,7 +272,7 @@ export default class PostgrestQueryBuilder<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<undefined>)
+    } as unknown as PostgrestBuilder<undefined, ThrowOnError>)
   }
 
   /**
@@ -300,7 +298,7 @@ export default class PostgrestQueryBuilder<
     count,
   }: {
     count?: 'exact' | 'planned' | 'estimated'
-  } = {}): PostgrestFilterBuilder<Schema, Relation['Row'], undefined> {
+  } = {}): PostgrestFilterBuilder<Schema, Relation['Row'], undefined, ThrowOnError> {
     const method = 'DELETE'
     const prefersHeaders = []
     if (count) {
@@ -318,6 +316,6 @@ export default class PostgrestQueryBuilder<
       schema: this.schema,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<undefined>)
+    } as unknown as PostgrestBuilder<undefined, ThrowOnError>)
   }
 }

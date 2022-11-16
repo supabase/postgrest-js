@@ -32,17 +32,22 @@ interface PostgrestResponseFailure extends PostgrestResponseBase {
   data: null
   count: null
 }
-export type PostgrestResponse<T> = PostgrestResponseSuccess<T> | PostgrestResponseFailure
+export type PostgrestResponse<T, ThrowOnError> = ThrowOnError extends true
+  ? PostgrestResponseSuccess<T>
+  : PostgrestResponseSuccess<T> | PostgrestResponseFailure
 
 interface PostgrestSingleResponseSuccess<T> extends PostgrestResponseBase {
   error: null
   data: T
   count: number | null
 }
-export type PostgrestSingleResponse<T> =
-  | PostgrestSingleResponseSuccess<T>
-  | PostgrestResponseFailure
-export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null>
+export type PostgrestSingleResponse<T, ThrowOnError> = ThrowOnError extends true
+  ? PostgrestSingleResponseSuccess<T>
+  : PostgrestSingleResponseSuccess<T> | PostgrestResponseFailure
+export type PostgrestMaybeSingleResponse<T, ThrowOnError> = PostgrestSingleResponse<
+  T | null,
+  ThrowOnError
+>
 
 export type GenericTable = {
   Row: Record<string, unknown>
