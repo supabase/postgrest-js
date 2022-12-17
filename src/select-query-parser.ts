@@ -263,7 +263,7 @@ type ParseNode<Input extends string> = Input extends ''
  * or the original string input indicating that no opening `->` was found.
  */
 type ParseJsonAccessor<Input extends string> = Input extends `->${infer Remainder}`
-  ? EatWhitespace<Remainder> extends `>${infer Remainder}`
+  ? Remainder extends `>${infer Remainder}`
     ? (ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
       ? [Name, string, EatWhitespace<Remainder>]
       : ParserError<'Expected property name after `->>`'>)
