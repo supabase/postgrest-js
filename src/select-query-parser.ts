@@ -38,6 +38,14 @@ type Digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0'
 
 type Letter = Alphabet | Digit | '_'
 
+type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json }
+  | Json[]
+
 // /**
 //  * Parsed node types.
 //  * Currently only `*` and all other fields.
@@ -45,7 +53,8 @@ type Letter = Alphabet | Digit | '_'
 // type ParsedNode =
 //   | { star: true }
 //   | { name: string; original: string }
-//   | { name: string; foreignTable: true };
+//   | { name: string; foreignTable: true }
+//   | { name: string; jsonProperty: string; type: T };
 
 /**
  * Parser errors.
@@ -90,6 +99,8 @@ type ConstructFieldDefinition<
     }
   : Field extends { name: string; original: string }
   ? { [K in Field['name']]: Row[Field['original']] }
+  : Field extends { name: string; jsonProperty: string; type: infer T }
+  ? { [K in Field['jsonProperty']]: T }
   : Record<string, unknown>
 
 /**
@@ -131,6 +142,7 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input>
  * A node is one of the following:
  * - `*`
  * - `field`
+ * - `field->json...
  * - `field(nodes)`
  * - `field!hint(nodes)`
  * - `field!inner(nodes)`
@@ -141,7 +153,7 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input>
  * - `renamed_field:field!inner(nodes)`
  * - `renamed_field:field!hint!inner(nodes)`
  *
- * TODO: casting operators `::text`, JSON operators `->`, `->>`.
+ * TODO: casting operators `::text`, more support for JSON operators `->`, `->>`.
  */
 type ParseNode<Input extends string> = Input extends ''
   ? ParserError<'Empty string'>
@@ -230,6 +242,10 @@ type ParseNode<Input extends string> = Input extends ''
         : // `renamed_field:field`
           [{ name: Name; original: OriginalName }, EatWhitespace<Remainder>]
       : ParseIdentifier<EatWhitespace<Remainder>>
+
+    : ParseJsonAccessor<EatWhitespace<Remainder>> extends [infer PropertyName, infer PropertyType, `${infer Remainder}`]
+    ? // `field->json...
+    [{ name: Name; jsonProperty: PropertyName, type: PropertyType }, EatWhitespace<Remainder>]
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
     ? // `field(nodes)`
       [{ name: Name; original: Name; children: Fields }, EatWhitespace<Remainder>]
@@ -238,6 +254,26 @@ type ParseNode<Input extends string> = Input extends ''
     : // `field`
       [{ name: Name; original: Name }, EatWhitespace<Remainder>]
   : ParserError<`Expected identifier at \`${Input}\``>
+
+/**
+ * Parses a JSON property accessor of the shape `->a->b->c`. The last accessor in
+ * the series may convert to text by using the ->> operator instead of ->.
+ *
+ * Returns a tuple of ["Last property name", "Last property type", "Remainder of text"]
+ * or the original string input indicating that no opening `->` was found.
+ */
+type ParseJsonAccessor<Input extends string> = Input extends `->${infer Remainder}`
+  ? EatWhitespace<Remainder> extends `>${infer Remainder}`
+    ? (ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
+      ? [Name, string, EatWhitespace<Remainder>]
+      : ParserError<'Expected property name after `->>`'>)
+    : ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
+    ? ParseJsonAccessor<Remainder> extends [infer PropertyName, infer PropertyType, `${infer Remainder}`]
+      ? [PropertyName, PropertyType, EatWhitespace<Remainder>]
+      : [Name, Json, EatWhitespace<Remainder>]
+    : ParserError<'Expected property name after `->`'>
+  : Input
+
 
 /**
  * Parses an embedded resource, which is an opening `(`, followed by a sequence of
