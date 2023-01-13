@@ -22,10 +22,12 @@ interface PostgrestResponseBase {
   statusText: string
 }
 
+type ToArray<T> = T extends any ? T[] : never;
+
 interface PostgrestResponseSuccess<T> extends PostgrestResponseBase {
-  error: null
-  data: T[]
-  count: number | null
+    error: null;
+    data: ToArray<T>;
+    count: number | null;
 }
 interface PostgrestResponseFailure extends PostgrestResponseBase {
   error: PostgrestError
