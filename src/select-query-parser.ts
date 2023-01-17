@@ -48,7 +48,7 @@ type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 //   | { star: true }
 //   | { name: string; original: string }
 //   | { name: string; foreignTable: true }
-//   | { name: string; jsonProperty: string; type: T };
+//   | { name: string; type: T };
 
 /**
  * Parser errors.
