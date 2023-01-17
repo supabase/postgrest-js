@@ -42,3 +42,15 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 {
   expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
 }
+
+// json accessor in select query
+{
+  const { data, error } = await postgrest
+    .from('users')
+    .select('data->foo->bar, data->foo->>baz')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ bar: Json } & { baz: string }>(data)
+}
