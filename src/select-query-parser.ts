@@ -38,13 +38,7 @@ type Digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0'
 
 type Letter = Alphabet | Digit | '_'
 
-type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json }
-  | Json[]
+type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
 // /**
 //  * Parsed node types.
@@ -99,8 +93,8 @@ type ConstructFieldDefinition<
     }
   : Field extends { name: string; original: string }
   ? { [K in Field['name']]: Row[Field['original']] }
-  : Field extends { name: string; jsonProperty: string; type: infer T }
-  ? { [K in Field['jsonProperty']]: T }
+  : Field extends { name: string; type: infer T }
+  ? { [K in Field['name']]: T }
   : Record<string, unknown>
 
 /**
@@ -142,12 +136,13 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input>
  * A node is one of the following:
  * - `*`
  * - `field`
- * - `field->json...
+ * - `field->json...`
  * - `field(nodes)`
  * - `field!hint(nodes)`
  * - `field!inner(nodes)`
  * - `field!hint!inner(nodes)`
  * - `renamed_field:field`
+ * - `renamed_field:field->json...`
  * - `renamed_field:field(nodes)`
  * - `renamed_field:field!hint(nodes)`
  * - `renamed_field:field!inner(nodes)`
@@ -237,18 +232,28 @@ type ParseNode<Input extends string> = Input extends ''
           ]
         ? // `renamed_field:field(nodes)`
           [{ name: Name; original: OriginalName; children: Fields }, EatWhitespace<Remainder>]
+        : ParseJsonAccessor<EatWhitespace<Remainder>> extends [
+            infer _PropertyName,
+            infer PropertyType,
+            `${infer Remainder}`
+          ]
+        ? // `renamed_field:field->json...`
+          [{ name: Name; type: PropertyType }, EatWhitespace<Remainder>]
         : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
         ? ParseEmbeddedResource<EatWhitespace<Remainder>>
         : // `renamed_field:field`
           [{ name: Name; original: OriginalName }, EatWhitespace<Remainder>]
       : ParseIdentifier<EatWhitespace<Remainder>>
-
-    : ParseJsonAccessor<EatWhitespace<Remainder>> extends [infer PropertyName, infer PropertyType, `${infer Remainder}`]
-    ? // `field->json...
-    [{ name: Name; jsonProperty: PropertyName, type: PropertyType }, EatWhitespace<Remainder>]
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
     ? // `field(nodes)`
       [{ name: Name; original: Name; children: Fields }, EatWhitespace<Remainder>]
+    : ParseJsonAccessor<EatWhitespace<Remainder>> extends [
+        infer PropertyName,
+        infer PropertyType,
+        `${infer Remainder}`
+      ]
+    ? // `field->json...`
+      [{ name: PropertyName; type: PropertyType }, EatWhitespace<Remainder>]
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
     ? ParseEmbeddedResource<EatWhitespace<Remainder>>
     : // `field`
@@ -264,16 +269,19 @@ type ParseNode<Input extends string> = Input extends ''
  */
 type ParseJsonAccessor<Input extends string> = Input extends `->${infer Remainder}`
   ? Remainder extends `>${infer Remainder}`
-    ? (ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
+    ? ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
       ? [Name, string, EatWhitespace<Remainder>]
-      : ParserError<'Expected property name after `->>`'>)
+      : ParserError<'Expected property name after `->>`'>
     : ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
-    ? ParseJsonAccessor<Remainder> extends [infer PropertyName, infer PropertyType, `${infer Remainder}`]
+    ? ParseJsonAccessor<Remainder> extends [
+        infer PropertyName,
+        infer PropertyType,
+        `${infer Remainder}`
+      ]
       ? [PropertyName, PropertyType, EatWhitespace<Remainder>]
       : [Name, Json, EatWhitespace<Remainder>]
     : ParserError<'Expected property name after `->`'>
   : Input
-
 
 /**
  * Parses an embedded resource, which is an opening `(`, followed by a sequence of

@@ -1,6 +1,6 @@
 import { expectError, expectType } from 'tsd'
 import { PostgrestClient } from '../src/index'
-import { Database } from './types'
+import { Database, Json } from './types'
 
 const REST_URL = 'http://localhost:3000'
 const postgrest = new PostgrestClient<Database>(REST_URL)
