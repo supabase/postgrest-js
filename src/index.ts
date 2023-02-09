@@ -1,8 +1,8 @@
-export { default as PostgrestClient } from './PostgrestClient'
-export { default as PostgrestQueryBuilder } from './PostgrestQueryBuilder'
-export { default as PostgrestFilterBuilder } from './PostgrestFilterBuilder'
-export { default as PostgrestTransformBuilder } from './PostgrestTransformBuilder'
-export { default as PostgrestBuilder } from './PostgrestBuilder'
+export { default as PostgrestClient } from './PostgrestClient.js'
+export { default as PostgrestQueryBuilder } from './PostgrestQueryBuilder.js'
+export { default as PostgrestFilterBuilder } from './PostgrestFilterBuilder.js'
+export { default as PostgrestTransformBuilder } from './PostgrestTransformBuilder.js'
+export { default as PostgrestBuilder } from './PostgrestBuilder.js'
 export {
   PostgrestResponse,
   PostgrestResponseFailure,
@@ -10,4 +10,4 @@ export {
   PostgrestSingleResponse,
   PostgrestMaybeSingleResponse,
   PostgrestError,
-} from './types'
+} from './types.js'

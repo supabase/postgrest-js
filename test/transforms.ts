@@ -1,5 +1,5 @@
-import { PostgrestClient } from '../src/index'
-import { Database } from './types'
+import { PostgrestClient } from '../src/index.js'
+import { Database } from './types.js'
 
 import { AbortController } from 'node-abort-controller'
 

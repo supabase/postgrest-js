@@ -1,5 +1,5 @@
-import { PostgrestClient } from '../src/index'
-import { Database } from './types'
+import { PostgrestClient } from '../src/index.js'
+import { Database } from './types.js'
 
 const REST_URL = 'http://localhost:3000'
 const postgrest = new PostgrestClient<Database>(REST_URL)
