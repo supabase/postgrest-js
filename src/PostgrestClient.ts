@@ -1,8 +1,8 @@
-import PostgrestQueryBuilder from './PostgrestQueryBuilder'
-import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import PostgrestBuilder from './PostgrestBuilder'
-import { DEFAULT_HEADERS } from './constants'
-import { Fetch, GenericSchema } from './types'
+import PostgrestQueryBuilder from './PostgrestQueryBuilder.js'
+import PostgrestFilterBuilder from './PostgrestFilterBuilder.js'
+import PostgrestBuilder from './PostgrestBuilder.js'
+import { DEFAULT_HEADERS } from './constants.js'
+import { Fetch, GenericSchema } from './types.js'
 
 /**
  * PostgREST client.

@@ -14,16 +14,22 @@
     "dist",
     "src"
   ],
+  "type": "module",
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
   "types": "dist/module/index.d.ts",
+  "exports": {
+    "require": "./dist/main/index.js",
+    "import": "./dist/module/index.js",
+    "types": "./dist/module/index.d.ts"
+  },
   "repository": "supabase/postgrest-js",
   "scripts": {
     "clean": "rimraf dist docs/v2",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
     "format:check": "prettier --check \"{src,test}/**/*.ts\"",
     "build": "run-s clean format build:*",
-    "build:main": "tsc -p tsconfig.json",
+    "build:main": "tsc -p tsconfig.json && node ./fix-commonjs-dist.js",
     "build:module": "tsc -p tsconfig.module.json",
     "docs": "typedoc src/index.ts --out docs/v2",
     "docs:json": "typedoc --json docs/v2/spec.json --excludeExternals src/index.ts",

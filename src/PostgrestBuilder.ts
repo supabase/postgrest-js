@@ -1,6 +1,6 @@
 import crossFetch from 'cross-fetch'
 
-import type { Fetch, PostgrestSingleResponse } from './types'
+import type { Fetch, PostgrestSingleResponse } from './types.js'
 
 export default abstract class PostgrestBuilder<Result>
   implements PromiseLike<PostgrestSingleResponse<Result>>

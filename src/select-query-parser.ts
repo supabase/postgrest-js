@@ -1,6 +1,6 @@
 // Credits to @bnjmnt4n (https://www.npmjs.com/package/postgrest-query)
 
-import { GenericSchema, Prettify } from './types'
+import { GenericSchema, Prettify } from './types.js'
 
 type Whitespace = ' ' | '\n' | '\t'
 
