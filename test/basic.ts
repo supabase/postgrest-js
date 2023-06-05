@@ -665,18 +665,35 @@ test('connection error w/ throwOnError', async () => {
   expect(isErrorCaught).toBe(true)
 })
 
-test('maybeSingle w/ throwOnError', async () => {
-  let passes = true
-  await postgrest
+test('maybeSingle w/ throwOnError (0 results)', async () => {
+  const res = await postgrest
     .from('messages')
     .select()
     .eq('message', 'i do not exist')
     .throwOnError()
     .maybeSingle()
-    .then(undefined, () => {
-      passes = false
-    })
-  expect(passes).toEqual(true)
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('maybeSingle w/ throwOnError (2 results)', async () => {
+  await expect(async () => {
+    await postgrest.from('messages').select().throwOnError().maybeSingle()
+  }).rejects.toMatchInlineSnapshot(`
+          Object {
+            "code": "PGRST116",
+            "details": "Results contain 2 rows, application/vnd.pgrst.object+json requires 1 row",
+            "hint": null,
+            "message": "JSON object requested, multiple (or no) rows returned",
+          }
+        `)
 })
 
 test("don't mutate PostgrestClient.headers", async () => {
