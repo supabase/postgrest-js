@@ -136,7 +136,9 @@ type ConstructFieldDefinition<
         : never
     }
   : Field extends { name: string; original: string }
-  ? { [K in Field['name']]: Row[Field['original']] }
+  ? Field['original'] extends keyof Row
+    ? { [K in Field['name']]: Row[Field['original']] }
+    : never
   : Field extends { name: string; type: infer T }
   ? { [K in Field['name']]: T }
   : Record<string, unknown>
