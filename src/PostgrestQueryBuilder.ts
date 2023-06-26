@@ -32,6 +32,11 @@ export default class PostgrestQueryBuilder<
     this.fetch = fetch
   }
 
+  setSchema(schema?: string): PostgrestQueryBuilder<Schema, Relation, Relationships> {
+    this.schema = schema
+    return this
+  }
+
   /**
    * Perform a SELECT query on the table or view.
    *
