@@ -2,6 +2,10 @@ import PostgrestBuilder from './PostgrestBuilder'
 import { GetResult } from './select-query-parser'
 import { GenericSchema } from './types'
 
+/* Extract the column name from a potential JSON accessor expression. */
+type ColumnName<T extends string> =
+  T extends `${infer TName}->${infer _TRest}` ? TName : T
+
 export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
@@ -42,13 +46,11 @@ export default class PostgrestTransformBuilder<
     return this as unknown as PostgrestTransformBuilder<Schema, Row, NewResultOne[], Relationships>
   }
 
-  order<ColumnName extends string & keyof Row>(
-    column: ColumnName,
-    options?: { ascending?: boolean; nullsFirst?: boolean; foreignTable?: undefined }
-  ): this
-  order(
-    column: string,
-    options?: { ascending?: boolean; nullsFirst?: boolean; foreignTable: string }
+  order<ColExpr extends string, ColName = ColumnName<ColExpr>>(
+    column: ColExpr,
+    options?: ColName extends keyof Row ?
+      { ascending?: boolean; nullsFirst?: boolean; foreignTable?: string } :
+      { ascending?: boolean; nullsFirst?: boolean; foreignTable: string }
   ): this
   /**
    * Order the query result by `column`.
