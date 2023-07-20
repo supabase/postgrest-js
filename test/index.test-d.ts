@@ -56,6 +56,20 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<{ bar: Json; baz: string }>(data)
 }
 
+// json accessor in select query
+{
+  const { data, error } = await postgrest
+    .from('messages')
+    .select('message, ...users(status)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ message: string | null; status: Database['public']['Enums']['user_status'] | null }>(
+    data
+  )
+}
+
 // rpc return type
 {
   const { data, error } = await postgrest.rpc('get_status')
