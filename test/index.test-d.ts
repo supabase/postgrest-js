@@ -149,6 +149,30 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<Database['public']['Tables']['users']['Row'] | null>(message.user)
 }
 
+// many-to-one relationship (fkey)
+{
+  const { data: message, error } = await postgrest
+    .from('messages')
+    .select('user:users!messages_username_fkey(*)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['users']['Row'] | null>(message.user)
+}
+
+// many-to-one relationship (column name)
+{
+  const { data: message, error } = await postgrest
+    .from('messages')
+    .select('user:username(*)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['users']['Row'] | null>(message.user)
+}
+
 // one-to-many relationship
 {
   const { data: user, error } = await postgrest.from('users').select('messages(*)').single()

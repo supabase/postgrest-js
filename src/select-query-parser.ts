@@ -129,54 +129,91 @@ type EatWhitespace<Input extends string> = string extends Input
   : Input
 
 /**
- * Returns a boolean representing whether there is a foreign key with the given name.
+ * Check if Item is in Array
  */
-type HasFKey<FKeyName, Relationships> = Relationships extends [infer R]
-  ? R extends { foreignKeyName: FKeyName }
+type InArray<Item, Array> = Array extends [infer I]
+  ? I extends Item
     ? true
     : false
-  : Relationships extends [infer R, ...infer Rest]
-  ? HasFKey<FKeyName, [R]> extends true
+  : Array extends [infer I, ...infer Rest]
+  ? InArray<Item, [I]> extends true
     ? true
-    : HasFKey<FKeyName, Rest>
+    : InArray<Item, Rest>
   : false
 
 /**
+ * Returns a boolean representing whether there is a foreign key with the given name.
+ */
+type HasFKey<FKeyName, Relationships> = InArray<{ foreignKeyName: FKeyName }, Relationships>
+/**
  * Returns a boolean representing whether there the foreign key has a unique constraint.
  */
-type HasUniqueFKey<FKeyName, Relationships> = Relationships extends [infer R]
-  ? R extends { foreignKeyName: FKeyName; isOneToOne: true }
-    ? true
-    : false
+type HasUniqueFKey<FKeyName, Relationships> = InArray<
+  { foreignKeyName: FKeyName; isOneToOne: true },
+  Relationships
+>
+
+/**
+ * Returns a boolean representing whether there is a column that references a relation
+ */
+type ColumnForeignRelation<ColName, Relationships> = Relationships extends [infer R]
+  ? R extends { columns: string[]; referencedRelation: string }
+    ? InArray<ColName, R['columns']> extends true
+      ? [R['referencedRelation']]
+      : null
+    : null
   : Relationships extends [infer R, ...infer Rest]
-  ? HasUniqueFKey<FKeyName, [R]> extends true
-    ? true
-    : HasUniqueFKey<FKeyName, Rest>
-  : false
+  ? ColumnForeignRelation<ColName, [R]> extends [infer Rel]
+    ? [Rel]
+    : ColumnForeignRelation<ColName, Rest>
+  : null
 
 /**
  * Returns a boolean representing whether there is a foreign key referencing
  * a given relation.
  */
-type HasFKeyToFRel<FRelName, Relationships> = Relationships extends [infer R]
-  ? R extends { referencedRelation: FRelName }
-    ? true
-    : false
-  : Relationships extends [infer R, ...infer Rest]
-  ? HasFKeyToFRel<FRelName, [R]> extends true
-    ? true
-    : HasFKeyToFRel<FRelName, Rest>
-  : false
+type HasFKeyToFRel<FRelName, Relationships> = InArray<
+  { referencedRelation: FRelName },
+  Relationships
+>
 
-type HasUniqueFKeyToFRel<FRelName, Relationships> = Relationships extends [infer R]
-  ? R extends { referencedRelation: FRelName; isOneToOne: true }
-    ? true
-    : false
-  : Relationships extends [infer R, ...infer Rest]
-  ? HasUniqueFKeyToFRel<FRelName, [R]> extends true
-    ? true
-    : HasUniqueFKeyToFRel<FRelName, Rest>
-  : false
+type HasUniqueFKeyToFRel<FRelName, Relationships> = InArray<
+  { referencedRelation: FRelName; isOneToOne: true },
+  Relationships
+>
+
+type FieldRelation<
+  Schema extends GenericSchema,
+  Field extends { name: string; children: unknown[] },
+  FRel extends keyof (Schema['Tables'] & Schema['Views']),
+  RelationName,
+  Relationships
+> = {
+  [_ in Field['name']]: GetResultHelper<
+    Schema,
+    (Schema['Tables'] & Schema['Views'])[FRel]['Row'],
+    FRel,
+    (Schema['Tables'] & Schema['Views'])[FRel] extends { Relationships: infer R } ? R : unknown,
+    Field['children'],
+    unknown
+  > extends infer Child
+    ? // One-to-one relationship - referencing column(s) has unique/pkey constraint.
+      HasUniqueFKeyToFRel<
+        RelationName,
+        (Schema['Tables'] & Schema['Views'])[FRel] extends {
+          Relationships: infer R
+        }
+          ? R
+          : unknown
+      > extends true
+      ? Child | null
+      : Relationships extends unknown[]
+      ? HasFKeyToFRel<FRel, Relationships> extends true
+        ? Child | null
+        : Child[]
+      : Child[]
+    : never
+}
 
 /**
  * Constructs a type definition for a single field of an object.
@@ -237,34 +274,13 @@ type ConstructFieldDefinition<
         : never
     }
   : Field extends { name: string; original: string; children: unknown[] }
-  ? {
-      [_ in Field['name']]: GetResultHelper<
-        Schema,
-        (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
-        Field['original'],
-        (Schema['Tables'] & Schema['Views'])[Field['original']] extends { Relationships: infer R }
-          ? R
-          : unknown,
-        Field['children'],
-        unknown
-      > extends infer Child
-        ? // One-to-one relationship - referencing column(s) has unique/pkey constraint.
-          HasUniqueFKeyToFRel<
-            RelationName,
-            (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
-              Relationships: infer R
-            }
-              ? R
-              : unknown
-          > extends true
-          ? Child | null
-          : Relationships extends unknown[]
-          ? HasFKeyToFRel<Field['original'], Relationships> extends true
-            ? Child | null
-            : Child[]
-          : Child[]
-        : never
-    }
+  ? ColumnForeignRelation<Field['original'], Relationships> extends [infer ForeignRel]
+    ? // handle `col:foreign_key_column`
+      ForeignRel extends keyof (Schema['Tables'] & Schema['Views'])
+      ? FieldRelation<Schema, Field, ForeignRel, RelationName, Relationships>
+      : SelectQueryError<`Unknown relation in a relationship`>
+    : // handle `col:relation`
+      FieldRelation<Schema, Field, Field['original'], RelationName, Relationships>
   : Field extends { name: string; type: infer T }
   ? { [K in Field['name']]: T }
   : Field extends { name: string; original: string }
