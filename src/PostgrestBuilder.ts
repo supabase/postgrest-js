@@ -35,7 +35,7 @@ export default abstract class PostgrestBuilder<Result>
   /**
    * If there's an error with the query, throwOnError will reject the promise by
    * throwing the error instead of returning it as part of a successful response.
-   * also return data nonnullable type for correct type inference
+   * also return `PostgrestResponseSuccess` type for correct type inference
    *
    * {@link https://github.com/supabase/supabase-js/issues/801}
    */
