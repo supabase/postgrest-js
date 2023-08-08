@@ -190,14 +190,14 @@ export default abstract class PostgrestBuilder<Result>
   /**
    * Return data from query or throw if there were any errors.
    */
-  dataOrThrow() {
+  dataOrThrow(): PromiseLike<Result> {
     return this.throwOnError().then((r) => r.data!)
   }
 
   /**
    * Return count from query or throw if there were any errors.
    */
-  countOrThrow() {
+  countOrThrow(): PromiseLike<number> {
     return this.throwOnError().then((r) => r.count!)
   }
 }
