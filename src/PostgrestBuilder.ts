@@ -186,4 +186,18 @@ export default abstract class PostgrestBuilder<Result>
 
     return res.then(onfulfilled, onrejected)
   }
+
+  /**
+   * Return data from query or throw if there were any errors.
+   */
+  dataOrThrow() {
+    return this.throwOnError().then((r) => r.data!)
+  }
+
+  /**
+   * Return count from query or throw if there were any errors.
+   */
+  countOrThrow() {
+    return this.throwOnError().then((r) => r.count!)
+  }
 }
