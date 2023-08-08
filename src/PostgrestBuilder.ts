@@ -190,8 +190,8 @@ export default abstract class PostgrestBuilder<Result>
   /**
    * Return data from query or throw if there were any errors.
    */
-  dataOrThrow(): PromiseLike<Result> {
-    return this.throwOnError().then((r) => r.data!)
+  dataOrThrow<T extends Result = Result>(): PromiseLike<T> {
+    return this.throwOnError().then((r) => r.data!) as PromiseLike<T>
   }
 
   /**
