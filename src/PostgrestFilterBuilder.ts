@@ -36,7 +36,8 @@ export default class PostgrestFilterBuilder<
   /**
    * Match only rows where `column` is equal to `value`.
    *
-   * To check if the value of `column` is NULL, you should use `.is()` instead.
+   * To check if the value of `column` is NULL, you should use `.eqNullable()` or
+   * `.is()` instead.
    *
    * @param column - The column to filter on
    * @param value - The value to filter with
@@ -199,6 +200,27 @@ export default class PostgrestFilterBuilder<
   ilikeAnyOf(column: string, patterns: readonly string[]): this {
     this.url.searchParams.append(column, `ilike(any).{${patterns.join(',')}}`)
     return this
+  }
+
+  eqNullable<ColumnName extends string & keyof Row>(
+    column: ColumnName,
+    value: Row[ColumnName]
+  ): this
+  eqNullable(column: string, value: unknown): this
+  /**
+   * Match only rows where `column` is equal to `value` (where `value` can be null).
+   *
+   * Internally uses either `.eq()` or `.is()` depending whether the value is null
+   *
+   * @param column - The column to filter on
+   * @param value - The value to filter with
+   */
+  eqNullable(column: string, value: unknown): this {
+    if (value === null || value === undefined) {
+      return this.is(column, null)
+    } else {
+      return this.eq(column, value)
+    }
   }
 
   is<ColumnName extends string & keyof Row>(
