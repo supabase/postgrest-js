@@ -336,3 +336,55 @@ describe('embedded transforms', () => {
     `)
   })
 })
+
+test('embedded select with spread *', async () => {
+  const res = await postgrest.from('messages').select('message,...users(*)')
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "message": "Hello World 👋",
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('embedded select with spread and single column', async () => {
+  const res = await postgrest.from('messages').select('message,...users(username)')
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "message": "Hello World 👋",
+          "username": "supabot",
+        },
+        Object {
+          "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+          "username": "supabot",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})

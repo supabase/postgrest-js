@@ -100,6 +100,16 @@ type ConstructFieldDefinition<
   Field
 > = Field extends { star: true }
   ? Row
+  : Field extends { spread: true; name: string; original: string; children: unknown[] }
+  ? GetResultHelper<
+      Schema,
+      (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
+      (Schema['Tables'] & Schema['Views'])[Field['original']] extends { Relationships: infer R }
+        ? R
+        : unknown,
+      Field['children'],
+      unknown
+    >
   : Field extends { name: string; original: string; hint: string; children: unknown[] }
   ? {
       [_ in Field['name']]: GetResultHelper<
@@ -190,7 +200,7 @@ type ReadQuotedLettersHelper<Input extends string, Acc extends string> = string 
   ? L extends '"'
     ? [Acc, Remainder]
     : ReadQuotedLettersHelper<Remainder, `${Acc}${L}`>
-  : ParserError<`Missing closing double-quote in \`"${Acc}${Input}\``>
+  : ParserError<`Missing closing double-quote in \`\"${Acc}${Input}\``>
 
 /**
  * Parses a (possibly double-quoted) identifier.
@@ -215,6 +225,10 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input> extends [
  * - `field!hint(nodes)`
  * - `field!inner(nodes)`
  * - `field!hint!inner(nodes)`
+ * - `...field(nodes)`
+ * - `...field!hint(nodes)`
+ * - `...field!inner(nodes)`
+ * - `...field!hint!inner(nodes)`
  * - `renamed_field:field`
  * - `renamed_field:field->json...`
  * - `renamed_field:field(nodes)`
@@ -229,6 +243,13 @@ type ParseNode<Input extends string> = Input extends ''
   : // `*`
   Input extends `*${infer Remainder}`
   ? [{ star: true }, EatWhitespace<Remainder>]
+  : // `...field`
+  Input extends `...${infer Remainder}`
+  ? ParseIdentifier<Remainder> extends [infer Name, `${infer Remainder}`]
+    ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
+      ? [{ spread: true; name: Name; original: Name; children: Fields }, EatWhitespace<Remainder>]
+      : ParserError<'Expected embedded resource after identifier'>
+    : ParserError<'Expected identifier after `...`'>
   : ParseIdentifier<Input> extends [infer Name, `${infer Remainder}`]
   ? EatWhitespace<Remainder> extends `!inner${infer Remainder}`
     ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]

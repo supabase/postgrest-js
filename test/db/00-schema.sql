@@ -1,6 +1,3 @@
--- Create the Replication publication
-CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
-
 -- Create a second schema
 CREATE SCHEMA personal;
 
@@ -57,7 +54,7 @@ CREATE FUNCTION public.void_func()
 RETURNS void AS $$
 $$ LANGUAGE SQL;
 
-create schema extensions;
+create schema if not exists extensions;
 create extension postgis schema extensions;
 
 create table public.shops (

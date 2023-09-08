@@ -1,6 +1,7 @@
 import { expectError, expectType } from 'tsd'
 import { PostgrestClient, PostgrestSingleResponse } from '../src/index'
 import { SelectQueryError } from '../src/select-query-parser'
+import { Prettify } from '../src/types'
 import { Database, Json } from './types'
 
 const REST_URL = 'http://localhost:3000'
@@ -96,4 +97,29 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 {
   const res = await postgrest.from('users').select('username, dat')
   expectType<PostgrestSingleResponse<SelectQueryError<`Referencing missing column \`dat\``>[]>>(res)
+}
+
+// spread operator with specified column
+{
+  const { data, error } = await postgrest
+    .from('messages')
+    .select('message, ...users(status)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ message: string | null; status: Database['public']['Enums']['user_status'] | null }>(
+    data
+  )
+}
+
+// spread operator with *
+{
+  const { data, error } = await postgrest.from('messages').select('message, ...users(*)').single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Prettify<{ message: string | null } & Database['public']['Tables']['users']['Row']>>(
+    data
+  )
 }
