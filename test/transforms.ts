@@ -276,10 +276,10 @@ test('abort signal', async () => {
       "count": null,
       "data": null,
       "error": Object {
-        "code": "20",
+        "code": "",
         "details": Any<String>,
         "hint": "",
-        "message": "AbortError: This operation was aborted",
+        "message": "AbortError: The user aborted a request.",
       },
       "status": 0,
       "statusText": "",
