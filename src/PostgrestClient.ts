@@ -56,13 +56,12 @@ export default class PostgrestClient<
     this.fetch = fetch
   }
 
-  from<
-    TableName extends string & keyof Schema['Tables'],
-    Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<Schema, Table>
-  from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
+  from<TableName extends string & keyof Schema['Tables']>(
+    relation: TableName
+  ): PostgrestQueryBuilder<Schema, TableName>
+  from<ViewName extends string & keyof Schema['Views']>(
     relation: ViewName
-  ): PostgrestQueryBuilder<Schema, View>
+  ): PostgrestQueryBuilder<Schema, ViewName>
   from(relation: string): PostgrestQueryBuilder<Schema, any>
   /**
    * Perform a query on a table or a view.
