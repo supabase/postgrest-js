@@ -97,3 +97,14 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   const res = await postgrest.from('users').select('username, dat')
   expectType<PostgrestSingleResponse<SelectQueryError<`Referencing missing column \`dat\``>[]>>(res)
 }
+
+// throw on error
+{
+  const { data } = await postgrest
+    .from('users')
+    .select('*')
+    .returns<{ a: string; b: number }[]>()
+    .throwOnError()
+
+  expectType<{ a: string; b: number }>(data[0])
+}
