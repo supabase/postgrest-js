@@ -82,11 +82,54 @@ describe('embedded filters', () => {
       }
     `)
   })
-  test('embedded or', async () => {
+  test('embedded or with deprecated foreignTable parameter', async () => {
     const res = await postgrest
       .from('users')
       .select('messages(*)')
       .or('channel_id.eq.2,message.eq.Hello World 👋', { foreignTable: 'messages' })
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "messages": Array [
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+            ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+  test('embedded or', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('messages(*)')
+      .or('channel_id.eq.2,message.eq.Hello World 👋', { referencedTable: 'messages' })
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -130,7 +173,7 @@ describe('embedded filters', () => {
       .from('users')
       .select('messages(*)')
       .or('channel_id.eq.2,and(message.eq.Hello World 👋,username.eq.supabot)', {
-        foreignTable: 'messages',
+        referencedTable: 'messages',
       })
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -177,7 +220,7 @@ describe('embedded transforms', () => {
     const res = await postgrest
       .from('users')
       .select('messages(*)')
-      .order('channel_id' as any, { foreignTable: 'messages', ascending: false })
+      .order('channel_id' as any, { referencedTable: 'messages', ascending: false })
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -221,8 +264,8 @@ describe('embedded transforms', () => {
     const res = await postgrest
       .from('users')
       .select('messages(*)')
-      .order('channel_id' as any, { foreignTable: 'messages', ascending: false })
-      .order('username', { foreignTable: 'messages', ascending: false })
+      .order('channel_id' as any, { referencedTable: 'messages', ascending: false })
+      .order('username', { referencedTable: 'messages', ascending: false })
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -262,7 +305,7 @@ describe('embedded transforms', () => {
     `)
   })
 
-  test('embedded limit', async () => {
+  test('embedded limit with deprecated foreignTable parameter', async () => {
     const res = await postgrest
       .from('users')
       .select('messages(*)')
@@ -299,11 +342,84 @@ describe('embedded transforms', () => {
     `)
   })
 
-  test('embedded range', async () => {
+  test('embedded limit', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('messages(*)')
+      .limit(1, { referencedTable: 'messages' })
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "messages": Array [
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+            ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('embedded range with deprecated foreignTable parameter', async () => {
     const res = await postgrest
       .from('users')
       .select('messages(*)')
       .range(1, 1, { foreignTable: 'messages' })
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "messages": Array [
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+            ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+  test('embedded range', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('messages(*)')
+      .range(1, 1, { referencedTable: 'messages' })
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,

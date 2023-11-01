@@ -47,7 +47,7 @@ type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 // type ParsedNode =
 //   | { star: true }
 //   | { name: string; original: string }
-//   | { name: string; foreignTable: true }
+//   | { name: string; referencedTable: true }
 //   | { name: string; type: T };
 
 /**
