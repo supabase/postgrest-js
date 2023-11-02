@@ -1,11 +1,10 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types'
 
-const postgrest = new PostgrestClient<Database>('http://localhost:3000').throwOnError()
+const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
 test('embedded select', async () => {
   const res = await postgrest.from('users').select('messages(*)')
-  res.data.slice()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
