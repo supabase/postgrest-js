@@ -104,6 +104,12 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<{ username: string }[]>(data)
 }
 
+// throw on error with maybeSingle is still nullable
+{
+  const { data } = await postgrest.from('users').select('username').maybeSingle().throwOnError()
+  expectType<{ username: string } | null>(data)
+}
+
 // queries without throw on error have nullable results
 {
   const { data } = await postgrest.from('users').select('username')
