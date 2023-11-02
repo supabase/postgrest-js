@@ -3,7 +3,7 @@ import nodeFetch from '@supabase/node-fetch'
 
 import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
 
-export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean = false>
+export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean>
   implements PromiseLike<PostgrestSingleResponse<Result>>
 {
   protected method: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
