@@ -118,6 +118,9 @@ type EatWhitespace<Input extends string> = string extends Input
   ? EatWhitespace<Remainder>
   : Input
 
+/**
+ * Returns a boolean representing whether there is a foreign key with the given name.
+ */
 type HasFKey<FKeyName, Relationships> = Relationships extends [infer R]
   ? R extends { foreignKeyName: FKeyName }
     ? true
@@ -128,6 +131,9 @@ type HasFKey<FKeyName, Relationships> = Relationships extends [infer R]
     : HasFKey<FKeyName, Rest>
   : false
 
+/**
+ * Returns a boolean representing whether there the foreign key has a unique constraint.
+ */
 type HasUniqueFKey<FKeyName, Relationships> = Relationships extends [infer R]
   ? R extends { foreignKeyName: FKeyName; isOneToOne: true }
     ? true
@@ -138,6 +144,10 @@ type HasUniqueFKey<FKeyName, Relationships> = Relationships extends [infer R]
     : HasUniqueFKey<FKeyName, Rest>
   : false
 
+/**
+ * Returns a boolean representing whether there is a foreign key referencing
+ * a given relation.
+ */
 type HasFKeyToFRel<FRelName, Relationships> = Relationships extends [infer R]
   ? R extends { referencedRelation: FRelName }
     ? true
@@ -161,8 +171,9 @@ type HasUniqueFKeyToFRel<FRelName, Relationships> = Relationships extends [infer
 /**
  * Constructs a type definition for a single field of an object.
  *
- * @param Definitions Record of definitions, possibly generated from PostgREST's OpenAPI spec.
- * @param Name Name of the table being queried.
+ * @param Schema Database schema.
+ * @param Row Type of a row in the given table.
+ * @param Relationships Relationships between different tables in the database.
  * @param Field Single field parsed by `ParseQuery`.
  */
 type ConstructFieldDefinition<
@@ -246,8 +257,7 @@ type ConstructFieldDefinition<
  */
 
 /**
- * Reads a consecutive sequence of more than 1 letter,
- * where letters are `[0-9a-zA-Z_]`.
+ * Reads a consecutive sequence of 1 or more letter, where letters are `[0-9a-zA-Z_]`.
  */
 type ReadLetters<Input extends string> = string extends Input
   ? GenericStringError
@@ -266,7 +276,7 @@ type ReadLettersHelper<Input extends string, Acc extends string> = string extend
   : [Acc, '']
 
 /**
- * Reads a consecutive sequence of more than 1 double-quoted letters,
+ * Reads a consecutive sequence of 1 or more double-quoted letters,
  * where letters are `[^"]`.
  */
 type ReadQuotedLetters<Input extends string> = string extends Input
@@ -289,7 +299,7 @@ type ReadQuotedLettersHelper<Input extends string, Acc extends string> = string 
 
 /**
  * Parses a (possibly double-quoted) identifier.
- * For now, identifiers are just sequences of more than 1 letter.
+ * Identifiers are sequences of 1 or more letters.
  */
 type ParseIdentifier<Input extends string> = ReadLetters<Input> extends [
   infer Name,
@@ -560,7 +570,9 @@ type GetResultHelper<
 /**
  * Constructs a type definition for an object based on a given PostgREST query.
  *
- * @param Row Record<string, unknown>.
+ * @param Schema Database schema.
+ * @param Row Type of a row in the given table.
+ * @param Relationships Relationships between different tables in the database.
  * @param Query Select query string literal to parse.
  */
 export type GetResult<
