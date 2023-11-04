@@ -110,6 +110,13 @@ type GenericStringError = ParserError<'Received a generic string'>
 export type SelectQueryError<Message extends string> = { error: true } & Message
 
 /**
+ * Creates a new {@link ParserError} if the given input is not already a parser error.
+ */
+type CreateParserErrorIfRequired<Input, Message extends string> = Input extends ParserError<string>
+  ? Input
+  : ParserError<Message>
+
+/**
  * Trims whitespace from the left of the input.
  */
 type EatWhitespace<Input extends string> = string extends Input
@@ -348,9 +355,10 @@ type ParseNode<Input extends string> = Input extends ''
     ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
       ? // `field!inner(nodes)`
         [{ name: Name; original: Name; children: Fields }, EatWhitespace<Remainder>]
-      : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-      ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-      : ParserError<'Expected embedded resource after `!inner`'>
+      : CreateParserErrorIfRequired<
+          ParseEmbeddedResource<EatWhitespace<Remainder>>,
+          'Expected embedded resource after `!inner`'
+        >
     : EatWhitespace<Remainder> extends `!${infer Remainder}`
     ? ParseIdentifier<EatWhitespace<Remainder>> extends [infer Hint, `${infer Remainder}`]
       ? EatWhitespace<Remainder> extends `!inner${infer Remainder}`
@@ -360,18 +368,20 @@ type ParseNode<Input extends string> = Input extends ''
           ]
           ? // `field!hint!inner(nodes)`
             [{ name: Name; original: Name; hint: Hint; children: Fields }, EatWhitespace<Remainder>]
-          : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-          ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-          : ParserError<'Expected embedded resource after `!inner`'>
+          : CreateParserErrorIfRequired<
+              ParseEmbeddedResource<EatWhitespace<Remainder>>,
+              'Expected embedded resource after `!inner`'
+            >
         : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [
             infer Fields,
             `${infer Remainder}`
           ]
         ? // `field!hint(nodes)`
           [{ name: Name; original: Name; hint: Hint; children: Fields }, EatWhitespace<Remainder>]
-        : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-        ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-        : ParserError<'Expected embedded resource after `!hint`'>
+        : CreateParserErrorIfRequired<
+            ParseEmbeddedResource<EatWhitespace<Remainder>>,
+            'Expected embedded resource after `!hint`'
+          >
       : ParserError<'Expected identifier after `!`'>
     : EatWhitespace<Remainder> extends `:${infer Remainder}`
     ? ParseIdentifier<EatWhitespace<Remainder>> extends [infer OriginalName, `${infer Remainder}`]
@@ -389,9 +399,10 @@ type ParseNode<Input extends string> = Input extends ''
           ]
           ? // `renamed_field:field!inner(nodes)`
             [{ name: Name; original: OriginalName; children: Fields }, EatWhitespace<Remainder>]
-          : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-          ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-          : ParserError<'Expected embedded resource after `!inner`'>
+          : CreateParserErrorIfRequired<
+              ParseEmbeddedResource<EatWhitespace<Remainder>>,
+              'Expected embedded resource after `!inner`'
+            >
         : EatWhitespace<Remainder> extends `!${infer Remainder}`
         ? ParseIdentifier<EatWhitespace<Remainder>> extends [infer Hint, `${infer Remainder}`]
           ? EatWhitespace<Remainder> extends `!inner${infer Remainder}`
@@ -404,9 +415,10 @@ type ParseNode<Input extends string> = Input extends ''
                   { name: Name; original: OriginalName; hint: Hint; children: Fields },
                   EatWhitespace<Remainder>
                 ]
-              : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-              ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-              : ParserError<'Expected embedded resource after `!inner`'>
+              : CreateParserErrorIfRequired<
+                  ParseEmbeddedResource<EatWhitespace<Remainder>>,
+                  'Expected embedded resource after `!inner`'
+                >
             : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [
                 infer Fields,
                 `${infer Remainder}`
@@ -421,9 +433,10 @@ type ParseNode<Input extends string> = Input extends ''
                 },
                 EatWhitespace<Remainder>
               ]
-            : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
-            ? ParseEmbeddedResource<EatWhitespace<Remainder>>
-            : ParserError<'Expected embedded resource after `!hint`'>
+            : CreateParserErrorIfRequired<
+                ParseEmbeddedResource<EatWhitespace<Remainder>>,
+                'Expected embedded resource after `!hint`'
+              >
           : ParserError<'Expected identifier after `!`'>
         : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [
             infer Fields,
