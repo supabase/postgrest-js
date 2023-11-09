@@ -645,6 +645,15 @@ test('throwOnError throws errors instead of returning them', async () => {
   expect(isErrorCaught).toBe(true)
 })
 
+test('throwOnError throws errors which include stack', async () => {
+  try {
+    const res = await postgrest.from('does_not_exist').select().throwOnError()
+  } catch (err) {
+    expect(err instanceof Error).toBe(true)
+    expect((err as Error).stack).not.toBeUndefined()
+  }
+})
+
 // test('throwOnError setting at the client level - query', async () => {
 //   let isErrorCaught = false
 //   const postgrest_ = new PostgrestClient<Database>(REST_URL, { throwOnError: true })
