@@ -6,8 +6,8 @@ import { Fetch, GenericSchema, GenericTable, GenericView } from './types'
 export default class PostgrestQueryBuilder<
   Schema extends GenericSchema,
   Relation extends GenericTable | GenericView,
-  ThrowOnError extends boolean,
-  Relationships = Relation extends { Relationships: infer R } ? R : unknown
+  Relationships = Relation extends { Relationships: infer R } ? R : unknown,
+  ThrowOnError extends boolean = false
 > {
   url: URL
   headers: Record<string, string>

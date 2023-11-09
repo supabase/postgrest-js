@@ -6,8 +6,8 @@ export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   Result,
-  Relationships,
-  ThrowOnError extends boolean
+  Relationships = unknown,
+  ThrowOnError extends boolean = false
 > extends PostgrestBuilder<Result, ThrowOnError> {
   /**
    * Perform a SELECT on the query result.

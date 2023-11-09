@@ -29,8 +29,8 @@ export default class PostgrestFilterBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   Result,
-  Relationships,
-  ThrowOnError extends boolean
+  Relationships = unknown,
+  ThrowOnError extends boolean = false
 > extends PostgrestTransformBuilder<Schema, Row, Result, Relationships, ThrowOnError> {
   eq<ColumnName extends string & keyof Row>(
     column: ColumnName,

@@ -73,19 +73,19 @@ export default class PostgrestClient<
   from<
     TableName extends string & keyof Schema['Tables'],
     Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<Schema, Table, ThrowOnError>
+  >(relation: TableName): PostgrestQueryBuilder<Schema, Table, Table extends { Relationships: infer R } ? R : unknown, ThrowOnError>
   from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
     relation: ViewName
-  ): PostgrestQueryBuilder<Schema, View, ThrowOnError>
-  from(relation: string): PostgrestQueryBuilder<Schema, any, ThrowOnError>
+  ): PostgrestQueryBuilder<Schema, View, View extends { Relationships: infer R } ? R : unknown, ThrowOnError>
+  from(relation: string): PostgrestQueryBuilder<Schema, any, any, ThrowOnError>
   /**
    * Perform a query on a table or a view.
    *
    * @param relation - The table or view name to query
    */
-  from(relation: string): PostgrestQueryBuilder<Schema, any, ThrowOnError> {
+  from(relation: string): PostgrestQueryBuilder<Schema, any, any, ThrowOnError> {
     const url = new URL(`${this.url}/${relation}`)
-    return new PostgrestQueryBuilder<Schema, any, ThrowOnError>(url, {
+    return new PostgrestQueryBuilder<Schema, any, any, ThrowOnError>(url, {
       headers: { ...this.headers },
       schema: this.schemaName,
       fetch: this.fetch,
