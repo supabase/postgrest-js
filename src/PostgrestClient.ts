@@ -73,10 +73,22 @@ export default class PostgrestClient<
   from<
     TableName extends string & keyof Schema['Tables'],
     Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<Schema, Table, Table extends { Relationships: infer R } ? R : unknown, ThrowOnError>
+  >(
+    relation: TableName
+  ): PostgrestQueryBuilder<
+    Schema,
+    Table,
+    Table extends { Relationships: infer R } ? R : unknown,
+    ThrowOnError
+  >
   from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
     relation: ViewName
-  ): PostgrestQueryBuilder<Schema, View, View extends { Relationships: infer R } ? R : unknown, ThrowOnError>
+  ): PostgrestQueryBuilder<
+    Schema,
+    View,
+    View extends { Relationships: infer R } ? R : unknown,
+    ThrowOnError
+  >
   from(relation: string): PostgrestQueryBuilder<Schema, any, any, ThrowOnError>
   /**
    * Perform a query on a table or a view.
