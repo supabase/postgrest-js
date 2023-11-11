@@ -1,7 +1,7 @@
 import PostgrestBuilder from './PostgrestBuilder'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import { GetResult } from './select-query-parser'
-import { Fetch, GenericSchema, GenericTable, GenericView } from './types'
+import type { GetResult } from './select-query-parser'
+import type { Fetch, GenericSchema, GenericTable, GenericView } from './types'
 
 export default class PostgrestQueryBuilder<
   Schema extends GenericSchema,
