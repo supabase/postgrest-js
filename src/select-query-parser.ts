@@ -102,16 +102,6 @@ type TypeScriptTypes<T extends PostgreSQLTypes> = T extends ArrayPostgreSQLTypes
   ? TypeScriptSingleValueTypes<StripUnderscore<Extract<T, SingleValuePostgreSQLTypes>>>[]
   : TypeScriptSingleValueTypes<T>
 
-// /**
-//  * Parsed node types.
-//  * Currently only `*` and all other fields.
-//  */
-// type ParsedNode =
-//   | { star: true }
-//   | { name: string; original: string }
-//   | { name: string; foreignTable: true }
-//   | { name: string; type: T };
-
 /**
  * Parser errors.
  */
