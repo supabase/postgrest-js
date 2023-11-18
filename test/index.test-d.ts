@@ -97,3 +97,29 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   const res = await postgrest.from('users').select('username, dat')
   expectType<PostgrestSingleResponse<SelectQueryError<`Referencing missing column \`dat\``>[]>>(res)
 }
+
+// throw on error on query
+{
+  const { data } = await postgrest.from('users').select('username').throwOnError()
+  expectType<{ username: string }[]>(data)
+}
+
+// throw on error with maybeSingle is still nullable
+{
+  const { data } = await postgrest.from('users').select('username').maybeSingle().throwOnError()
+  expectType<{ username: string } | null>(data)
+}
+
+// queries without throw on error have nullable results
+{
+  const { data } = await postgrest.from('users').select('username')
+  expectType<{ username: string }[] | null>(data)
+}
+
+// throw on error on client
+{
+  const strictClient = postgrest.throwOnError()
+
+  const { data } = await strictClient.from('users').select('username')
+  expectType<{ username: string }[]>(data)
+}
