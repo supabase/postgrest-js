@@ -154,10 +154,10 @@ export default abstract class PostgrestBuilder<Result>
           status = 200
           statusText = 'OK'
         }
+      }
 
-        if (error && this.shouldThrowOnError) {
-          throw error
-        }
+      if (error && this.shouldThrowOnError) {
+        throw error
       }
 
       const postgrestResponse = {
