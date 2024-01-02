@@ -224,7 +224,9 @@ export default class PostgrestTransformBuilder<
   /**
    * Return `data` as the EXPLAIN plan for the query.
    *
-   * You need to set `pgrst.db_plan_enabled` to `true` before using this method.
+   * You need to enable the
+   * [db_plan_enabled](https://supabase.com/docs/guides/database/debugging-performance#enabling-explain)
+   * setting before using this method.
    *
    * @param options - Named parameters
    *
