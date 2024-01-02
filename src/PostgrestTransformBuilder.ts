@@ -224,11 +224,7 @@ export default class PostgrestTransformBuilder<
   /**
    * Return `data` as the EXPLAIN plan for the query.
    *
-   * Before using this method, you need to enable `explain()` on your
-   * Supabase instance by following the guide below. Note that `explain()`
-   * should only be enabled on an development environment.
-   *
-   * https://supabase.com/docs/guides/api/rest/debugging-performance#enabling-explain
+   * You need to set `pgrst.db_plan_enabled` to `true` before using this method.
    *
    * @param options - Named parameters
    *
