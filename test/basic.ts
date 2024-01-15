@@ -631,14 +631,9 @@ test('throwOnError throws errors instead of returning them', async () => {
   try {
     await postgrest.from('missing_table').select().throwOnError()
   } catch (error) {
-    expect(error).toMatchInlineSnapshot(`
-      Object {
-        "code": "42P01",
-        "details": null,
-        "hint": null,
-        "message": "relation \\"public.missing_table\\" does not exist",
-      }
-    `)
+    expect(error).toMatchInlineSnapshot(
+      `[PostgrestError: relation "public.missing_table" does not exist]`
+    )
     isErrorCaught = true
   }
 
