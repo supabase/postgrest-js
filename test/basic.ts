@@ -647,7 +647,7 @@ test('throwOnError throws errors instead of returning them', async () => {
 
 test('throwOnError throws errors which include stack', async () => {
   try {
-    const res = await postgrest.from('does_not_exist').select().throwOnError()
+    await postgrest.from('does_not_exist').select().throwOnError()
   } catch (err) {
     expect(err instanceof Error).toBe(true)
     expect((err as Error).stack).not.toBeUndefined()
