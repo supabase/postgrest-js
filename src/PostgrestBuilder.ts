@@ -2,6 +2,8 @@
 import nodeFetch from '@supabase/node-fetch'
 
 import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
+import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
+import PostgrestError from './PostgrestError'
 
 export default abstract class PostgrestBuilder<Result>
   implements PromiseLike<PostgrestSingleResponse<Result>>

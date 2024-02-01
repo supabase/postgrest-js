@@ -631,14 +631,9 @@ test('throwOnError throws errors instead of returning them', async () => {
   try {
     await postgrest.from('missing_table').select().throwOnError()
   } catch (error) {
-    expect(error).toMatchInlineSnapshot(`
-      Object {
-        "code": "42P01",
-        "details": null,
-        "hint": null,
-        "message": "relation \\"public.missing_table\\" does not exist",
-      }
-    `)
+    expect(error).toMatchInlineSnapshot(
+      `[PostgrestError: relation "public.missing_table" does not exist]`
+    )
     isErrorCaught = true
   }
 
@@ -650,6 +645,15 @@ test('throwOnError should return response success type', async () => {
 
   expect(data).not.toBeNull()
   expect(error).toBeNull()
+})
+
+test('throwOnError throws errors which include stack', async () => {
+  try {
+    await postgrest.from('does_not_exist').select().throwOnError()
+  } catch (err) {
+    expect(err instanceof Error).toBe(true)
+    expect((err as Error).stack).not.toBeUndefined()
+  }
 })
 
 // test('throwOnError setting at the client level - query', async () => {
