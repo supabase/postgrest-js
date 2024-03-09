@@ -474,7 +474,8 @@ export default class PostgrestFilterBuilder<
    * @param value - The value to filter with, following PostgREST syntax
    */
   not(column: string, operator: string, value: unknown): this {
-    if (operator === 'eq' && value === null) throw new TypeError('eq operator does not support null value');
+    if (operator === 'eq' && value === null)
+      throw new TypeError('eq operator does not support null value')
     this.url.searchParams.append(column, `not.${operator}.${value}`)
     return this
   }
