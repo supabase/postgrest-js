@@ -154,7 +154,7 @@ type HasUniqueFKey<FKeyName, Relationships> = InArray<
 >
 
 /**
- * Returns a boolean representing whether there is a column that references a relation
+ * Returns the relation referenced by this column name, if such relation exists
  */
 type ColumnForeignRelation<ColName, Relationships> = Relationships extends [infer R]
   ? R extends { columns: string[]; referencedRelation: string }
