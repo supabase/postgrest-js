@@ -149,7 +149,7 @@ export default class PostgrestQueryBuilder<
   ): PostgrestFilterBuilder<Schema, Relation['Row'], null, RelationName, Relationships> {
     const method = 'POST'
 
-    const prefersHeaders = []
+    const prefersHeaders: string[] = []
     if (this.headers['Prefer']) {
       prefersHeaders.push(this.headers['Prefer'])
     }
@@ -315,7 +315,7 @@ export default class PostgrestQueryBuilder<
     } = {}
   ): PostgrestFilterBuilder<Schema, Relation['Row'], null, RelationName, Relationships> {
     const method = 'PATCH'
-    const prefersHeaders = []
+    const prefersHeaders: string[] = []
     if (this.headers['Prefer']) {
       prefersHeaders.push(this.headers['Prefer'])
     }
@@ -360,7 +360,7 @@ export default class PostgrestQueryBuilder<
     count?: 'exact' | 'planned' | 'estimated'
   } = {}): PostgrestFilterBuilder<Schema, Relation['Row'], null, RelationName, Relationships> {
     const method = 'DELETE'
-    const prefersHeaders = []
+    const prefersHeaders: string[] = []
     if (count) {
       prefersHeaders.push(`count=${count}`)
     }
