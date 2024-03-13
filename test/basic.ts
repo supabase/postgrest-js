@@ -640,6 +640,13 @@ test('throwOnError throws errors instead of returning them', async () => {
   expect(isErrorCaught).toBe(true)
 })
 
+test('throwOnError should return response success type', async () => {
+  const { data, error } = await postgrest.from('users').select().throwOnError()
+
+  expect(data).not.toBeNull()
+  expect(error).toBeNull()
+})
+
 test('throwOnError throws errors which include stack', async () => {
   try {
     await postgrest.from('does_not_exist').select().throwOnError()
@@ -692,25 +699,22 @@ test('throwOnError throws errors which include stack', async () => {
 test('connection error w/o throwing', async () => {
   const postgrest = new PostgrestClient<Database>('http://foo.invalid')
   let isErrorCaught = false
-  await postgrest
-    .from('users')
-    .select()
-    .then(undefined, () => {
-      isErrorCaught = true
-    })
+  try {
+    await postgrest.from('users').select()
+  } catch (_) {
+    isErrorCaught = true
+  }
   expect(isErrorCaught).toBe(false)
 })
 
 test('connection error w/ throwOnError', async () => {
   const postgrest = new PostgrestClient<Database>('http://foo.invalid')
   let isErrorCaught = false
-  await postgrest
-    .from('users')
-    .select()
-    .throwOnError()
-    .then(undefined, () => {
-      isErrorCaught = true
-    })
+  try {
+    await postgrest.from('users').select().throwOnError()
+  } catch (_) {
+    isErrorCaught = true
+  }
   expect(isErrorCaught).toBe(true)
 })
 
@@ -720,8 +724,8 @@ test('maybeSingle w/ throwOnError', async () => {
     .from('messages')
     .select()
     .eq('message', 'i do not exist')
-    .throwOnError()
     .maybeSingle()
+    .throwOnError()
     .then(undefined, () => {
       passes = false
     })

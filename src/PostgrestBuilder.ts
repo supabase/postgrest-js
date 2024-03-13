@@ -1,8 +1,7 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch, PostgrestSingleResponse } from './types'
-import PostgrestError from './PostgrestError'
+import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
 
 export default abstract class PostgrestBuilder<Result>
   implements PromiseLike<PostgrestSingleResponse<Result>>
@@ -12,7 +11,6 @@ export default abstract class PostgrestBuilder<Result>
   protected headers: Record<string, string>
   protected schema?: string
   protected body?: unknown
-  protected shouldThrowOnError = false
   protected signal?: AbortSignal
   protected fetch: Fetch
   protected isMaybeSingle: boolean
@@ -23,7 +21,6 @@ export default abstract class PostgrestBuilder<Result>
     this.headers = builder.headers
     this.schema = builder.schema
     this.body = builder.body
-    this.shouldThrowOnError = builder.shouldThrowOnError
     this.signal = builder.signal
     this.isMaybeSingle = builder.isMaybeSingle
 
@@ -39,12 +36,20 @@ export default abstract class PostgrestBuilder<Result>
   /**
    * If there's an error with the query, throwOnError will reject the promise by
    * throwing the error instead of returning it as part of a successful response.
+   * also return `PostgrestResponseSuccess` type for correct type inference
    *
-   * {@link https://github.com/supabase/supabase-js/issues/92}
+   * {@link https://github.com/supabase/supabase-js/issues/801}
    */
-  throwOnError(): this {
-    this.shouldThrowOnError = true
-    return this
+  throwOnError<T extends Result = Result>(): PromiseLike<PostgrestResponseSuccess<T>> {
+    return this.then<PostgrestResponseSuccess<T>>(
+      (response) => {
+        if (response.error) throw response.error
+        return response as PostgrestResponseSuccess<T>
+      },
+      (error) => {
+        throw error
+      }
+    )
   }
 
   then<TResult1 = PostgrestSingleResponse<Result>, TResult2 = never>(
@@ -155,10 +160,6 @@ export default abstract class PostgrestBuilder<Result>
           status = 200
           statusText = 'OK'
         }
-
-        if (error && this.shouldThrowOnError) {
-          throw new PostgrestError(error)
-        }
       }
 
       const postgrestResponse = {
@@ -171,20 +172,18 @@ export default abstract class PostgrestBuilder<Result>
 
       return postgrestResponse
     })
-    if (!this.shouldThrowOnError) {
-      res = res.catch((fetchError) => ({
-        error: {
-          message: `${fetchError?.name ?? 'FetchError'}: ${fetchError?.message}`,
-          details: `${fetchError?.stack ?? ''}`,
-          hint: '',
-          code: `${fetchError?.code ?? ''}`,
-        },
-        data: null,
-        count: null,
-        status: 0,
-        statusText: '',
-      }))
-    }
+    res = res.catch((fetchError) => ({
+      error: {
+        message: `${fetchError?.name ?? 'FetchError'}: ${fetchError?.message}`,
+        details: `${fetchError?.stack ?? ''}`,
+        hint: '',
+        code: `${fetchError?.code ?? ''}`,
+      },
+      data: null,
+      count: null,
+      status: 0,
+      statusText: '',
+    }))
 
     return res.then(onfulfilled, onrejected)
   }
