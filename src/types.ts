@@ -7,9 +7,9 @@ export type Fetch = typeof fetch
  */
 export type PostgrestError = {
   message: string
-  details: string
-  hint: string
-  code: string
+  details?: string
+  hint?: string
+  code?: string
 }
 
 /**

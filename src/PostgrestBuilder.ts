@@ -1,7 +1,7 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch, PostgrestSingleResponse } from './types'
+import type { Fetch, PostgrestSingleResponse, PostgrestResponseSuccess } from './types'
 import PostgrestError from './PostgrestError'
 
 export default abstract class PostgrestBuilder<Result>
@@ -49,7 +49,7 @@ export default abstract class PostgrestBuilder<Result>
 
   then<TResult1 = PostgrestSingleResponse<Result>, TResult2 = never>(
     onfulfilled?:
-      | ((value: PostgrestSingleResponse<Result>) => TResult1 | PromiseLike<TResult1>)
+      | ((value: PostgrestResponseSuccess<Result>) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
@@ -75,8 +75,8 @@ export default abstract class PostgrestBuilder<Result>
       body: JSON.stringify(this.body),
       signal: this.signal,
     }).then(async (res) => {
-      let error = null
-      let data = null
+      let error: PostgrestError | null = null
+      let data: string | any[] | null = null
       let count: number | null = null
       let status = res.status
       let statusText = res.statusText
@@ -110,9 +110,10 @@ export default abstract class PostgrestBuilder<Result>
           if (data.length > 1) {
             error = {
               // https://github.com/PostgREST/postgrest/blob/a867d79c42419af16c18c3fb019eba8df992626f/src/PostgREST/Error.hs#L553
+              name: 'PostgrestSingleRowError',
               code: 'PGRST116',
               details: `Results contain ${data.length} rows, application/vnd.pgrst.object+json requires 1 row`,
-              hint: null,
+              hint: 'Use application/vnd.pgrst.row+json or application/json instead',
               message: 'JSON object requested, multiple (or no) rows returned',
             }
             data = null
@@ -146,6 +147,10 @@ export default abstract class PostgrestBuilder<Result>
           } else {
             error = {
               message: body,
+              details: '',
+              hint: '',
+              code: 'UNKNOWN',
+              name: 'UnknownError',
             }
           }
         }
@@ -161,9 +166,13 @@ export default abstract class PostgrestBuilder<Result>
         }
       }
 
-      const postgrestResponse = {
+      if (error !== null) {
+        throw new PostgrestError(error)
+      }
+
+      const postgrestResponse: PostgrestResponseSuccess<Result> = {
         error,
-        data,
+        data: data as Result,
         count,
         status,
         statusText,
@@ -174,16 +183,17 @@ export default abstract class PostgrestBuilder<Result>
     if (!this.shouldThrowOnError) {
       res = res.catch((fetchError) => ({
         error: {
+          name: fetchError?.name ?? 'FetchError',
           message: `${fetchError?.name ?? 'FetchError'}: ${fetchError?.message}`,
           details: `${fetchError?.stack ?? ''}`,
           hint: '',
           code: `${fetchError?.code ?? ''}`,
         },
-        data: null,
+        data: null as Result | null,
         count: null,
         status: 0,
         statusText: '',
-      }))
+      })) as Promise<PostgrestResponseSuccess<Result>>
     }
 
     return res.then(onfulfilled, onrejected)
