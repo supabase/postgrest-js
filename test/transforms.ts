@@ -473,3 +473,51 @@ test('rollback delete', async () => {
     }
   `)
 })
+
+test('Next.js options', async () => {
+  const fetchSpy = jest.fn(fetch)
+
+  const postgrest = new PostgrestClient<Database>('http://localhost:3000', {
+    fetch: fetchSpy,
+  })
+
+  const builder = postgrest
+    .from('users')
+    .select()
+    .eq('username', 'supabot')
+    .next({
+      tags: ['users', 'supabot'],
+    })
+  const res = await builder
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  expect(fetchSpy).toHaveBeenCalledWith(
+    'http://localhost:3000/users?select=*&username=eq.supabot',
+    {
+      body: undefined,
+      headers: {
+        'X-Client-Info': 'postgrest-js/0.0.0-automated',
+      },
+      method: 'GET',
+      next: {
+        tags: ['users', 'supabot'],
+      },
+      signal: undefined,
+    }
+  )
+})

@@ -70,3 +70,18 @@ export type GenericSchema = {
 
 // https://twitter.com/mattpocockuk/status/1622730173446557697
 export type Prettify<T> = { [K in keyof T]: T[K] } & {}
+
+export type NextFetchRequestConfig = RequestInit extends { next: infer T }
+  ? T
+  : {
+      revalidate?: number | false
+      tags?: string[]
+    }
+
+declare global {
+  namespace globalThis {
+    interface RequestInit {
+      next?: unknown // Avoid: 'next' is referenced directly or indirectly in its own type annotation.ts(2502)
+    }
+  }
+}
