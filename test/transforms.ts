@@ -2,6 +2,8 @@ import { PostgrestClient } from '../src/index'
 import { Database } from './types'
 
 import { AbortController } from 'node-abort-controller'
+// @ts-ignore
+import nodeFetch from '@supabase/node-fetch'
 
 const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
@@ -475,7 +477,11 @@ test('rollback delete', async () => {
 })
 
 test('Next.js options', async () => {
-  const fetchSpy = jest.fn(fetch)
+  let fetchImpl = fetch
+  if (typeof fetchImpl === 'undefined') {
+    fetchImpl = nodeFetch
+  }
+  const fetchSpy = jest.fn(fetchImpl)
 
   const postgrest = new PostgrestClient<Database>('http://localhost:3000', {
     fetch: fetchSpy,
