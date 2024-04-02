@@ -1,7 +1,7 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch, NextFetchRequestConfig, PostgrestSingleResponse } from './types'
+import type { Fetch, FetchOptions, PostgrestSingleResponse } from './types'
 import PostgrestError from './PostgrestError'
 
 export default abstract class PostgrestBuilder<Result>
@@ -13,8 +13,7 @@ export default abstract class PostgrestBuilder<Result>
   protected schema?: string
   protected body?: unknown
   protected shouldThrowOnError = false
-  protected signal?: AbortSignal
-  protected nextOptions?: NextFetchRequestConfig
+  protected fetchOpts: FetchOptions = {}
   protected fetch: Fetch
   protected isMaybeSingle: boolean
 
@@ -25,8 +24,7 @@ export default abstract class PostgrestBuilder<Result>
     this.schema = builder.schema
     this.body = builder.body
     this.shouldThrowOnError = builder.shouldThrowOnError
-    this.signal = builder.signal
-    this.nextOptions = builder.nextOptions
+    this.fetchOpts = builder.fetchOpts
     this.isMaybeSingle = builder.isMaybeSingle
 
     if (builder.fetch) {
@@ -72,11 +70,14 @@ export default abstract class PostgrestBuilder<Result>
     // https://github.com/supabase/postgrest-js/pull/247
     const _fetch = this.fetch
     let res = _fetch(this.url.toString(), {
+      ...this.fetchOpts,
       method: this.method,
-      headers: this.headers,
+      headers: {
+        ...this.fetchOpts.headers,
+        ...this.headers,
+      },
       body: JSON.stringify(this.body),
-      signal: this.signal,
-      next: this.nextOptions,
+      signal: this.fetchOpts.signal,
     }).then(async (res) => {
       let error = null
       let data = null

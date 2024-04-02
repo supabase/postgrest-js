@@ -497,9 +497,11 @@ test('Next.js options', async () => {
     .from('users')
     .select()
     .eq('username', 'supabot')
-    .next({
-      tags: ['users', 'supabot'],
-    })
+    .fetchOptions({
+      next: {
+        tags: ['users', 'supabot'],
+      },
+    } as any)
   const res = await builder
   expect(res).toMatchInlineSnapshot(`
     Object {

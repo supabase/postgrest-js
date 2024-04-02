@@ -1,6 +1,6 @@
 import PostgrestBuilder from './PostgrestBuilder'
 import { GetResult } from './select-query-parser'
-import { GenericSchema, NextFetchRequestConfig } from './types'
+import type { FetchOptions, GenericSchema } from './types'
 
 export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
@@ -176,20 +176,23 @@ export default class PostgrestTransformBuilder<
    * Set the AbortSignal for the fetch request.
    *
    * @param signal - The AbortSignal to use for the fetch request
+   * @deprecated Use fetchOptions instead. E.g. `fetchOptions({ signal: new AbortController().signal })`
    */
   abortSignal(signal: AbortSignal): this {
-    this.signal = signal
+    this.fetchOpts.signal = signal
     return this
   }
 
   /**
-   * Set Next.js's tags for the fetch request.
+   * Set fetch options for the request.
    *
-   * @param tags - An array of tags. A tag represents the cache tag associated with the data.
-   * Must be less than or equal to 256 characters. This value is case-sensitive.
+   * @param init - Fetch options.
    */
-  next(nextOptions: NextFetchRequestConfig): this {
-    this.nextOptions = nextOptions
+  fetchOptions(init: FetchOptions): this {
+    this.fetchOpts = {
+      signal: this.fetchOpts.signal,
+      ...init,
+    }
     return this
   }
 
