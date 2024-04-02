@@ -629,6 +629,7 @@ test('throwOnError throws errors instead of returning them', async () => {
   let isErrorCaught = false
 
   try {
+    // @ts-expect-error: nonexistent table
     await postgrest.from('missing_table').select().throwOnError()
   } catch (error) {
     expect(error).toMatchInlineSnapshot(
@@ -642,6 +643,7 @@ test('throwOnError throws errors instead of returning them', async () => {
 
 test('throwOnError throws errors which include stack', async () => {
   try {
+    // @ts-expect-error: nonexistent table
     await postgrest.from('does_not_exist').select().throwOnError()
   } catch (err) {
     expect(err instanceof Error).toBe(true)
@@ -907,6 +909,23 @@ test('rpc with head:true, count:exact', async () => {
     Object {
       "count": 1,
       "data": null,
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { get: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
       "error": null,
       "status": 200,
       "statusText": "OK",
