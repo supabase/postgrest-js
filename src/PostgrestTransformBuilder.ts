@@ -179,7 +179,8 @@ export default class PostgrestTransformBuilder<
    * @deprecated Use fetchOptions instead. E.g. `fetchOptions({ signal: new AbortController().signal })`
    */
   abortSignal(signal: AbortSignal): this {
-    this.fetchOpts.signal = signal
+    this.fetchOptions({ signal })
+
     return this
   }
 
@@ -189,10 +190,29 @@ export default class PostgrestTransformBuilder<
    * @param init - Fetch options.
    */
   fetchOptions(init: FetchOptions): this {
+    const { headers, ...rest } = init
+
     this.fetchOpts = {
-      signal: this.fetchOpts.signal,
-      ...init,
+      ...this.fetchOpts,
+      ...rest,
     }
+
+    if (headers) {
+      let entries: Iterable<string[]>
+
+      if (Array.isArray(headers)) {
+        entries = headers.values()
+      } else if (headers instanceof Headers) {
+        entries = headers.entries()
+      } else {
+        entries = Object.entries(headers)
+      }
+
+      for (const [name, val] of entries) {
+        this.headers[name] = val
+      }
+    }
+
     return this
   }
 

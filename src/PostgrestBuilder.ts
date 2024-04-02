@@ -13,7 +13,7 @@ export default abstract class PostgrestBuilder<Result>
   protected schema?: string
   protected body?: unknown
   protected shouldThrowOnError = false
-  protected fetchOpts: FetchOptions = {}
+  protected fetchOpts: Omit<FetchOptions, 'headers'> = {}
   protected fetch: Fetch
   protected isMaybeSingle: boolean
 
@@ -72,12 +72,8 @@ export default abstract class PostgrestBuilder<Result>
     let res = _fetch(this.url.toString(), {
       ...this.fetchOpts,
       method: this.method,
-      headers: {
-        ...this.fetchOpts.headers,
-        ...this.headers,
-      },
+      headers: this.headers,
       body: JSON.stringify(this.body),
-      signal: this.fetchOpts.signal,
     }).then(async (res) => {
       let error = null
       let data = null
