@@ -89,13 +89,31 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<{ message: string | null }>(data)
 }
 
-// `count` in embedded resource
+// aggregate functions in embedded resources
 {
   const { data, error } = await postgrest.from('messages').select('message, users(count)').single()
-  if (error) {
-    throw new Error(error.message)
-  }
+  if (error) throw new Error(error.message)
   expectType<{ message: string | null; users: { count: number } | null }>(data)
+}
+{
+  const { data, error } = await postgrest.from('messages').select('message, users(sum)').single()
+  if (error) throw new Error(error.message)
+  expectType<{ message: string | null; users: { sum: number } | null }>(data)
+}
+{
+  const { data, error } = await postgrest.from('messages').select('message, users(min)').single()
+  if (error) throw new Error(error.message)
+  expectType<{ message: string | null; users: { min: number } | null }>(data)
+}
+{
+  const { data, error } = await postgrest.from('messages').select('message, users(max)').single()
+  if (error) throw new Error(error.message)
+  expectType<{ message: string | null; users: { max: number } | null }>(data)
+}
+{
+  const { data, error } = await postgrest.from('messages').select('message, users(avg)').single()
+  if (error) throw new Error(error.message)
+  expectType<{ message: string | null; users: { avg: number } | null }>(data)
 }
 
 // json accessor in select query
