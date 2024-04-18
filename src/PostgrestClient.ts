@@ -121,12 +121,9 @@ export default class PostgrestClient<
    * `"estimated"`: Uses exact count for low numbers and planned count for high
    * numbers.
    */
-  rpc<
-    FunctionName extends string & keyof Schema['Functions'],
-    Function_ extends Schema['Functions'][FunctionName]
-  >(
-    fn: FunctionName,
-    args: Function_['Args'] = {},
+  rpc<FnName extends string & keyof Schema['Functions'], Fn extends Schema['Functions'][FnName]>(
+    fn: FnName,
+    args: Fn['Args'] = {},
     {
       head = false,
       get = false,
@@ -138,26 +135,27 @@ export default class PostgrestClient<
     } = {}
   ): PostgrestFilterBuilder<
     Schema,
-    Function_['Returns'] extends any[]
-      ? Function_['Returns'][number] extends Record<string, unknown>
-        ? Function_['Returns'][number]
+    Fn['Returns'] extends any[]
+      ? Fn['Returns'][number] extends Record<string, unknown>
+        ? Fn['Returns'][number]
         : never
       : never,
-    Function_['Returns']
+    Fn['Returns']
   > {
     let method: 'HEAD' | 'GET' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)
     let body: unknown | undefined
-    if (head) {
-      method = 'HEAD'
-      Object.entries(args).forEach(([name, value]) => {
-        url.searchParams.append(name, `${value}`)
-      })
-    } else if (get) {
-      method = 'GET'
-      Object.entries(args).forEach(([name, value]) => {
-        url.searchParams.append(name, `${value}`)
-      })
+    if (head || get) {
+      method = head ? 'HEAD' : 'GET'
+      Object.entries(args)
+        // params with undefined value needs to be filtered out, otherwise it'll
+        // show up as `?param=undefined`
+        .filter(([_, value]) => value !== undefined)
+        // array values need special syntax
+        .map(([name, value]) => [name, Array.isArray(value) ? `{${value.join(',')}}` : `${value}`])
+        .forEach(([name, value]) => {
+          url.searchParams.append(name, value)
+        })
     } else {
       method = 'POST'
       body = args
@@ -176,6 +174,6 @@ export default class PostgrestClient<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<Function_['Returns']>)
+    } as unknown as PostgrestBuilder<Fn['Returns']>)
   }
 }

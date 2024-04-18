@@ -91,3 +91,11 @@ CREATE FUNCTION personal.get_status(name_param text)
 RETURNS user_status AS $$
   SELECT status from users WHERE username=name_param;
 $$ LANGUAGE SQL IMMUTABLE;
+
+create function public.function_with_optional_param(param text default '')
+returns text as $$
+  select param;
+$$ language sql immutable;
+
+create function public.function_with_array_param(param uuid[])
+returns void as '' language sql immutable;
