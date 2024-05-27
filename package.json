@@ -31,7 +31,7 @@
     "build:esm": "cpy wrapper.mjs dist/esm/",
     "docs": "typedoc src/index.ts --out docs/v2",
     "docs:json": "typedoc --json docs/v2/spec.json --excludeExternals src/index.ts",
-    "test": "run-s format:check test:types db:clean db:run test:run db:clean",
+    "test": "run-s format:check test:types db:clean db:run test:run db:clean && node test/smoke.cjs && node test/smoke.mjs",
     "test:run": "jest --runInBand",
     "test:update": "run-s db:clean db:run && jest --runInBand --updateSnapshot && run-s db:clean",
     "test:types": "run-s build && tsd --files test/*.test-d.ts",
