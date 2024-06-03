@@ -78,6 +78,7 @@ export default class PostgrestClient<
   ): PostgrestQueryBuilder<
     Schema,
     Table,
+    any,
     Table extends { Relationships: infer R } ? R : unknown,
     ThrowOnError
   >
@@ -86,18 +87,19 @@ export default class PostgrestClient<
   ): PostgrestQueryBuilder<
     Schema,
     View,
+    any,
     View extends { Relationships: infer R } ? R : unknown,
     ThrowOnError
   >
-  from(relation: string): PostgrestQueryBuilder<Schema, any, any, ThrowOnError>
+  from(relation: string): PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError>
   /**
    * Perform a query on a table or a view.
    *
    * @param relation - The table or view name to query
    */
-  from(relation: string): PostgrestQueryBuilder<Schema, any, any, ThrowOnError> {
+  from(relation: string): PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError> {
     const url = new URL(`${this.url}/${relation}`)
-    return new PostgrestQueryBuilder<Schema, any, any, ThrowOnError>(url, {
+    return new PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError>(url, {
       headers: { ...this.headers },
       schema: this.schemaName,
       fetch: this.fetch,
@@ -141,6 +143,8 @@ export default class PostgrestClient<
    * @param options - Named parameters
    * @param options.head - When set to `true`, `data` will not be returned.
    * Useful if you only need the count.
+   * @param options.get - When set to `true`, the function will be called with
+   * read-only access mode.
    * @param options.count - Count algorithm to use to count rows returned by the
    * function. Only applicable for [set-returning
    * functions](https://www.postgresql.org/docs/current/functions-srf.html).
@@ -154,38 +158,43 @@ export default class PostgrestClient<
    * `"estimated"`: Uses exact count for low numbers and planned count for high
    * numbers.
    */
-  rpc<
-    FunctionName extends string & keyof Schema['Functions'],
-    Function_ extends Schema['Functions'][FunctionName]
-  >(
-    fn: FunctionName,
-    args: Function_['Args'] = {},
+  rpc<FnName extends string & keyof Schema['Functions'], Fn extends Schema['Functions'][FnName]>(
+    fn: FnName,
+    args: Fn['Args'] = {},
     {
       head = false,
+      get = false,
       count,
     }: {
       head?: boolean
+      get?: boolean
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
   ): PostgrestFilterBuilder<
     Schema,
-    Function_['Returns'] extends any[]
-      ? Function_['Returns'][number] extends Record<string, unknown>
-        ? Function_['Returns'][number]
+    Fn['Returns'] extends any[]
+      ? Fn['Returns'][number] extends Record<string, unknown>
+        ? Fn['Returns'][number]
         : never
       : never,
-    Function_['Returns'],
+    Fn['Returns'],
     unknown,
     ThrowOnError
   > {
-    let method: 'HEAD' | 'POST'
+    let method: 'HEAD' | 'GET' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)
     let body: unknown | undefined
-    if (head) {
-      method = 'HEAD'
-      Object.entries(args).forEach(([name, value]) => {
-        url.searchParams.append(name, `${value}`)
-      })
+    if (head || get) {
+      method = head ? 'HEAD' : 'GET'
+      Object.entries(args)
+        // params with undefined value needs to be filtered out, otherwise it'll
+        // show up as `?param=undefined`
+        .filter(([_, value]) => value !== undefined)
+        // array values need special syntax
+        .map(([name, value]) => [name, Array.isArray(value) ? `{${value.join(',')}}` : `${value}`])
+        .forEach(([name, value]) => {
+          url.searchParams.append(name, value)
+        })
     } else {
       method = 'POST'
       body = args
@@ -205,6 +214,6 @@ export default class PostgrestClient<
       fetch: this.fetch,
       allowEmpty: false,
       shouldThrowOnError: this.shouldThrowOnError,
-    } as unknown as PostgrestBuilder<Function_['Returns'], ThrowOnError>)
+    } as unknown as PostgrestBuilder<Fn['Returns'], ThrowOnError>)
   }
 }

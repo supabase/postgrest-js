@@ -629,20 +629,26 @@ test('throwOnError throws errors instead of returning them', async () => {
   let isErrorCaught = false
 
   try {
+    // @ts-expect-error: nonexistent table
     await postgrest.from('missing_table').select().throwOnError()
   } catch (error) {
-    expect(error).toMatchInlineSnapshot(`
-      Object {
-        "code": "42P01",
-        "details": null,
-        "hint": null,
-        "message": "relation \\"public.missing_table\\" does not exist",
-      }
-    `)
+    expect(error).toMatchInlineSnapshot(
+      `[PostgrestError: relation "public.missing_table" does not exist]`
+    )
     isErrorCaught = true
   }
 
   expect(isErrorCaught).toBe(true)
+})
+
+test('throwOnError throws errors which include stack', async () => {
+  try {
+    // @ts-expect-error: nonexistent table
+    await postgrest.from('does_not_exist').select().throwOnError()
+  } catch (err) {
+    expect(err instanceof Error).toBe(true)
+    expect((err as Error).stack).not.toBeUndefined()
+  }
 })
 
 // test('throwOnError setting at the client level - query', async () => {
@@ -906,6 +912,57 @@ test('rpc with head:true, count:exact', async () => {
       "error": null,
       "status": 200,
       "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { get: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, optional param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_optional_param',
+    { param: undefined },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, array param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_array_param',
+    { param: ['00000000-0000-0000-0000-000000000000'] },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 204,
+      "statusText": "No Content",
     }
   `)
 })

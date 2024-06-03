@@ -29,9 +29,10 @@ export default class PostgrestFilterBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   Result,
+  RelationName = unknown,
   Relationships = unknown,
   ThrowOnError extends boolean = false
-> extends PostgrestTransformBuilder<Schema, Row, Result, Relationships, ThrowOnError> {
+> extends PostgrestTransformBuilder<Schema, Row, Result, RelationName, Relationships, ThrowOnError> {
   eq<ColumnName extends string & keyof Row>(
     column: ColumnName,
     value: NonNullable<Row[ColumnName]>
@@ -239,7 +240,7 @@ export default class PostgrestFilterBuilder<
    * @param values - The values array to filter with
    */
   in(column: string, values: readonly unknown[]): this {
-    const cleanedValues = values
+    const cleanedValues = Array.from(new Set(values))
       .map((s) => {
         // handle postgrest reserved characters
         // https://postgrest.org/en/v7.0.0/api.html#reserved-characters

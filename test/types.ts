@@ -1,6 +1,6 @@
-export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export interface Database {
+export type Database = {
   personal: {
     Tables: {
       users: {
@@ -45,6 +45,29 @@ export interface Database {
   }
   public: {
     Tables: {
+      channel_details: {
+        Row: {
+          details: string | null
+          id: number
+        }
+        Insert: {
+          details?: string | null
+          id: number
+        }
+        Update: {
+          details?: string | null
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'channel_details_id_fkey'
+            columns: ['id']
+            isOneToOne: true
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       channels: {
         Row: {
           data: Json | null
@@ -87,16 +110,32 @@ export interface Database {
         }
         Relationships: [
           {
+            foreignKeyName: 'messages_channel_id_fkey'
+            columns: ['channel_id']
+            isOneToOne: false
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
-            referencedRelation: 'users'
+            isOneToOne: false
+            referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
           {
-            foreignKeyName: 'messages_channel_id_fkey'
-            columns: ['channel_id']
-            referencedRelation: 'channels'
-            referencedColumns: ['id']
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['username']
           }
         ]
       }
@@ -148,6 +187,7 @@ export interface Database {
         Row: {
           username: string | null
         }
+        Relationships: []
       }
       updatable_view: {
         Row: {
@@ -162,9 +202,22 @@ export interface Database {
           non_updatable_column?: never
           username?: string | null
         }
+        Relationships: []
       }
     }
     Functions: {
+      function_with_array_param: {
+        Args: {
+          param: string[]
+        }
+        Returns: undefined
+      }
+      function_with_optional_param: {
+        Args: {
+          param?: string
+        }
+        Returns: string
+      }
       get_status: {
         Args: {
           name_param: string
@@ -199,3 +252,77 @@ export interface Database {
     }
   }
 }
+
+type PublicSchema = Database[Extract<keyof Database, 'public'>]
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (PublicSchema['Tables'] & PublicSchema['Views'])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions['schema']]['Tables'] &
+        Database[PublicTableNameOrOptions['schema']]['Views'])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions['schema']]['Tables'] &
+      Database[PublicTableNameOrOptions['schema']]['Views'])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema['Tables'] & PublicSchema['Views'])
+  ? (PublicSchema['Tables'] & PublicSchema['Views'])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends keyof PublicSchema['Tables'] | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
+  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends keyof PublicSchema['Tables'] | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
+  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends keyof PublicSchema['Enums'] | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions['schema']]['Enums']
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
+  ? PublicSchema['Enums'][PublicEnumNameOrOptions]
+  : never

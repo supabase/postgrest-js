@@ -200,7 +200,7 @@ test('maybeSingle', async () => {
       "data": null,
       "error": Object {
         "code": "PGRST116",
-        "details": "Results contain 2 rows, application/vnd.pgrst.object+json requires 1 row",
+        "details": "The result contains 2 rows",
         "hint": null,
         "message": "JSON object requested, multiple (or no) rows returned",
       },
@@ -270,16 +270,22 @@ test('abort signal', async () => {
   ac.abort()
   const res = await postgrest.from('users').select().abortSignal(ac.signal)
   expect(res).toMatchInlineSnapshot(
-    { error: { details: expect.any(String) } },
+    {
+      error: {
+        code: expect.any(String),
+        details: expect.any(String),
+        message: expect.stringMatching(/^AbortError:/),
+      },
+    },
     `
     Object {
       "count": null,
       "data": null,
       "error": Object {
-        "code": "",
+        "code": Any<String>,
         "details": Any<String>,
         "hint": "",
-        "message": "AbortError: The user aborted a request.",
+        "message": StringMatching /\\^AbortError:/,
       },
       "status": 0,
       "statusText": "",

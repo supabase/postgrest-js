@@ -2,6 +2,7 @@
 import nodeFetch from '@supabase/node-fetch'
 
 import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
+import PostgrestError from './PostgrestError'
 
 export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean = false>
   implements PromiseLike<PostgrestSingleResponse<Result>>
@@ -154,7 +155,7 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError extends bool
         }
 
         if (error && this.shouldThrowOnError) {
-          throw error
+          throw new PostgrestError(error)
         }
       }
 

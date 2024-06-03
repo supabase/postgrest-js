@@ -6,6 +6,7 @@ export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   Result,
+  RelationName = unknown,
   Relationships = unknown,
   ThrowOnError extends boolean = false
 > extends PostgrestBuilder<Result, ThrowOnError> {
@@ -18,9 +19,12 @@ export default class PostgrestTransformBuilder<
    *
    * @param columns - The columns to retrieve, separated by commas
    */
-  select<Query extends string = '*', NewResultOne = GetResult<Schema, Row, Relationships, Query>>(
+  select<
+    Query extends string = '*',
+    NewResultOne = GetResult<Schema, Row, RelationName, Relationships, Query>
+  >(
     columns?: Query
-  ): PostgrestTransformBuilder<Schema, Row, NewResultOne[], Relationships, ThrowOnError> {
+  ): PostgrestTransformBuilder<Schema, Row, NewResultOne[], RelationName, Relationships, ThrowOnError> {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = (columns ?? '*')
@@ -44,6 +48,7 @@ export default class PostgrestTransformBuilder<
       Schema,
       Row,
       NewResultOne[],
+      RelationName,
       Relationships,
       ThrowOnError
     >
@@ -138,7 +143,7 @@ export default class PostgrestTransformBuilder<
   }
 
   /**
-   * Limit the query result by starting at an offset (`from`) and ending at the offset (`from + to`).
+   * Limit the query result by starting at an offset `from` and ending at the offset `to`.
    * Only records within this range are returned.
    * This respects the query order and if there is no order clause the range could behave unexpectedly.
    * The `from` and `to` values are 0-based and inclusive: `range(1, 3)` will include the second, third
@@ -232,6 +237,10 @@ export default class PostgrestTransformBuilder<
   /**
    * Return `data` as the EXPLAIN plan for the query.
    *
+   * You need to enable the
+   * [db_plan_enabled](https://supabase.com/docs/guides/database/debugging-performance#enabling-explain)
+   * setting before using this method.
+   *
    * @param options - Named parameters
    *
    * @param options.analyze - If `true`, the query will be executed and the
@@ -277,7 +286,7 @@ export default class PostgrestTransformBuilder<
       .filter(Boolean)
       .join('|')
     // An Accept header can carry multiple media types but postgrest-js always sends one
-    const forMediatype = this.headers['Accept']
+    const forMediatype = this.headers['Accept'] ?? 'application/json'
     this.headers[
       'Accept'
     ] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`
@@ -309,6 +318,7 @@ export default class PostgrestTransformBuilder<
     Schema,
     Row,
     NewResult,
+    RelationName,
     Relationships,
     ThrowOnError
   > {
@@ -316,6 +326,7 @@ export default class PostgrestTransformBuilder<
       Schema,
       Row,
       NewResult,
+      RelationName,
       Relationships,
       ThrowOnError
     >

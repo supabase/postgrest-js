@@ -1,6 +1,7 @@
 import { expectError, expectType } from 'tsd'
 import { PostgrestClient, PostgrestSingleResponse } from '../src/index'
 import { SelectQueryError } from '../src/select-query-parser'
+import { Prettify } from '../src/types'
 import { Database, Json } from './types'
 
 const REST_URL = 'http://localhost:3000'
@@ -9,6 +10,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 // table invalid type
 {
   expectError(postgrest.from(42))
+  expectError(postgrest.from('nonexistent_table'))
 }
 
 // `null` can't be used with `.eq()`
@@ -53,6 +55,49 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
 }
 
+// spread resource with single column in select query
+{
+  const { data, error } = await postgrest
+    .from('messages')
+    .select('message, ...users(status)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ message: string | null; status: Database['public']['Enums']['user_status'] | null }>(
+    data
+  )
+}
+
+// spread resource with all columns in select query
+{
+  const { data, error } = await postgrest.from('messages').select('message, ...users(*)').single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Prettify<{ message: string | null } & Database['public']['Tables']['users']['Row']>>(
+    data
+  )
+}
+
+// embedded resource with no fields
+{
+  const { data, error } = await postgrest.from('messages').select('message, users()').single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ message: string | null }>(data)
+}
+
+// `count` in embedded resource
+{
+  const { data, error } = await postgrest.from('messages').select('message, users(count)').single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{ message: string | null; users: { count: number } | null }>(data)
+}
+
 // json accessor in select query
 {
   const { data, error } = await postgrest
@@ -62,7 +107,29 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<{ bar: Json; baz: string }>(data)
+  // getting this w/o the cast, not sure why:
+  // Parameter type Json is declared too wide for argument type Json
+  expectType<Json>(data.bar as Json)
+  expectType<string>(data.baz)
+}
+
+// typecasting and aggregate functions
+{
+  const { data, error } = await postgrest
+    .from('messages')
+    .select(
+      'message, users.count(), casted_message:message::int4, casted_count:users.count()::text'
+    )
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<{
+    message: string | null
+    count: number
+    casted_message: number
+    casted_count: string
+  }>(data)
 }
 
 // rpc return type
@@ -81,6 +148,24 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
   expectType<Database['public']['Tables']['users']['Row'] | null>(message.user)
+}
+
+// !inner relationship
+{
+  const { data: message, error } = await postgrest
+    .from('messages')
+    .select('channels!inner(*, channel_details!inner(*))')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = Prettify<
+    Database['public']['Tables']['channels']['Row'] & {
+      channel_details: Database['public']['Tables']['channel_details']['Row']
+    }
+  >
+
+  expectType<ExpectedType>(message.channels)
 }
 
 // one-to-many relationship
@@ -122,4 +207,18 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 
   const { data } = await strictClient.from('users').select('username')
   expectType<{ username: string }[]>(data)
+}
+
+// one-to-one relationship
+{
+  const { data: channels, error } = await postgrest
+    .from('channels')
+    .select('channel_details(*)')
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['channel_details']['Row'] | null>(
+    channels.channel_details
+  )
 }
