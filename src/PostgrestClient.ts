@@ -122,12 +122,7 @@ export default class PostgrestClient<
     Database[DynamicSchema] extends GenericSchema ? Database[DynamicSchema] : any,
     ThrowOnError
   > {
-    return new PostgrestClient<
-      Database,
-      DynamicSchema,
-      Database[DynamicSchema] extends GenericSchema ? Database[DynamicSchema] : any,
-      ThrowOnError
-    >(this.url, {
+    return new PostgrestClient(this.url, {
       headers: this.headers,
       schema,
       fetch: this.fetch,
@@ -214,16 +209,6 @@ export default class PostgrestClient<
       fetch: this.fetch,
       allowEmpty: false,
       shouldThrowOnError: this.shouldThrowOnError,
-    } as unknown as PostgrestBuilder<Fn['Returns'], ThrowOnError>) as PostgrestFilterBuilder<
-      Schema,
-      Fn['Returns'] extends any[]
-        ? Fn['Returns'][number] extends Record<string, unknown>
-          ? Fn['Returns'][number]
-          : never
-        : never,
-      Fn['Returns'],
-      unknown,
-      ThrowOnError
-    >
+    } as never)
   }
 }
