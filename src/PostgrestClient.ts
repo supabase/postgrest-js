@@ -214,6 +214,16 @@ export default class PostgrestClient<
       fetch: this.fetch,
       allowEmpty: false,
       shouldThrowOnError: this.shouldThrowOnError,
-    } as unknown as PostgrestBuilder<Fn['Returns'], ThrowOnError>)
+    } as unknown as PostgrestBuilder<Fn['Returns'], ThrowOnError>) as PostgrestFilterBuilder<
+      Schema,
+      Fn['Returns'] extends any[]
+        ? Fn['Returns'][number] extends Record<string, unknown>
+          ? Fn['Returns'][number]
+          : never
+        : never,
+      Fn['Returns'],
+      unknown,
+      ThrowOnError
+    >
   }
 }

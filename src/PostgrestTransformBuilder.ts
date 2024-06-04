@@ -24,7 +24,14 @@ export default class PostgrestTransformBuilder<
     NewResultOne = GetResult<Schema, Row, RelationName, Relationships, Query>
   >(
     columns?: Query
-  ): PostgrestTransformBuilder<Schema, Row, NewResultOne[], RelationName, Relationships, ThrowOnError> {
+  ): PostgrestTransformBuilder<
+    Schema,
+    Row,
+    NewResultOne[],
+    RelationName,
+    Relationships,
+    ThrowOnError
+  > {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = (columns ?? '*')
