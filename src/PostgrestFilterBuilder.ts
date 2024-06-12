@@ -1,5 +1,5 @@
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
-import { GenericSchema } from './types'
+import type { GenericSchema } from './types'
 
 type FilterOperator =
   | 'eq'
