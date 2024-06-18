@@ -91,7 +91,6 @@ export default class PostgrestClient<
     View extends { Relationships: infer R } ? R : unknown,
     ThrowOnError
   >
-  from(relation: string): PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError>
   /**
    * Perform a query on a table or a view.
    *
