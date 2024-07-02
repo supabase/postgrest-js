@@ -7,8 +7,9 @@ export default class PostgrestTransformBuilder<
   Row extends Record<string, unknown>,
   Result,
   RelationName = unknown,
-  Relationships = unknown
-> extends PostgrestBuilder<Result> {
+  Relationships = unknown,
+  ThrowOnError extends boolean = false
+> extends PostgrestBuilder<Result, ThrowOnError> {
   /**
    * Perform a SELECT on the query result.
    *
@@ -23,7 +24,14 @@ export default class PostgrestTransformBuilder<
     NewResultOne = GetResult<Schema, Row, RelationName, Relationships, Query>
   >(
     columns?: Query
-  ): PostgrestTransformBuilder<Schema, Row, NewResultOne[], RelationName, Relationships> {
+  ): PostgrestTransformBuilder<
+    Schema,
+    Row,
+    NewResultOne[],
+    RelationName,
+    Relationships,
+    ThrowOnError
+  > {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = (columns ?? '*')
@@ -48,7 +56,8 @@ export default class PostgrestTransformBuilder<
       Row,
       NewResultOne[],
       RelationName,
-      Relationships
+      Relationships,
+      ThrowOnError
     >
   }
 
@@ -188,11 +197,12 @@ export default class PostgrestTransformBuilder<
    * Query result must be one row (e.g. using `.limit(1)`), otherwise this
    * returns an error.
    */
-  single<
-    ResultOne = Result extends (infer ResultOne)[] ? ResultOne : never
-  >(): PostgrestBuilder<ResultOne> {
+  single<ResultOne = Result extends (infer ResultOne)[] ? ResultOne : never>(): PostgrestBuilder<
+    ResultOne,
+    ThrowOnError
+  > {
     this.headers['Accept'] = 'application/vnd.pgrst.object+json'
-    return this as PostgrestBuilder<ResultOne>
+    return this as unknown as PostgrestBuilder<ResultOne, ThrowOnError>
   }
 
   /**
@@ -203,7 +213,7 @@ export default class PostgrestTransformBuilder<
    */
   maybeSingle<
     ResultOne = Result extends (infer ResultOne)[] ? ResultOne : never
-  >(): PostgrestBuilder<ResultOne | null> {
+  >(): PostgrestBuilder<ResultOne | null, ThrowOnError> {
     // Temporary partial fix for https://github.com/supabase/postgrest-js/issues/361
     // Issue persists e.g. for `.insert([...]).select().maybeSingle()`
     if (this.method === 'GET') {
@@ -212,23 +222,23 @@ export default class PostgrestTransformBuilder<
       this.headers['Accept'] = 'application/vnd.pgrst.object+json'
     }
     this.isMaybeSingle = true
-    return this as PostgrestBuilder<ResultOne | null>
+    return this as unknown as PostgrestBuilder<ResultOne | null, ThrowOnError>
   }
 
   /**
    * Return `data` as a string in CSV format.
    */
-  csv(): PostgrestBuilder<string> {
+  csv(): PostgrestBuilder<string, ThrowOnError> {
     this.headers['Accept'] = 'text/csv'
-    return this as PostgrestBuilder<string>
+    return this as unknown as PostgrestBuilder<string, ThrowOnError>
   }
 
   /**
    * Return `data` as an object in [GeoJSON](https://geojson.org) format.
    */
-  geojson(): PostgrestBuilder<Record<string, unknown>> {
+  geojson(): PostgrestBuilder<Record<string, unknown>, ThrowOnError> {
     this.headers['Accept'] = 'application/geo+json'
-    return this as PostgrestBuilder<Record<string, unknown>>
+    return this as unknown as PostgrestBuilder<Record<string, unknown>, ThrowOnError>
   }
 
   /**
@@ -270,7 +280,9 @@ export default class PostgrestTransformBuilder<
     buffers?: boolean
     wal?: boolean
     format?: 'json' | 'text'
-  } = {}): PostgrestBuilder<Record<string, unknown>[]> | PostgrestBuilder<string> {
+  } = {}):
+    | PostgrestBuilder<Record<string, unknown>[], ThrowOnError>
+    | PostgrestBuilder<string, ThrowOnError> {
     const options = [
       analyze ? 'analyze' : null,
       verbose ? 'verbose' : null,
@@ -285,8 +297,9 @@ export default class PostgrestTransformBuilder<
     this.headers[
       'Accept'
     ] = `application/vnd.pgrst.plan+${format}; for="${forMediatype}"; options=${options};`
-    if (format === 'json') return this as PostgrestBuilder<Record<string, unknown>[]>
-    else return this as PostgrestBuilder<string>
+    if (format === 'json')
+      return this as unknown as PostgrestBuilder<Record<string, unknown>[], ThrowOnError>
+    else return this as unknown as PostgrestBuilder<string, ThrowOnError>
   }
 
   /**
@@ -313,14 +326,16 @@ export default class PostgrestTransformBuilder<
     Row,
     NewResult,
     RelationName,
-    Relationships
+    Relationships,
+    ThrowOnError
   > {
     return this as unknown as PostgrestTransformBuilder<
       Schema,
       Row,
       NewResult,
       RelationName,
-      Relationships
+      Relationships,
+      ThrowOnError
     >
   }
 }
