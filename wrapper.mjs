@@ -1,11 +1,10 @@
-import index from '../cjs/index.js'
-const {
+import {
   PostgrestClient,
   PostgrestQueryBuilder,
   PostgrestFilterBuilder,
   PostgrestTransformBuilder,
   PostgrestBuilder,
-} = index
+} from '../cjs/index.js'
 
 export {
   PostgrestBuilder,
