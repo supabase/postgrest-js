@@ -1,0 +1,21 @@
+name: pkg.pr.new
+
+on:
+  push: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - run: |
+          npm clean-install
+          npm run build
+
+      - name: Create pkg.pr.new release
+        run: npx pkg-pr-new publish
