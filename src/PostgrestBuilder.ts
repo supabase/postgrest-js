@@ -41,6 +41,15 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError extends bool
     return this as PostgrestBuilder<Result, true>
   }
 
+  /**
+   * Set an HTTP header for the request.
+   */
+  setHeader(name: string, value: string): this {
+    this.headers = { ...this.headers }
+    this.headers[name] = value
+    return this
+  }
+
   then<TResult1 = PostgrestSingleResponse<Result>, TResult2 = never>(
     onfulfilled?:
       | ((
