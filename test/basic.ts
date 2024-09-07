@@ -1542,7 +1542,7 @@ test("!left join on one to one relation", async () => {
   // Left join over a one to one relation should result in a single object
   expect(Array.isArray(res.data?.channels)).toBe(false);
   // This ensure runtime actually match the resulting type
-  expect(res.data?.channels[0].id).not.toBeNull();
+  expect(res.data?.channels.id).not.toBeNull();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1680,17 +1680,18 @@ test("join on 1-1 relation with nullables", async () => {
   // TODO: This won't raise the proper types for "first_friend_of" results
   const res = await postgrest
     .from("best_friends")
-    .select("first_user(*), second_user(*), third_wheel(*)");
+    .select("first_user(*), second_user(*), third_wheel(*)")
+    .order("id")
+    .limit(1).single();
   // Left join over a zero to one relation should result in a single object
-  expect(Array.isArray(res.data?.[0].first_user)).toBe(false);
-  expect(Array.isArray(res.data?.[0].second_user)).toBe(false);
-  expect(Array.isArray(res.data?.[0].third_wheel)).toBe(false);
-  // @ts-expect-error
-  expect(res.data?.[0].first_user[0].id).not.toBeNull();
-  // @ts-expect-error
-  expect(res.data?.[0].second_user[0].id).not.toBeNull();
-  // @ts-expect-error
-  expect(res.data?.[0].third_wheel[0].id).not.toBeNull();
+  expect(Array.isArray(res.data?.first_user)).toBe(false);
+  expect(Array.isArray(res.data?.second_user)).toBe(false);
+  expect(Array.isArray(res.data?.third_wheel)).toBe(false);
+  expect(res.data?.first_user.id).not.toBeNull();
+  //@ts-expect-error
+  expect(res.data?.second_user.id).not.toBeNull();
+  //@ts-expect-error
+  expect(res.data?.third_wheel.id).not.toBeNull();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,

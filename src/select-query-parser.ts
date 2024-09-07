@@ -178,6 +178,8 @@ type HasUniqueFKeyToFRel<FRelName, Relationships> = Relationships extends [infer
     : HasUniqueFKeyToFRel<FRelName, Rest>
   : false
 
+type ContainsNull<T> = null extends T ? true : false
+
 /**
  * Constructs a type definition for a single field of an object.
  *
@@ -236,7 +238,7 @@ type ConstructFieldDefinition<
             ? Field extends { inner: true }
               ? Child
               : Child | null
-            : Child[]
+            : Field
           : Child[]
         : never
     }
@@ -267,6 +269,8 @@ type ConstructFieldDefinition<
           : Relationships extends unknown[]
           ? HasFKeyToFRel<Field['original'], Relationships> extends true
             ? Field extends { inner: true }
+              ? Child
+              : Field extends { left: true }
               ? Child
               : Child | null
             : Child[]
@@ -350,6 +354,7 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input> extends [
  *   - `field(nodes)`
  *   - `field!hint(nodes)`
  *   - `field!inner(nodes)`
+ *   - `field!left(nodes)`
  *   - `field!hint!inner(nodes)`
  * - a field without an embedded resource (see {@link ParseFieldWithoutEmbeddedResource})
  */
@@ -364,6 +369,14 @@ type ParseField<Input extends string> = Input extends ''
           ParseEmbeddedResource<EatWhitespace<Remainder>>,
           'Expected embedded resource after `!inner`'
         >
+    : EatWhitespace<Remainder> extends `!left${infer Remainder}`
+    ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
+      ? // `field!left(nodes)`
+        [{ name: Name; original: Name; children: Fields; left: true }, EatWhitespace<Remainder>]
+      : CreateParserErrorIfRequired<
+          ParseEmbeddedResource<EatWhitespace<Remainder>>,
+          'Expected embedded resource after `!left`'
+        >
     : EatWhitespace<Remainder> extends `!${infer Remainder}`
     ? ParseIdentifier<EatWhitespace<Remainder>> extends [infer Hint, `${infer Remainder}`]
       ? EatWhitespace<Remainder> extends `!inner${infer Remainder}`
@@ -373,7 +386,13 @@ type ParseField<Input extends string> = Input extends ''
           ]
           ? // `field!hint!inner(nodes)`
             [
-              { name: Name; original: Name; hint: Hint; children: Fields; inner: true },
+              {
+                name: Name
+                original: Name
+                hint: Hint
+                children: Fields
+                inner: true
+              },
               EatWhitespace<Remainder>
             ]
           : CreateParserErrorIfRequired<
