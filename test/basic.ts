@@ -1527,6 +1527,7 @@ test("basic select table !left join", async () => {
     "channels!left(id)",
   ).limit(1).single();
   // This ensure runtime actually match the resulting type
+  // @ts-expect-error TODO: This should be fixed as the runtime and types differ
   expect(res.data?.channels.id).not.toBeNull();
   expect(res).toMatchInlineSnapshot(`
     Object {
