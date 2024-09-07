@@ -288,10 +288,13 @@ test("on_conflict insert", async () => {
 test("ignoreDuplicates upsert", async () => {
   const res = await postgrest
     .from("users")
-    .upsert({ username: "dragarcia" }, {
-      onConflict: "username",
-      ignoreDuplicates: true,
-    })
+    .upsert(
+      { username: "dragarcia" },
+      {
+        onConflict: "username",
+        ignoreDuplicates: true,
+      },
+    )
     .select();
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -920,9 +923,13 @@ test("select with count:exact", async () => {
 });
 
 test("rpc with count: 'exact'", async () => {
-  const res = await postgrest.rpc("get_status", { name_param: "supabot" }, {
-    count: "exact",
-  });
+  const res = await postgrest.rpc(
+    "get_status",
+    { name_param: "supabot" },
+    {
+      count: "exact",
+    },
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 1,
@@ -1021,9 +1028,12 @@ describe("insert, update, delete with count: 'exact'", () => {
   test("insert with count: 'exact'", async () => {
     let res = await postgrest
       .from("messages")
-      .insert({ message: "foo", username: "supabot", channel_id: 1 }, {
-        count: "exact",
-      })
+      .insert(
+        { message: "foo", username: "supabot", channel_id: 1 },
+        {
+          count: "exact",
+        },
+      )
       .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1080,9 +1090,12 @@ describe("insert, update, delete with count: 'exact'", () => {
   test("upsert with count: 'exact'", async () => {
     let res = await postgrest
       .from("messages")
-      .upsert({ id: 3, message: "foo", username: "supabot", channel_id: 2 }, {
-        count: "exact",
-      })
+      .upsert(
+        { id: 3, message: "foo", username: "supabot", channel_id: 2 },
+        {
+          count: "exact",
+        },
+      )
       .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1529,8 +1542,7 @@ test("!left join on one to one relation", async () => {
   // Left join over a one to one relation should result in a single object
   expect(Array.isArray(res.data?.channels)).toBe(false);
   // This ensure runtime actually match the resulting type
-  // @ts-expect-error TODO: This should be fixed as the runtime and types differ
-  expect(res.data?.channels.id).not.toBeNull();
+  expect(res.data?.channels[0].id).not.toBeNull();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1547,9 +1559,8 @@ test("!left join on one to one relation", async () => {
 });
 
 test("!left join on one to many relation", async () => {
-  const res = await postgrest.from("users").select(
-    "messages!left(username)",
-  ).limit(1).single();
+  const res = await postgrest.from("users").select("messages!left(username)")
+    .limit(1).single();
   // A left join to many messages should result in an array
   expect(Array.isArray(res.data?.messages)).toBe(true);
   expect(res).toMatchInlineSnapshot(`
@@ -1564,6 +1575,147 @@ test("!left join on one to many relation", async () => {
             "username": "supabot",
           },
         ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
+
+test("!left join on zero to one non-empty relation", async () => {
+  const res = await postgrest
+    .from("users")
+    .select("user_profiles!left(username)")
+    .eq("username", "supabot")
+    .limit(1)
+    .single();
+  // Left join over a zero to one relation should result in a single object
+  expect(Array.isArray(res.data?.user_profiles)).toBe(true);
+  expect(res.data?.user_profiles[0].username).not.toBeNull();
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "user_profiles": Array [
+          Object {
+            "username": "supabot",
+          },
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
+
+test("!left join on zero to one empty relation", async () => {
+  const res = await postgrest
+    .from("users")
+    .select("user_profiles!left(username)")
+    .eq("username", "dragarcia")
+    .limit(1)
+    .single();
+  // Left join over a zero to one relation should result in a single object
+  expect(Array.isArray(res.data?.user_profiles)).toBe(true);
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "user_profiles": Array [],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
+
+test("join on 1-M relation", async () => {
+  // TODO: This won't raise the proper types for "first_friend_of" results
+  const res = await postgrest
+    .from("users")
+    .select(
+      `first_friend_of:best_friends_first_user_fkey(*),
+      second_friend_of:best_friends_second_user_fkey(*),
+      third_wheel_of:best_friends_third_wheel_fkey(*)`,
+    )
+    .eq("username", "supabot")
+    .limit(1)
+    .single();
+  // Left join over a zero to one relation should result in a single object
+  expect(Array.isArray(res.data?.first_friend_of)).toBe(true);
+  expect(Array.isArray(res.data?.second_friend_of)).toBe(true);
+  expect(Array.isArray(res.data?.third_wheel_of)).toBe(true);
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "first_friend_of": Array [
+          Object {
+            "first_user": "supabot",
+            "id": 1,
+            "second_user": "kiwicopple",
+            "third_wheel": "awailas",
+          },
+          Object {
+            "first_user": "supabot",
+            "id": 2,
+            "second_user": "dragarcia",
+            "third_wheel": null,
+          },
+        ],
+        "second_friend_of": Array [],
+        "third_wheel_of": Array [],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
+
+test("join on 1-1 relation with nullables", async () => {
+  // TODO: This won't raise the proper types for "first_friend_of" results
+  const res = await postgrest
+    .from("best_friends")
+    .select("first_user(*), second_user(*), third_wheel(*)");
+  // Left join over a zero to one relation should result in a single object
+  expect(Array.isArray(res.data?.[0].first_user)).toBe(false);
+  expect(Array.isArray(res.data?.[0].second_user)).toBe(false);
+  expect(Array.isArray(res.data?.[0].third_wheel)).toBe(false);
+  // @ts-expect-error
+  expect(res.data?.[0].first_user[0].id).not.toBeNull();
+  // @ts-expect-error
+  expect(res.data?.[0].second_user[0].id).not.toBeNull();
+  // @ts-expect-error
+  expect(res.data?.[0].third_wheel[0].id).not.toBeNull();
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "first_user": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        "second_user": Object {
+          "age_range": "[25,35)",
+          "catchphrase": "'bat' 'cat'",
+          "data": null,
+          "status": "OFFLINE",
+          "username": "kiwicopple",
+        },
+        "third_wheel": Object {
+          "age_range": "[25,35)",
+          "catchphrase": "'bat' 'rat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "awailas",
+        },
       },
       "error": null,
       "status": 200,
