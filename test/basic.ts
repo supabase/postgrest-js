@@ -1522,10 +1522,12 @@ test("update with no match - return=representation", async () => {
   `);
 });
 
-test("basic select table !left join", async () => {
+test("!left join on one to one relation", async () => {
   const res = await postgrest.from("channel_details").select(
     "channels!left(id)",
   ).limit(1).single();
+  // Left join over a one to one relation should result in a single object
+  expect(Array.isArray(res.data?.channels)).toBe(false);
   // This ensure runtime actually match the resulting type
   // @ts-expect-error TODO: This should be fixed as the runtime and types differ
   expect(res.data?.channels.id).not.toBeNull();
@@ -1536,6 +1538,32 @@ test("basic select table !left join", async () => {
         "channels": Object {
           "id": 1,
         },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
+
+test("!left join on one to many relation", async () => {
+  const res = await postgrest.from("users").select(
+    "messages!left(username)",
+  ).limit(1).single();
+  // A left join to many messages should result in an array
+  expect(Array.isArray(res.data?.messages)).toBe(true);
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "username": "supabot",
+          },
+          Object {
+            "username": "supabot",
+          },
+        ],
       },
       "error": null,
       "status": 200,
