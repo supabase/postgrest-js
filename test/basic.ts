@@ -1,11 +1,11 @@
-import { PostgrestClient } from '../src/index'
-import { Database } from './types'
+import { PostgrestClient } from "../src/index";
+import { Database } from "./types";
 
-const REST_URL = 'http://localhost:3000'
-const postgrest = new PostgrestClient<Database>(REST_URL)
+const REST_URL = "http://localhost:3000";
+const postgrest = new PostgrestClient<Database>(REST_URL);
 
-test('basic select table', async () => {
-  const res = await postgrest.from('users').select()
+test("basic select table", async () => {
+  const res = await postgrest.from("users").select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -43,11 +43,11 @@ test('basic select table', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('basic select view', async () => {
-  const res = await postgrest.from('updatable_view').select()
+test("basic select view", async () => {
+  const res = await postgrest.from("updatable_view").select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -73,11 +73,11 @@ test('basic select view', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc', async () => {
-  const res = await postgrest.rpc('get_status', { name_param: 'supabot' })
+test("rpc", async () => {
+  const res = await postgrest.rpc("get_status", { name_param: "supabot" });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -86,11 +86,11 @@ test('rpc', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc returns void', async () => {
-  const res = await postgrest.rpc('void_func')
+test("rpc returns void", async () => {
+  const res = await postgrest.rpc("void_func");
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -99,70 +99,81 @@ test('rpc returns void', async () => {
       "status": 204,
       "statusText": "No Content",
     }
-  `)
-})
+  `);
+});
 
-test('custom headers', async () => {
-  const postgrest = new PostgrestClient<Database>(REST_URL, { headers: { apikey: 'foo' } })
-  expect((postgrest.from('users').select() as any).headers['apikey']).toEqual('foo')
-})
+test("custom headers", async () => {
+  const postgrest = new PostgrestClient<Database>(REST_URL, {
+    headers: { apikey: "foo" },
+  });
+  expect((postgrest.from("users").select() as any).headers["apikey"]).toEqual(
+    "foo",
+  );
+});
 
-test('custom headers on a per-call basis', async () => {
-  const postgrest1 = new PostgrestClient<Database>(REST_URL, { headers: { apikey: 'foo' } })
-  const postgrest2 = postgrest1.rpc('void_func').setHeader('apikey', 'bar')
+test("custom headers on a per-call basis", async () => {
+  const postgrest1 = new PostgrestClient<Database>(REST_URL, {
+    headers: { apikey: "foo" },
+  });
+  const postgrest2 = postgrest1.rpc("void_func").setHeader("apikey", "bar");
   // Original client object isn't affected
-  expect((postgrest1.from('users').select() as any).headers['apikey']).toEqual('foo')
+  expect((postgrest1.from("users").select() as any).headers["apikey"]).toEqual(
+    "foo",
+  );
   // Derived client object uses new header value
-  expect((postgrest2 as any).headers['apikey']).toEqual('bar')
-})
+  expect((postgrest2 as any).headers["apikey"]).toEqual("bar");
+});
 
-describe('custom prefer headers with ', () => {
-  test('insert', async () => {
+describe("custom prefer headers with ", () => {
+  test("insert", async () => {
     const postgrest = new PostgrestClient<Database>(REST_URL, {
-      headers: { Prefer: 'tx=rollback' },
-    })
+      headers: { Prefer: "tx=rollback" },
+    });
     const postgrestFilterBuilder = postgrest
-      .from('users')
-      .insert({ username: 'dragarcia' })
-      .select() as any
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('tx=rollback')
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('return=')
-  })
-  test('update', async () => {
+      .from("users")
+      .insert({ username: "dragarcia" })
+      .select() as any;
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("tx=rollback");
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("return=");
+  });
+  test("update", async () => {
     const postgrest = new PostgrestClient<Database>(REST_URL, {
-      headers: { Prefer: 'tx=rollback' },
-    })
+      headers: { Prefer: "tx=rollback" },
+    });
     const postgrestFilterBuilder = postgrest
-      .from('users')
-      .update({ username: 'dragarcia' })
-      .select() as any
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('tx=rollback')
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('return=')
-  })
-  test('upsert', async () => {
+      .from("users")
+      .update({ username: "dragarcia" })
+      .select() as any;
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("tx=rollback");
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("return=");
+  });
+  test("upsert", async () => {
     const postgrest = new PostgrestClient<Database>(REST_URL, {
-      headers: { Prefer: 'tx=rollback' },
-    })
+      headers: { Prefer: "tx=rollback" },
+    });
     const postgrestFilterBuilder = postgrest
-      .from('users')
-      .upsert({ username: 'dragarcia' })
-      .select() as any
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('tx=rollback')
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('return=')
-  })
-  test('delete', async () => {
+      .from("users")
+      .upsert({ username: "dragarcia" })
+      .select() as any;
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("tx=rollback");
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("return=");
+  });
+  test("delete", async () => {
     const postgrest = new PostgrestClient<Database>(REST_URL, {
-      headers: { Prefer: 'tx=rollback' },
-    })
-    const postgrestFilterBuilder = postgrest.from('users').delete().select() as any
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('tx=rollback')
-    expect(postgrestFilterBuilder.headers['Prefer']).toContain('return=')
-  })
-})
+      headers: { Prefer: "tx=rollback" },
+    });
+    const postgrestFilterBuilder = postgrest.from("users").delete()
+      .select() as any;
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("tx=rollback");
+    expect(postgrestFilterBuilder.headers["Prefer"]).toContain("return=");
+  });
+});
 
-test('switch schema', async () => {
-  const postgrest = new PostgrestClient<Database, 'personal'>(REST_URL, { schema: 'personal' })
-  const res = await postgrest.from('users').select()
+test("switch schema", async () => {
+  const postgrest = new PostgrestClient<Database, "personal">(REST_URL, {
+    schema: "personal",
+  });
+  const res = await postgrest.from("users").select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -202,12 +213,12 @@ test('switch schema', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('dynamic schema', async () => {
-  const postgrest = new PostgrestClient<Database>(REST_URL)
-  const res = await postgrest.schema('personal').from('users').select()
+test("dynamic schema", async () => {
+  const postgrest = new PostgrestClient<Database>(REST_URL);
+  const res = await postgrest.schema("personal").from("users").select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -247,14 +258,14 @@ test('dynamic schema', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('on_conflict insert', async () => {
+test("on_conflict insert", async () => {
   const res = await postgrest
-    .from('users')
-    .upsert({ username: 'dragarcia' }, { onConflict: 'username' })
-    .select()
+    .from("users")
+    .upsert({ username: "dragarcia" }, { onConflict: "username" })
+    .select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -271,14 +282,17 @@ test('on_conflict insert', async () => {
       "status": 201,
       "statusText": "Created",
     }
-  `)
-})
+  `);
+});
 
-test('ignoreDuplicates upsert', async () => {
+test("ignoreDuplicates upsert", async () => {
   const res = await postgrest
-    .from('users')
-    .upsert({ username: 'dragarcia' }, { onConflict: 'username', ignoreDuplicates: true })
-    .select()
+    .from("users")
+    .upsert({ username: "dragarcia" }, {
+      onConflict: "username",
+      ignoreDuplicates: true,
+    })
+    .select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -287,15 +301,15 @@ test('ignoreDuplicates upsert', async () => {
       "status": 201,
       "statusText": "Created",
     }
-  `)
-})
+  `);
+});
 
-describe('basic insert, update, delete', () => {
-  test('basic insert', async () => {
+describe("basic insert, update, delete", () => {
+  test("basic insert", async () => {
     let res = await postgrest
-      .from('messages')
-      .insert({ message: 'foo', username: 'supabot', channel_id: 1 })
-      .select()
+      .from("messages")
+      .insert({ message: "foo", username: "supabot", channel_id: 1 })
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -312,9 +326,9 @@ describe('basic insert, update, delete', () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -345,14 +359,14 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
-  test('upsert', async () => {
+  test("upsert", async () => {
     let res = await postgrest
-      .from('messages')
-      .upsert({ id: 3, message: 'foo', username: 'supabot', channel_id: 2 })
-      .select()
+      .from("messages")
+      .upsert({ id: 3, message: "foo", username: "supabot", channel_id: 2 })
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -369,9 +383,9 @@ describe('basic insert, update, delete', () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -402,17 +416,17 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
-  test('bulk insert', async () => {
+  test("bulk insert", async () => {
     let res = await postgrest
-      .from('messages')
+      .from("messages")
       .insert([
-        { message: 'foo', username: 'supabot', channel_id: 1 },
-        { message: 'foo', username: 'supabot', channel_id: 1 },
+        { message: "foo", username: "supabot", channel_id: 1 },
+        { message: "foo", username: "supabot", channel_id: 1 },
       ])
-      .select()
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -436,9 +450,9 @@ describe('basic insert, update, delete', () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -483,15 +497,15 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
-  test('basic update', async () => {
+  test("basic update", async () => {
     let res = await postgrest
-      .from('messages')
+      .from("messages")
       .update({ channel_id: 2 })
-      .eq('message', 'foo')
-      .select()
+      .eq("message", "foo")
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -522,9 +536,9 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -569,11 +583,12 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
-  test('basic delete', async () => {
-    let res = await postgrest.from('messages').delete().eq('message', 'foo').select()
+  test("basic delete", async () => {
+    let res = await postgrest.from("messages").delete().eq("message", "foo")
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -604,9 +619,9 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -630,35 +645,35 @@ describe('basic insert, update, delete', () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
-})
+    `);
+  });
+});
 
-test('throwOnError throws errors instead of returning them', async () => {
-  let isErrorCaught = false
+test("throwOnError throws errors instead of returning them", async () => {
+  let isErrorCaught = false;
 
   try {
     // @ts-expect-error: nonexistent table
-    await postgrest.from('missing_table').select().throwOnError()
+    await postgrest.from("missing_table").select().throwOnError();
   } catch (error) {
     expect(error).toMatchInlineSnapshot(
-      `[PostgrestError: relation "public.missing_table" does not exist]`
-    )
-    isErrorCaught = true
+      `[PostgrestError: relation "public.missing_table" does not exist]`,
+    );
+    isErrorCaught = true;
   }
 
-  expect(isErrorCaught).toBe(true)
-})
+  expect(isErrorCaught).toBe(true);
+});
 
-test('throwOnError throws errors which include stack', async () => {
+test("throwOnError throws errors which include stack", async () => {
   try {
     // @ts-expect-error: nonexistent table
-    await postgrest.from('does_not_exist').select().throwOnError()
+    await postgrest.from("does_not_exist").select().throwOnError();
   } catch (err) {
-    expect(err instanceof Error).toBe(true)
-    expect((err as Error).stack).not.toBeUndefined()
+    expect(err instanceof Error).toBe(true);
+    expect((err as Error).stack).not.toBeUndefined();
   }
-})
+});
 
 // test('throwOnError setting at the client level - query', async () => {
 //   let isErrorCaught = false
@@ -700,56 +715,56 @@ test('throwOnError throws errors which include stack', async () => {
 //   expect(isErrorCaught).toBe(false)
 // })
 
-test('connection error w/o throwing', async () => {
-  const postgrest = new PostgrestClient<Database>('http://foo.invalid')
-  let isErrorCaught = false
+test("connection error w/o throwing", async () => {
+  const postgrest = new PostgrestClient<Database>("http://foo.invalid");
+  let isErrorCaught = false;
   await postgrest
-    .from('users')
+    .from("users")
     .select()
     .then(undefined, () => {
-      isErrorCaught = true
-    })
-  expect(isErrorCaught).toBe(false)
-})
+      isErrorCaught = true;
+    });
+  expect(isErrorCaught).toBe(false);
+});
 
-test('connection error w/ throwOnError', async () => {
-  const postgrest = new PostgrestClient<Database>('http://foo.invalid')
-  let isErrorCaught = false
+test("connection error w/ throwOnError", async () => {
+  const postgrest = new PostgrestClient<Database>("http://foo.invalid");
+  let isErrorCaught = false;
   await postgrest
-    .from('users')
+    .from("users")
     .select()
     .throwOnError()
     .then(undefined, () => {
-      isErrorCaught = true
-    })
-  expect(isErrorCaught).toBe(true)
-})
+      isErrorCaught = true;
+    });
+  expect(isErrorCaught).toBe(true);
+});
 
-test('maybeSingle w/ throwOnError', async () => {
-  let passes = true
+test("maybeSingle w/ throwOnError", async () => {
+  let passes = true;
   await postgrest
-    .from('messages')
+    .from("messages")
     .select()
-    .eq('message', 'i do not exist')
+    .eq("message", "i do not exist")
     .throwOnError()
     .maybeSingle()
     .then(undefined, () => {
-      passes = false
-    })
-  expect(passes).toEqual(true)
-})
+      passes = false;
+    });
+  expect(passes).toEqual(true);
+});
 
 test("don't mutate PostgrestClient.headers", async () => {
-  await postgrest.from('users').select().limit(1).single()
-  const { error } = await postgrest.from('users').select()
-  expect(error).toMatchInlineSnapshot(`null`)
-})
+  await postgrest.from("users").select().limit(1).single();
+  const { error } = await postgrest.from("users").select();
+  expect(error).toMatchInlineSnapshot(`null`);
+});
 
-test('allow ordering on JSON column', async () => {
+test("allow ordering on JSON column", async () => {
   const { data } = await postgrest
-    .from('users')
+    .from("users")
     .select()
-    .order('data->something' as any)
+    .order("data->something" as any);
   expect(data).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -781,18 +796,18 @@ test('allow ordering on JSON column', async () => {
         "username": "dragarcia",
       },
     ]
-  `)
-})
+  `);
+});
 
-test('Prefer: return=minimal', async () => {
-  const { data } = await postgrest.from('users').insert({ username: 'bar' })
-  expect(data).toMatchInlineSnapshot(`null`)
+test("Prefer: return=minimal", async () => {
+  const { data } = await postgrest.from("users").insert({ username: "bar" });
+  expect(data).toMatchInlineSnapshot(`null`);
 
-  await postgrest.from('users').delete().eq('username', 'bar')
-})
+  await postgrest.from("users").delete().eq("username", "bar");
+});
 
-test('select with head:true', async () => {
-  const res = await postgrest.from('users').select('*', { head: true })
+test("select with head:true", async () => {
+  const res = await postgrest.from("users").select("*", { head: true });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -801,11 +816,14 @@ test('select with head:true', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('select with head:true, count:exact', async () => {
-  const res = await postgrest.from('users').select('*', { head: true, count: 'exact' })
+test("select with head:true, count:exact", async () => {
+  const res = await postgrest.from("users").select("*", {
+    head: true,
+    count: "exact",
+  });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 4,
@@ -814,11 +832,14 @@ test('select with head:true, count:exact', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('select with head:true, count:planned', async () => {
-  const res = await postgrest.from('users').select('*', { head: true, count: 'planned' })
+test("select with head:true, count:planned", async () => {
+  const res = await postgrest.from("users").select("*", {
+    head: true,
+    count: "planned",
+  });
   expect(res).toMatchInlineSnapshot(
     {
       count: expect.any(Number),
@@ -831,12 +852,15 @@ test('select with head:true, count:planned', async () => {
       "status": 206,
       "statusText": "Partial Content",
     }
-  `
-  )
-})
+  `,
+  );
+});
 
-test('select with head:true, count:estimated', async () => {
-  const res = await postgrest.from('users').select('*', { head: true, count: 'estimated' })
+test("select with head:true, count:estimated", async () => {
+  const res = await postgrest.from("users").select("*", {
+    head: true,
+    count: "estimated",
+  });
   expect(res).toMatchInlineSnapshot(
     {
       count: expect.any(Number),
@@ -849,12 +873,12 @@ test('select with head:true, count:estimated', async () => {
       "status": 206,
       "statusText": "Partial Content",
     }
-  `
-  )
-})
+  `,
+  );
+});
 
-test('select with count:exact', async () => {
-  const res = await postgrest.from('users').select('*', { count: 'exact' })
+test("select with count:exact", async () => {
+  const res = await postgrest.from("users").select("*", { count: "exact" });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 4,
@@ -892,11 +916,13 @@ test('select with count:exact', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
 test("rpc with count: 'exact'", async () => {
-  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, { count: 'exact' })
+  const res = await postgrest.rpc("get_status", { name_param: "supabot" }, {
+    count: "exact",
+  });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 1,
@@ -905,15 +931,15 @@ test("rpc with count: 'exact'", async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc with head:true, count:exact', async () => {
+test("rpc with head:true, count:exact", async () => {
   const res = await postgrest.rpc(
-    'get_status',
-    { name_param: 'supabot' },
-    { head: true, count: 'exact' }
-  )
+    "get_status",
+    { name_param: "supabot" },
+    { head: true, count: "exact" },
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 1,
@@ -922,15 +948,15 @@ test('rpc with head:true, count:exact', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc with get:true, count:exact', async () => {
+test("rpc with get:true, count:exact", async () => {
   const res = await postgrest.rpc(
-    'get_status',
-    { name_param: 'supabot' },
-    { get: true, count: 'exact' }
-  )
+    "get_status",
+    { name_param: "supabot" },
+    { get: true, count: "exact" },
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 1,
@@ -939,15 +965,15 @@ test('rpc with get:true, count:exact', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc with get:true, optional param', async () => {
+test("rpc with get:true, optional param", async () => {
   const res = await postgrest.rpc(
-    'function_with_optional_param',
+    "function_with_optional_param",
     { param: undefined },
-    { get: true }
-  )
+    { get: true },
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -956,15 +982,15 @@ test('rpc with get:true, optional param', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('rpc with get:true, array param', async () => {
+test("rpc with get:true, array param", async () => {
   const res = await postgrest.rpc(
-    'function_with_array_param',
-    { param: ['00000000-0000-0000-0000-000000000000'] },
-    { get: true }
-  )
+    "function_with_array_param",
+    { param: ["00000000-0000-0000-0000-000000000000"] },
+    { get: true },
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -973,11 +999,13 @@ test('rpc with get:true, array param', async () => {
       "status": 204,
       "statusText": "No Content",
     }
-  `)
-})
+  `);
+});
 
-test('rpc with dynamic schema', async () => {
-  const res = await postgrest.schema('personal').rpc('get_status', { name_param: 'kiwicopple' })
+test("rpc with dynamic schema", async () => {
+  const res = await postgrest.schema("personal").rpc("get_status", {
+    name_param: "kiwicopple",
+  });
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -986,15 +1014,17 @@ test('rpc with dynamic schema', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
 describe("insert, update, delete with count: 'exact'", () => {
   test("insert with count: 'exact'", async () => {
     let res = await postgrest
-      .from('messages')
-      .insert({ message: 'foo', username: 'supabot', channel_id: 1 }, { count: 'exact' })
-      .select()
+      .from("messages")
+      .insert({ message: "foo", username: "supabot", channel_id: 1 }, {
+        count: "exact",
+      })
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": 1,
@@ -1011,9 +1041,9 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1044,14 +1074,16 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
   test("upsert with count: 'exact'", async () => {
     let res = await postgrest
-      .from('messages')
-      .upsert({ id: 3, message: 'foo', username: 'supabot', channel_id: 2 }, { count: 'exact' })
-      .select()
+      .from("messages")
+      .upsert({ id: 3, message: "foo", username: "supabot", channel_id: 2 }, {
+        count: "exact",
+      })
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": 1,
@@ -1068,9 +1100,9 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1108,20 +1140,20 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
   test("bulk insert with count: 'exact'", async () => {
     let res = await postgrest
-      .from('messages')
+      .from("messages")
       .insert(
         [
-          { message: 'foo', username: 'supabot', channel_id: 1 },
-          { message: 'foo', username: 'supabot', channel_id: 1 },
+          { message: "foo", username: "supabot", channel_id: 1 },
+          { message: "foo", username: "supabot", channel_id: 1 },
         ],
-        { count: 'exact' }
+        { count: "exact" },
       )
-      .select()
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": 2,
@@ -1145,9 +1177,9 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1199,15 +1231,15 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
-  test('bulk insert with column defaults', async () => {
+  test("bulk insert with column defaults", async () => {
     let res = await postgrest
-      .from('channels')
-      .insert([{ id: 100 }, { slug: 'test-slug' }], { defaultToNull: false })
+      .from("channels")
+      .insert([{ id: 100 }, { slug: "test-slug" }], { defaultToNull: false })
       .select()
-      .rollback()
+      .rollback();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1227,15 +1259,15 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
-  })
+    `);
+  });
 
-  test('bulk upsert with column defaults', async () => {
+  test("bulk upsert with column defaults", async () => {
     let res = await postgrest
-      .from('channels')
-      .upsert([{ id: 1 }, { slug: 'test-slug' }], { defaultToNull: false })
+      .from("channels")
+      .upsert([{ id: 1 }, { slug: "test-slug" }], { defaultToNull: false })
       .select()
-      .rollback()
+      .rollback();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1255,15 +1287,15 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 201,
         "statusText": "Created",
       }
-    `)
-  })
+    `);
+  });
 
   test("update with count: 'exact'", async () => {
     let res = await postgrest
-      .from('messages')
-      .update({ channel_id: 2 }, { count: 'exact' })
-      .eq('message', 'foo')
-      .select()
+      .from("messages")
+      .update({ channel_id: 2 }, { count: "exact" })
+      .eq("message", "foo")
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": 4,
@@ -1301,9 +1333,9 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1355,15 +1387,15 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
+    `);
+  });
 
   test("basic delete count: 'exact'", async () => {
     let res = await postgrest
-      .from('messages')
-      .delete({ count: 'exact' })
-      .eq('message', 'foo')
-      .select()
+      .from("messages")
+      .delete({ count: "exact" })
+      .eq("message", "foo")
+      .select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": 4,
@@ -1401,9 +1433,9 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
+    `);
 
-    res = await postgrest.from('messages').select()
+    res = await postgrest.from("messages").select();
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1427,24 +1459,26 @@ describe("insert, update, delete with count: 'exact'", () => {
         "status": 200,
         "statusText": "OK",
       }
-    `)
-  })
-})
+    `);
+  });
+});
 
-test('insert includes columns param', async () => {
-  const client = postgrest.from('users').insert([{ foo: 1 }, { bar: 2 }] as any)
-  expect((client as any).url.searchParams.get('columns')).toMatchInlineSnapshot(
-    `"\\"foo\\",\\"bar\\""`
-  )
-})
+test("insert includes columns param", async () => {
+  const client = postgrest.from("users").insert(
+    [{ foo: 1 }, { bar: 2 }] as any,
+  );
+  expect((client as any).url.searchParams.get("columns")).toMatchInlineSnapshot(
+    `"\\"foo\\",\\"bar\\""`,
+  );
+});
 
-test('insert w/ empty body has no columns param', async () => {
-  const client = postgrest.from('users').insert([{}, {}] as any)
-  expect((client as any).url.searchParams.has('columns')).toBeFalsy()
-})
+test("insert w/ empty body has no columns param", async () => {
+  const client = postgrest.from("users").insert([{}, {}] as any);
+  expect((client as any).url.searchParams.has("columns")).toBeFalsy();
+});
 
-test('select with no match', async () => {
-  const res = await postgrest.from('users').select().eq('username', 'missing')
+test("select with no match", async () => {
+  const res = await postgrest.from("users").select().eq("username", "missing");
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1453,11 +1487,14 @@ test('select with no match', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
 
-test('update with no match - return=minimal', async () => {
-  const res = await postgrest.from('users').update({ data: '' }).eq('username', 'missing')
+test("update with no match - return=minimal", async () => {
+  const res = await postgrest.from("users").update({ data: "" }).eq(
+    "username",
+    "missing",
+  );
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1466,11 +1503,14 @@ test('update with no match - return=minimal', async () => {
       "status": 204,
       "statusText": "No Content",
     }
-  `)
-})
+  `);
+});
 
-test('update with no match - return=representation', async () => {
-  const res = await postgrest.from('users').update({ data: '' }).eq('username', 'missing').select()
+test("update with no match - return=representation", async () => {
+  const res = await postgrest.from("users").update({ data: "" }).eq(
+    "username",
+    "missing",
+  ).select();
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1479,5 +1519,26 @@ test('update with no match - return=representation', async () => {
       "status": 200,
       "statusText": "OK",
     }
-  `)
-})
+  `);
+});
+
+test("basic select table !left join", async () => {
+  const res = await postgrest.from("channel_details").select(
+    "channels!left(id)",
+  ).limit(1).single();
+  // This ensure runtime actually match the resulting type
+  expect(res.data?.channels.id).not.toBeNull();
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "channels": Object {
+          "id": 1,
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `);
+});
