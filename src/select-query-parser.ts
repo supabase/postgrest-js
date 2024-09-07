@@ -178,8 +178,6 @@ type HasUniqueFKeyToFRel<FRelName, Relationships> = Relationships extends [infer
     : HasUniqueFKeyToFRel<FRelName, Rest>
   : false
 
-type ContainsNull<T> = null extends T ? true : false
-
 /**
  * Constructs a type definition for a single field of an object.
  *
@@ -272,7 +270,8 @@ type ConstructFieldDefinition<
               ? Child
               : Field extends { left: true }
               ? Child
-              : Child | null
+              : // TODO: This should return null only if the column is actually nullable
+                Child | null
             : Child[]
           : Child[]
         : never
