@@ -44,4 +44,4 @@ VALUES
 INSERT INTO best_friends(id, first_user, second_user, third_wheel)
 VALUES
   (1, 'supabot', 'kiwicopple', 'awailas'),
-  (2, 'supabot', 'dragarcia', NULL);
+  (2, 'supabot', 'awailas', NULL);

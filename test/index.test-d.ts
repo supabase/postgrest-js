@@ -252,7 +252,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 {
   const { data: bestFriends, error } = await postgrest
     .from('best_friends')
-    .select('first_user:users(*), second_user:users(*), third_wheel:users(*)')
+    .select(
+      'first_user:users!best_friends_first_user_fkey(*), second_user:users!best_friends_second_user_fkey(*), third_wheel:users!best_friends_third_wheel_fkey(*)'
+    )
     .single()
 
   if (error) {

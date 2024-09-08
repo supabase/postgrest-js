@@ -1606,7 +1606,7 @@ test('join on 1-M relation', async () => {
           Object {
             "first_user": "supabot",
             "id": 2,
-            "second_user": "dragarcia",
+            "second_user": "awailas",
             "third_wheel": null,
           },
         ],
@@ -1624,16 +1624,18 @@ test('join on 1-1 relation with nullables', async () => {
   // TODO: This won't raise the proper types for "first_friend_of" results
   const res = await postgrest
     .from('best_friends')
-    .select('one_user:users(*), second_user:users(*), third_wheel:users(*)')
+    .select(
+      'first_user:users!best_friends_first_user_fkey(*), second_user:users!best_friends_second_user_fkey(*), third_wheel:users!best_friends_third_wheel_fkey(*)'
+    )
     .order('id')
     .limit(1)
     .single()
   // Left join over a zero to one relation should result in a single object
-  expect(Array.isArray(res.data?.one_user)).toBe(false)
+  expect(Array.isArray(res.data?.first_user)).toBe(false)
   expect(Array.isArray(res.data?.second_user)).toBe(false)
   expect(Array.isArray(res.data?.third_wheel)).toBe(false)
   // TODO: This should return null only if the column is actually nullable
-  expect(res.data?.one_user?.username).not.toBeNull()
+  expect(res.data?.first_user?.username).not.toBeNull()
   expect(res.data?.second_user?.username).not.toBeNull()
   expect(res.data?.third_wheel?.username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
