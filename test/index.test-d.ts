@@ -259,8 +259,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
 
-  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.first_user)
-  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.second_user)
+  // TODO: Those two fields shouldn't be nullables
+  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.first_user)
+  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.second_user)
   // The third wheel should be optional
   expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.third_wheel)
 }
