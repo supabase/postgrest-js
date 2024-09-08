@@ -64,10 +64,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<{
-    message: string | null
-    status: Database['public']['Enums']['user_status'] | null
-  }>(data)
+  expectType<{ message: string | null; status: Database['public']['Enums']['user_status'] | null }>(
+    data
+  )
 }
 
 // spread resource with all columns in select query

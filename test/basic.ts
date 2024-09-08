@@ -103,16 +103,12 @@ test('rpc returns void', async () => {
 })
 
 test('custom headers', async () => {
-  const postgrest = new PostgrestClient<Database>(REST_URL, {
-    headers: { apikey: 'foo' },
-  })
+  const postgrest = new PostgrestClient<Database>(REST_URL, { headers: { apikey: 'foo' } })
   expect((postgrest.from('users').select() as any).headers['apikey']).toEqual('foo')
 })
 
 test('custom headers on a per-call basis', async () => {
-  const postgrest1 = new PostgrestClient<Database>(REST_URL, {
-    headers: { apikey: 'foo' },
-  })
+  const postgrest1 = new PostgrestClient<Database>(REST_URL, { headers: { apikey: 'foo' } })
   const postgrest2 = postgrest1.rpc('void_func').setHeader('apikey', 'bar')
   // Original client object isn't affected
   expect((postgrest1.from('users').select() as any).headers['apikey']).toEqual('foo')
@@ -165,9 +161,7 @@ describe('custom prefer headers with ', () => {
 })
 
 test('switch schema', async () => {
-  const postgrest = new PostgrestClient<Database, 'personal'>(REST_URL, {
-    schema: 'personal',
-  })
+  const postgrest = new PostgrestClient<Database, 'personal'>(REST_URL, { schema: 'personal' })
   const res = await postgrest.from('users').select()
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -283,13 +277,7 @@ test('on_conflict insert', async () => {
 test('ignoreDuplicates upsert', async () => {
   const res = await postgrest
     .from('users')
-    .upsert(
-      { username: 'dragarcia' },
-      {
-        onConflict: 'username',
-        ignoreDuplicates: true,
-      }
-    )
+    .upsert({ username: 'dragarcia' }, { onConflict: 'username', ignoreDuplicates: true })
     .select()
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -817,10 +805,7 @@ test('select with head:true', async () => {
 })
 
 test('select with head:true, count:exact', async () => {
-  const res = await postgrest.from('users').select('*', {
-    head: true,
-    count: 'exact',
-  })
+  const res = await postgrest.from('users').select('*', { head: true, count: 'exact' })
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 4,
@@ -833,10 +818,7 @@ test('select with head:true, count:exact', async () => {
 })
 
 test('select with head:true, count:planned', async () => {
-  const res = await postgrest.from('users').select('*', {
-    head: true,
-    count: 'planned',
-  })
+  const res = await postgrest.from('users').select('*', { head: true, count: 'planned' })
   expect(res).toMatchInlineSnapshot(
     {
       count: expect.any(Number),
@@ -854,10 +836,7 @@ test('select with head:true, count:planned', async () => {
 })
 
 test('select with head:true, count:estimated', async () => {
-  const res = await postgrest.from('users').select('*', {
-    head: true,
-    count: 'estimated',
-  })
+  const res = await postgrest.from('users').select('*', { head: true, count: 'estimated' })
   expect(res).toMatchInlineSnapshot(
     {
       count: expect.any(Number),
@@ -917,13 +896,7 @@ test('select with count:exact', async () => {
 })
 
 test("rpc with count: 'exact'", async () => {
-  const res = await postgrest.rpc(
-    'get_status',
-    { name_param: 'supabot' },
-    {
-      count: 'exact',
-    }
-  )
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, { count: 'exact' })
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": 1,
@@ -1004,9 +977,7 @@ test('rpc with get:true, array param', async () => {
 })
 
 test('rpc with dynamic schema', async () => {
-  const res = await postgrest.schema('personal').rpc('get_status', {
-    name_param: 'kiwicopple',
-  })
+  const res = await postgrest.schema('personal').rpc('get_status', { name_param: 'kiwicopple' })
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1022,12 +993,7 @@ describe("insert, update, delete with count: 'exact'", () => {
   test("insert with count: 'exact'", async () => {
     let res = await postgrest
       .from('messages')
-      .insert(
-        { message: 'foo', username: 'supabot', channel_id: 1 },
-        {
-          count: 'exact',
-        }
-      )
+      .insert({ message: 'foo', username: 'supabot', channel_id: 1 }, { count: 'exact' })
       .select()
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1084,12 +1050,7 @@ describe("insert, update, delete with count: 'exact'", () => {
   test("upsert with count: 'exact'", async () => {
     let res = await postgrest
       .from('messages')
-      .upsert(
-        { id: 3, message: 'foo', username: 'supabot', channel_id: 2 },
-        {
-          count: 'exact',
-        }
-      )
+      .upsert({ id: 3, message: 'foo', username: 'supabot', channel_id: 2 }, { count: 'exact' })
       .select()
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1672,9 +1633,9 @@ test('join on 1-1 relation with nullables', async () => {
   expect(Array.isArray(res.data?.second_user)).toBe(false)
   expect(Array.isArray(res.data?.third_wheel)).toBe(false)
   // TODO: This should return null only if the column is actually nullable
-  expect(res.data?.one_user.username).not.toBeNull()
-  expect(res.data?.second_user.username).not.toBeNull()
-  expect(res.data?.third_wheel.username).not.toBeNull()
+  expect(res.data?.one_user?.username).not.toBeNull()
+  expect(res.data?.second_user?.username).not.toBeNull()
+  expect(res.data?.third_wheel?.username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
