@@ -236,7 +236,7 @@ type ConstructFieldDefinition<
             ? Field extends { inner: true }
               ? Child
               : Child | null
-            : Field
+            : Child[]
           : Child[]
         : never
     }
@@ -385,13 +385,7 @@ type ParseField<Input extends string> = Input extends ''
           ]
           ? // `field!hint!inner(nodes)`
             [
-              {
-                name: Name
-                original: Name
-                hint: Hint
-                children: Fields
-                inner: true
-              },
+              { name: Name; original: Name; hint: Hint; children: Fields; inner: true },
               EatWhitespace<Remainder>
             ]
           : CreateParserErrorIfRequired<
