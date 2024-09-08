@@ -39,7 +39,7 @@ VALUES
 INSERT INTO user_profiles (id, username)
 VALUES
   (1, 'supabot'),
-  (2, 'kiwicopple');
+  (2, NULL);
 
 INSERT INTO best_friends(id, first_user, second_user, third_wheel)
 VALUES

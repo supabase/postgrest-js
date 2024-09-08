@@ -1484,10 +1484,9 @@ test('update with no match - return=representation', async () => {
 
 test('!left join on one to one relation', async () => {
   const res = await postgrest.from('channel_details').select('channels!left(id)').limit(1).single()
-  // Left join over a one to one relation should result in a single object
   expect(Array.isArray(res.data?.channels)).toBe(false)
-  // This ensure runtime actually match the resulting type
-  expect(res.data?.channels.id).not.toBeNull()
+  // TODO: This should not be nullable
+  expect(res.data?.channels?.id).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1505,7 +1504,6 @@ test('!left join on one to one relation', async () => {
 
 test('!left join on one to many relation', async () => {
   const res = await postgrest.from('users').select('messages!left(username)').limit(1).single()
-  // A left join to many messages should result in an array
   expect(Array.isArray(res.data?.messages)).toBe(true)
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -1527,14 +1525,13 @@ test('!left join on one to many relation', async () => {
   `)
 })
 
-test('!left join on zero to one non-empty relation', async () => {
+test('!left join on one to 0-1 non-empty relation', async () => {
   const res = await postgrest
     .from('users')
     .select('user_profiles!left(username)')
     .eq('username', 'supabot')
     .limit(1)
     .single()
-  // Left join over a zero to one relation should result in a single object
   expect(Array.isArray(res.data?.user_profiles)).toBe(true)
   expect(res.data?.user_profiles[0].username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
@@ -1546,6 +1543,59 @@ test('!left join on zero to one non-empty relation', async () => {
             "username": "supabot",
           },
         ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on zero to one with null relation', async () => {
+  const res = await postgrest
+    .from('user_profiles')
+    .select('*,users!left(*)')
+    .eq('id', 2)
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.users)).toBe(false)
+  expect(res.data?.users).toBeNull()
+
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": 2,
+        "username": null,
+        "users": null,
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on zero to one with valid relation', async () => {
+  const res = await postgrest
+    .from('user_profiles')
+    .select('*,users!left(status)')
+    .eq('id', 1)
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.users)).toBe(false)
+  // TODO: This should be nullable indeed
+  expect(res.data?.users?.status).not.toBeNull()
+
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": 1,
+        "username": "supabot",
+        "users": Object {
+          "status": "ONLINE",
+        },
       },
       "error": null,
       "status": 200,

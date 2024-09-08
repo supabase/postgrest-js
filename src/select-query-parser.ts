@@ -269,9 +269,9 @@ type ConstructFieldDefinition<
             ? Field extends { inner: true }
               ? Child
               : Field extends { left: true }
-              ? Child
-              : // TODO: This should return null only if the column is actually nullable
+              ? // TODO: This should return null only if the column is actually nullable
                 Child | null
+              : Child | null
             : Child[]
           : Child[]
         : never

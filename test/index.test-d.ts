@@ -217,7 +217,8 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
 
-  expectType<Database['public']['Tables']['channels']['Row']>(oneToOne.channels)
+  // TODO: this should never be nullable
+  expectType<Database['public']['Tables']['channels']['Row'] | null>(oneToOne.channels)
 }
 
 // !left oneToMany
@@ -237,15 +238,16 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 // !left zeroToOne
 {
   const { data: zeroToOne, error } = await postgrest
-    .from('users')
-    .select('user_profiles!left(*)')
+    .from('user_profiles')
+    .select('users!left(*)')
     .single()
 
   if (error) {
     throw new Error(error.message)
   }
 
-  expectType<Array<Database['public']['Tables']['user_profiles']['Row']>>(zeroToOne.user_profiles)
+  // TODO: With nullable key this can be nullable
+  expectType<Database['public']['Tables']['users']['Row'] | null>(zeroToOne.users)
 }
 
 // join over a 1-1 relation with both nullables and non-nullables fields
@@ -264,7 +266,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   // TODO: Those two fields shouldn't be nullables
   expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.first_user)
   expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.second_user)
-  // The third wheel should be optional
+  // The third wheel should be nullable
   expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.third_wheel)
 }
 // join over a 1-M relation with both nullables and non-nullables fields
@@ -281,6 +283,6 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  // TODO: type properly this kind of queries
+  // TODO: type properly the result for this kind of queries
   expectType<Array<{}>>(users.first_friend_of)
 }
