@@ -246,7 +246,6 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
 
-  // TODO: With nullable key this can be nullable
   expectType<Database['public']['Tables']['users']['Row'] | null>(zeroToOne.users)
 }
 

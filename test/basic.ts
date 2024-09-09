@@ -1611,7 +1611,6 @@ test('!left join on zero to one empty relation', async () => {
     .eq('username', 'dragarcia')
     .limit(1)
     .single()
-  // Left join over a zero to one relation should result in a single object
   expect(Array.isArray(res.data?.user_profiles)).toBe(true)
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -1627,7 +1626,7 @@ test('!left join on zero to one empty relation', async () => {
 })
 
 test('join on 1-M relation', async () => {
-  // TODO: This won't raise the proper types for "first_friend_of" results
+  // TODO: This won't raise the proper types for "first_friend_of,..." results
   const res = await postgrest
     .from('users')
     .select(
@@ -1638,7 +1637,6 @@ test('join on 1-M relation', async () => {
     .eq('username', 'supabot')
     .limit(1)
     .single()
-  // Left join over a zero to one relation should result in a single object
   expect(Array.isArray(res.data?.first_friend_of)).toBe(true)
   expect(Array.isArray(res.data?.second_friend_of)).toBe(true)
   expect(Array.isArray(res.data?.third_wheel_of)).toBe(true)
@@ -1671,7 +1669,6 @@ test('join on 1-M relation', async () => {
 })
 
 test('join on 1-1 relation with nullables', async () => {
-  // TODO: This won't raise the proper types for "first_friend_of" results
   const res = await postgrest
     .from('best_friends')
     .select(
@@ -1680,13 +1677,13 @@ test('join on 1-1 relation with nullables', async () => {
     .order('id')
     .limit(1)
     .single()
-  // Left join over a zero to one relation should result in a single object
   expect(Array.isArray(res.data?.first_user)).toBe(false)
   expect(Array.isArray(res.data?.second_user)).toBe(false)
   expect(Array.isArray(res.data?.third_wheel)).toBe(false)
-  // TODO: This should return null only if the column is actually nullable
+  // TODO: This should return null only if the column is actually nullable thoses are not
   expect(res.data?.first_user?.username).not.toBeNull()
   expect(res.data?.second_user?.username).not.toBeNull()
+  // TODO: This column however is nullable
   expect(res.data?.third_wheel?.username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
     Object {
