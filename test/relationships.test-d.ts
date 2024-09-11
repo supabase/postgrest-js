@@ -270,3 +270,33 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
   expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
 }
+
+// join select via column
+{
+  const { data, error } = await selectQueries.joinSelectViaColumn.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['users']['Row'] | null>(data.username)
+}
+
+// join select via column and alias
+{
+  const { data, error } = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['users']['Row'] | null>(data.user)
+}
+
+// join select via unique table relationship
+{
+  const { data, error } = await selectQueries.joinSelectViaUniqueTableRelationship.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Database['public']['Tables']['users']['Row'] | null>(data.users)
+}

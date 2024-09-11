@@ -447,3 +447,67 @@ test('join on 1-M relation with selective fk hinting', async () => {
       }
     `)
   })
+
+  test('join select via column', async () => {
+    const res = await selectQueries.joinSelectViaColumn.limit(1).single()
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "username": Object {
+            "age_range": "[1,2)",
+            "catchphrase": "'cat' 'fat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "supabot",
+          },
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+  
+  test('join select via column and alias', async () => {
+    const res = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "user": Object {
+            "age_range": "[1,2)",
+            "catchphrase": "'cat' 'fat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "supabot",
+          },
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+  
+  test('join select via unique table relationship', async () => {
+    const res = await selectQueries.joinSelectViaUniqueTableRelationship.limit(1).single()
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "users": Object {
+            "age_range": "[1,2)",
+            "catchphrase": "'cat' 'fat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "supabot",
+          },
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+  
