@@ -346,7 +346,9 @@ type ConstructFieldDefinition<
               ? GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
                 ? TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>] extends Record<string, unknown>
                   ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown> extends Record<string, unknown>
-                    ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown>[]
+                    ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown> extends never
+                     ? Child[]
+                     : GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown>[]
                     : Child[]
                   : Child[]
                 : Child[]
