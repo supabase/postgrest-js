@@ -142,6 +142,19 @@ type HasFKey<FKeyName, Relationships> = Relationships extends [infer R]
   : false
 
 /**
+ * Returns a boolean representing whether there is a foreign key with the given columns.
+ */
+type HasFKeyMatchingColumn<Columns, Relationships> = Relationships extends [infer R]
+  ? R extends { columns: Columns }
+    ? true
+    : false
+  : Relationships extends [infer R, ...infer Rest]
+  ? HasFKeyMatchingColumn<Columns, [R]> extends true
+    ? true
+    : HasFKeyMatchingColumn<Columns, Rest>
+  : false
+
+/**
  * Returns a boolean representing whether there the foreign key has a unique constraint.
  */
 type HasUniqueFKey<FKeyName, Relationships> = Relationships extends [infer R]
@@ -176,6 +189,20 @@ type HasUniqueFKeyToFRel<FRelName, Relationships> = Relationships extends [infer
   ? HasUniqueFKeyToFRel<FRelName, [R]> extends true
     ? true
     : HasUniqueFKeyToFRel<FRelName, Rest>
+  : false
+
+/**
+ * Checks if there is more than one relation to a given foreign relation name in the Relationships.
+ */
+type HasMultipleFKeysToFRel<FRelName, Relationships> = Relationships extends [
+  infer R,
+  ...infer Rest
+]
+  ? R extends { referencedRelation: FRelName }
+    ? HasFKeyToFRel<FRelName, Rest> extends true
+      ? true
+      : HasMultipleFKeysToFRel<FRelName, Rest>
+    : HasMultipleFKeysToFRel<FRelName, Rest>
   : false
 
 /**
@@ -232,10 +259,17 @@ type ConstructFieldDefinition<
             ? Child
             : Child | null
           : Relationships extends unknown[]
-          ? HasFKey<Field['hint'], Relationships> extends true
+          ? // If the hint is a foreign key name, check if it exists in the relationships.
+            HasFKey<Field['hint'], Relationships> extends true
             ? Field extends { inner: true }
               ? Child
               : Child | null
+            : // If the hint is a foreign key column name, check if it exists in the relationships.
+            // note that it will only work on relations with a single column
+            // TODO: Add support for multiple columns relationships
+            HasFKeyMatchingColumn<Field['hint'][], Relationships> extends true
+            ? // TODO: This should return null only if the column is actually nullable
+              Child | null
             : Child[]
           : Child[]
         : never
@@ -269,9 +303,30 @@ type ConstructFieldDefinition<
             ? Field extends { inner: true }
               ? Child
               : Field extends { left: true }
-              ? // TODO: This should return null only if the column is actually nullable
-                Child | null
+              ? HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
+                ? SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
+                    ? RelationName
+                    : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`> // TODO: This should return null only if the column is actually nullable
+                : Child | null
+              : HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
+              ? // If relationship have multiples columns pointing to the same destination it require hinting
+                // for 1-1 relationships
+                SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
+                  ? RelationName
+                  : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
               : Child | null
+            : HasMultipleFKeysToFRel<
+                RelationName,
+                (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
+                  Relationships: infer R
+                }
+                  ? R
+                  : unknown
+              > extends true
+            ? // For 1-M relationships
+              SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
+                ? RelationName
+                : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
             : Child[]
           : Child[]
         : never
