@@ -205,6 +205,19 @@ type HasMultipleFKeysToFRel<FRelName, Relationships> = Relationships extends [
     : HasMultipleFKeysToFRel<FRelName, Rest>
   : false
 
+  type TablesAndViews<Schema extends GenericSchema> = Schema['Tables'] & Schema['Views']
+
+  type GetAllRelationships<Schema extends GenericSchema> = {
+    [K in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[K] extends { Relationships: unknown } ? { table: K, relationships: TablesAndViews<Schema>[K]['Relationships'] } : never
+  }[keyof TablesAndViews<Schema>]
+
+// Find the relationship from all relationships and the foreign key name
+type GetTableNameFromFKName<FKName, Relationships> = Relationships extends { table: infer TableName, relationships: infer Relations }
+  ? HasFKey<FKName, Relations> extends true
+    ? TableName
+    : never
+  : never
+
 /**
  * Constructs a type definition for a single field of an object.
  *
@@ -327,7 +340,17 @@ type ConstructFieldDefinition<
               SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
                 ? RelationName
                 : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
-            : Child[]
+              // If the relationship is aliased via foreign key name, GetResultHelper will fail to infer the Child type
+            : Child extends unknown
+                // in that case, we check if Field['original'] point to an existing foreign key that can be used to know Child type
+              ? GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
+                ? TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>] extends Record<string, unknown>
+                  ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown> extends Record<string, unknown>
+                    ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown>[]
+                    : Child[]
+                  : Child[]
+                : Child[]
+              : Child[]
           : Child[]
         : never
     }
@@ -673,7 +696,6 @@ type ParseEmbeddedResource<Input extends string> = Input extends `(${infer Remai
       : ParseNodes<EatWhitespace<Remainder>>
     : ParserError<'Expected embedded resource fields or `)`'>
   : Input
-
 /**
  * Parses a sequence of nodes, separated by `,`.
  *

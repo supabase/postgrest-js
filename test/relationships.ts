@@ -14,8 +14,8 @@ export const selectQueries = {
     leftOneToMany: postgrest.from('users').select('messages!left(*)'),
     leftZeroToOne: postgrest.from('user_profiles').select('users!left(*)'),
     leftOneToOneUsers: postgrest.from('users').select('user_profiles!left(username)'),
-    leftZeroToOneUserProfiles: postgrest.from('user_profiles').select('users!left(*)'),
-    leftZeroToOneUserProfilesWithNullables: postgrest.from('user_profiles').select('users!left(status)'),
+    leftZeroToOneUserProfiles: postgrest.from('user_profiles').select('*,users!left(*)'),
+    leftZeroToOneUserProfilesWithNullables: postgrest.from('user_profiles').select('*,users!left(status)'),
     joinOneToOne: postgrest.from('channel_details').select('channels!left(id)'),
     joinOneToMany: postgrest.from('users').select('messages!left(username)'),
     joinZeroToOne: postgrest.from('user_profiles').select('users!left(status)'),
@@ -30,6 +30,13 @@ export const selectQueries = {
         second_friend_of:best_friends_second_user_fkey(*),
         third_wheel_of:best_friends_third_wheel_fkey(*)`
         ),
+    joinOneToManyUsersWithFkHintSelective: postgrest
+        .from('users')
+        .select(
+            `first_friend_of:best_friends_first_user_fkey(id),
+        second_friend_of:best_friends_second_user_fkey(*),
+        third_wheel_of:best_friends_third_wheel_fkey(*)`
+        ),
     joinOneToOneWithNullablesFkHint: postgrest.from('best_friends').select('first_user:users!best_friends_first_user_fkey(*), second_user:users!best_friends_second_user_fkey(*), third_wheel:users!best_friends_third_wheel_fkey(*)'),
     joinOneToOneWithNullablesNoHint: postgrest.from('best_friends').select('first_user:users(*), second_user:users(*), third_wheel:users(*)'),
     joinOneToOneWithNullablesColumnHint: postgrest.from('best_friends').select('first_user:users!first_user(*), second_user:users!second_user(*), third_wheel:users!third_wheel(*)'),
@@ -37,6 +44,9 @@ export const selectQueries = {
     joinOneToManyWithNullablesColumnHint: postgrest.from('users').select('first_friend_of:best_friends!first_user(*), second_friend_of:best_friends!second_user(*), third_wheel_of:best_friends!third_wheel(*)'),
     joinOneToManyWithNullablesColumnHintOnNestedRelation: postgrest.from('users').select('first_friend_of:best_friends!first_user(*, first_user:users!first_user(*)), second_friend_of:best_friends!second_user(*), third_wheel_of:best_friends!third_wheel(*)'),
     joinOneToManyWithNullablesNoHintOnNestedRelation: postgrest.from('users').select('first_friend_of:best_friends!first_user(*, first_user:users(*)), second_friend_of:best_friends!second_user(*), third_wheel_of:best_friends!third_wheel(*)'),
+    joinSelectViaColumn: postgrest.from('user_profiles').select('username(*)'),
+    joinSelectViaColumnAndAlias: postgrest.from('user_profiles').select('user:username(*)'),
+    joinSelectViaUniqueTableRelationship: postgrest.from('user_profiles').select('users(*)'),
 }
 
 test('many-to-one relationship', async () => {
@@ -408,16 +418,32 @@ test('!left join on zero to one empty relation', async () => {
         .eq('username', 'dragarcia')
         .limit(1)
         .single()
-    expect(Array.isArray(res.data?.user_profiles)).toBe(true)
-    expect(res).toMatchInlineSnapshot(`
-        Object {
-          "count": null,
-          "data": Object {
-            "user_profiles": Array [],
-          },
-          "error": null,
-          "status": 200,
-          "statusText": "OK",
-        }
-      `)
+    expect(res.data).toBeNull()
 })
+
+test('join on 1-M relation with selective fk hinting', async () => {
+    const res = await selectQueries.joinOneToManyUsersWithFkHintSelective.limit(1).single()
+    expect(Array.isArray(res.data?.first_friend_of)).toBe(true)
+    expect(Array.isArray(res.data?.second_friend_of)).toBe(true)
+    expect(Array.isArray(res.data?.third_wheel_of)).toBe(true)
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "first_friend_of": Array [
+            Object {
+              "id": 1,
+            },
+            Object {
+              "id": 2,
+            },
+          ],
+          "second_friend_of": Array [],
+          "third_wheel_of": Array [],
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })

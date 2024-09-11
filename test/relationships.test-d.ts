@@ -127,10 +127,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
   // TODO: properly infer the type for this kind of queries should be
-  // expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
-  expectType<Array<{}>>(data.first_friend_of)
-  expectType<Array<{}>>(data.second_friend_of)
-  expectType<Array<{}>>(data.third_wheel_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
 }
 
 // join on 1-1 relation with nullables
@@ -258,4 +257,16 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
   expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
+}
+
+// join on 1-M relation with selective fk hinting
+{
+  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHintSelective.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>>(data.first_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
 }
