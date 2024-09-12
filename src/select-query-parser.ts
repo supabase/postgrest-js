@@ -205,20 +205,63 @@ type HasMultipleFKeysToFRel<FRelName, Relationships> = Relationships extends [
     : HasMultipleFKeysToFRel<FRelName, Rest>
   : false
 
-  type TablesAndViews<Schema extends GenericSchema> = Schema['Tables'] & Schema['Views']
+type TablesAndViews<Schema extends GenericSchema> = Schema['Tables'] & Exclude<Schema['Views'], ''>
 
-  type GetAllRelationships<Schema extends GenericSchema> = {
-    [K in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[K] extends { Relationships: unknown } ? { table: K, relationships: TablesAndViews<Schema>[K]['Relationships'] } : never
-  }[keyof TablesAndViews<Schema>]
+type GetAllRelationships<Schema extends GenericSchema> = {
+  [K in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[K] extends { Relationships: unknown }
+    ? { table: K; relationships: TablesAndViews<Schema>[K]['Relationships'] }
+    : never
+}[keyof TablesAndViews<Schema>]
 
 // Find the relationship from all relationships and the foreign key name
-type GetTableNameFromFKName<FKName, Relationships> = Relationships extends { table: infer TableName, relationships: infer Relations }
+type GetTableNameFromFKName<FKName, Relationships> = Relationships extends {
+  table: infer TableName
+  relationships: infer Relations
+}
   ? HasFKey<FKName, Relations> extends true
     ? TableName
     : never
   : never
 
-type RequireHintingSelectQueryError<Field extends { original: string }, RelationName> = SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string ? RelationName: 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+type RequireHintingSelectQueryError<
+  Field extends { original: string },
+  RelationName
+> = SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
+  ? RelationName
+  : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+
+type GetMatchingRelation<
+  TableNames extends string,
+  Columns extends string[],
+  Relations extends { referencedRelation: string; columns: string[] }[]
+> = Relations extends [infer R, ...infer Rest]
+  ? R extends { referencedRelation: infer RefRel; columns: Columns }
+    ? RefRel extends TableNames
+      ? R
+      : GetMatchingRelation<
+          TableNames,
+          Columns,
+          Rest extends { referencedRelation: string; columns: string[] }[] ? Rest : never
+        >
+    : GetMatchingRelation<
+        TableNames,
+        Columns,
+        Rest extends { referencedRelation: string; columns: string[] }[] ? Rest : never
+      >
+  : never
+
+// Get the relation for a field based on the columns, try to match first with tables then with views
+type GetRelationForField<
+  Schema extends GenericSchema,
+  Field extends { original: string },
+  Relationships extends { referencedRelation: string; columns: string[] }[]
+> = GetMatchingRelation<
+  keyof Schema['Tables'] & string,
+  [Field['original']],
+  Relationships
+> extends never
+  ? GetMatchingRelation<keyof Schema['Views'] & string, [Field['original']], Relationships>
+  : GetMatchingRelation<keyof Schema['Tables'] & string, [Field['original']], Relationships>
 
 /**
  * Constructs a type definition for a single field of an object.
@@ -279,8 +322,7 @@ type ConstructFieldDefinition<
             ? Field extends { inner: true }
               ? Child
               : Child | null
-            :
-            // If the hint is the column name holding the relationship, check if it exists in the relationships.
+            : // If the hint is the column name holding the relationship, check if it exists in the relationships.
             // note that it will only work on relations with a single column
             // TODO: Add support for multiple columns relationships
             HasFKeyMatchingColumn<Field['hint'][], Relationships> extends true
@@ -314,41 +356,36 @@ type ConstructFieldDefinition<
           ? Field extends { inner: true }
             ? Child
             : Child | null
-        // At the point it can still be a one to one relationship with those cases:
-        // - a one to one relationship with single column pointing to the destination and column hinting eg: from('user_profiles').select('user:username(*)')
-        // - a one to one relationship with nullable with single column pointing to the destination and no hinting eg: from('user_profiles').select('user(*)')
-        // : {}
-        // Not a one-to-one relationship via unique/pkey constraint
-        : Relationships extends unknown[]
-          // If the relationship is aliased via foreign key name
-          ? HasFKeyToFRel<Field['original'], Relationships> extends true
-            // If it's the result of a inner join, the result will be an object of the child type
-            ? Field extends { inner: true }
+          : // Not a one-to-one relationship via unique/pkey constraint
+          Relationships extends unknown[]
+          ? // If the relationship is aliased via foreign key name
+            HasFKeyToFRel<Field['original'], Relationships> extends true
+            ? // If it's the result of a inner join, the result will be an object of the child type
+              Field extends { inner: true }
               ? Child
-            // If it's the result of a left join
-              : Field extends { left: true }
-                // If there is multiples realtionships pointing to the same foreign key, it require hinting
-                ? HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
-                  ? RequireHintingSelectQueryError<Field, RelationName>
-                  // TODO: This should return null only if the column is actually nullable
-                  : Child | null
-              // If there is no left or inner join detected
-              : HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
-                // If relationship have multiples columns pointing to the same destination it require hinting
+              : // If it's the result of a left join
+              Field extends { left: true }
+              ? // If there is multiples realtionships pointing to the same foreign key, it require hinting
+                HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
                 ? RequireHintingSelectQueryError<Field, RelationName>
-                  // Otherwise the result will be an object of the child type
-                : Child | null
-          // If FKey not detected with the Field['original']
-          // It can be either 
-          // - a field with one to many relationship declared via holding column name eg: from('users').select('messages(*)')
-          // - a one to many relationship with a !left join eg: from('users').select('messages!left(*)')
-          // - a one to many with column renamined and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(*)')
-          // - a one to many with invalid hinting needing desambiguation eg: from('users').select('first_friend_of:best_friends(*), second_friend_of:best_friends(*), third_wheel_of:best_friends(*)')
-          // - a one to many relationship with a !left join eg: from('users').select('user_profiles!left(username)')
-          // - a one to many with only one column pointing to the destination withtout hinting eg: .from('users').select('user_profiles(username)')
-          // - a one to many with multiples columns pointing to the destination with column renaming and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(id),second_friend_of:best_friends_second_user_fkey(*))'
-          // : { Field: Field, RelationName: RelationName, rships: Relationships, row: Row }
-          : HasMultipleFKeysToFRel<
+                : // TODO: This should return null only if the column is actually nullable
+                  Child | null
+              : // If there is no left or inner join detected
+              HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
+              ? // If relationship have multiples columns pointing to the same destination it require hinting
+                RequireHintingSelectQueryError<Field, RelationName>
+              : // Otherwise the result will be an object of the child type
+                Child | null
+            : // If FKey not detected with the Field['original']
+            // It can be either
+            // - a field with one to many relationship declared via holding column name eg: from('users').select('messages(*)')
+            // - a one to many relationship with a !left join eg: from('users').select('messages!left(*)')
+            // - a one to many with column renamined and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(*)')
+            // - a one to many with invalid hinting needing desambiguation eg: from('users').select('first_friend_of:best_friends(*), second_friend_of:best_friends(*), third_wheel_of:best_friends(*)')
+            // - a one to many relationship with a !left join eg: from('users').select('user_profiles!left(username)')
+            // - a one to many with only one column pointing to the destination withtout hinting eg: .from('users').select('user_profiles(username)')
+            // - a one to many with multiples columns pointing to the destination with column renaming and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(id),second_friend_of:best_friends_second_user_fkey(*))'
+            HasMultipleFKeysToFRel<
                 RelationName,
                 (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
                   Relationships: infer R
@@ -356,21 +393,56 @@ type ConstructFieldDefinition<
                   ? R
                   : unknown
               > extends true
-            // For 1-M relationships
-            ? RequireHintingSelectQueryError<Field, RelationName>
-              // If the relationship is aliased via foreign key name, GetResultHelper will fail to infer the Child type
-            : Child extends unknown
-                // in that case, we check if Field['original'] point to an existing foreign key that can be used to know Child type
-              ? GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
-                ? TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>] extends Record<string, unknown>
-                  ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown> extends Record<string, unknown>
-                    ? GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown> extends never
-                     ? Child[]
-                     : GetResultHelper<Schema, TablesAndViews<Schema>[GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>>]['Row'], Field['original'], Relationships, Field['children'], unknown>[]
-                    : Child[]
+            ? // For 1-M relationships
+              RequireHintingSelectQueryError<Field, RelationName>
+            : // If the relationship is aliased via foreign key name, GetResultHelper will fail to infer the Child type
+            Child extends unknown
+            ? // in that case, we check if Field['original'] point to an existing foreign key that can be used to know Child type
+              GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
+              ? TablesAndViews<Schema>[GetTableNameFromFKName<
+                  Field['original'],
+                  GetAllRelationships<Schema>
+                >] extends Record<string, unknown>
+                ? GetResultHelper<
+                    Schema,
+                    TablesAndViews<Schema>[GetTableNameFromFKName<
+                      Field['original'],
+                      GetAllRelationships<Schema>
+                    >]['Row'],
+                    Field['original'],
+                    Relationships,
+                    Field['children'],
+                    unknown
+                  > extends Record<string, unknown>
+                  ? GetResultHelper<
+                      Schema,
+                      TablesAndViews<Schema>[GetTableNameFromFKName<
+                        Field['original'],
+                        GetAllRelationships<Schema>
+                      >]['Row'],
+                      Field['original'],
+                      Relationships,
+                      Field['children'],
+                      unknown
+                    > extends never
+                    ? // - a one to one relationship with single column pointing to the destination and column hinting eg: from('user_profiles').select('user:username(*)')
+                      // - a one to one relationship with nullable with single column pointing to the destination and no hinting eg: from('user_profiles').select('users(*)')
+                      Child[]
+                    : GetResultHelper<
+                        Schema,
+                        TablesAndViews<Schema>[GetTableNameFromFKName<
+                          Field['original'],
+                          GetAllRelationships<Schema>
+                        >]['Row'],
+                        Field['original'],
+                        Relationships,
+                        Field['children'],
+                        unknown
+                      >[]
                   : Child[]
                 : Child[]
               : Child[]
+            : Child[]
           : Child[]
         : never
     }
@@ -461,7 +533,16 @@ type ParseField<Input extends string> = Input extends ''
   ? EatWhitespace<Remainder> extends `!inner${infer Remainder}`
     ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
       ? // `field!inner(nodes)`
-        [{ name: Name; original: Name; children: Fields; inner: true, parseFieldBranch: 'field!inner(nodes)' }, EatWhitespace<Remainder>]
+        [
+          {
+            name: Name
+            original: Name
+            children: Fields
+            inner: true
+            parseFieldBranch: 'field!inner(nodes)'
+          },
+          EatWhitespace<Remainder>
+        ]
       : CreateParserErrorIfRequired<
           ParseEmbeddedResource<EatWhitespace<Remainder>>,
           'Expected embedded resource after `!inner`'
@@ -469,7 +550,16 @@ type ParseField<Input extends string> = Input extends ''
     : EatWhitespace<Remainder> extends `!left${infer Remainder}`
     ? ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
       ? // `field!left(nodes)`
-        [{ name: Name; original: Name; children: Fields; left: true, parseFieldBranch: 'field!left(nodes)' }, EatWhitespace<Remainder>]
+        [
+          {
+            name: Name
+            original: Name
+            children: Fields
+            left: true
+            parseFieldBranch: 'field!left(nodes)'
+          },
+          EatWhitespace<Remainder>
+        ]
       : CreateParserErrorIfRequired<
           ParseEmbeddedResource<EatWhitespace<Remainder>>,
           'Expected embedded resource after `!left`'
@@ -483,7 +573,14 @@ type ParseField<Input extends string> = Input extends ''
           ]
           ? // `field!hint!inner(nodes)`
             [
-              { name: Name; original: Name; hint: Hint; children: Fields; inner: true, parseFieldBranch: 'field!hint!inner(nodes)' },
+              {
+                name: Name
+                original: Name
+                hint: Hint
+                children: Fields
+                inner: true
+                parseFieldBranch: 'field!hint!inner(nodes)'
+              },
               EatWhitespace<Remainder>
             ]
           : CreateParserErrorIfRequired<
@@ -495,7 +592,16 @@ type ParseField<Input extends string> = Input extends ''
             `${infer Remainder}`
           ]
         ? // `field!hint(nodes)`
-          [{ name: Name; original: Name; hint: Hint; children: Fields, parseFieldBranch: 'field!hint(nodes)' }, EatWhitespace<Remainder>]
+          [
+            {
+              name: Name
+              original: Name
+              hint: Hint
+              children: Fields
+              parseFieldBranch: 'field!hint(nodes)'
+            },
+            EatWhitespace<Remainder>
+          ]
         : CreateParserErrorIfRequired<
             ParseEmbeddedResource<EatWhitespace<Remainder>>,
             'Expected embedded resource after `!hint`'
@@ -503,7 +609,10 @@ type ParseField<Input extends string> = Input extends ''
       : ParserError<'Expected identifier after `!`'>
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [infer Fields, `${infer Remainder}`]
     ? // `field(nodes)`
-      [{ name: Name; original: Name; children: Fields, parseFieldBranch: 'field(nodes)' }, EatWhitespace<Remainder>]
+      [
+        { name: Name; original: Name; children: Fields; parseFieldBranch: 'field(nodes)' },
+        EatWhitespace<Remainder>
+      ]
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends ParserError<string>
     ? // Return error if start of embedded resource was detected but not found.
       ParseEmbeddedResource<EatWhitespace<Remainder>>
@@ -576,11 +685,22 @@ type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
   ParseFieldWithoutEmbeddedResourceAndTypeCast<Input> extends [infer Field, `${infer Remainder}`]
     ? ParseFieldTypeCast<EatWhitespace<Remainder>> extends [infer Type, `${infer Remainder}`]
       ? // `field::type` or `field->json...::type`
-        [Omit<Field, 'type'> & { type: Type, parseFieldWithoutEmbeddedResourceAndAggregationBranch: 'field::type or field->json...::type' }, EatWhitespace<Remainder>]
+        [
+          Omit<Field, 'type'> & {
+            type: Type
+            parseFieldWithoutEmbeddedResourceAndAggregationBranch: 'field::type or field->json...::type'
+          },
+          EatWhitespace<Remainder>
+        ]
       : ParseFieldTypeCast<EatWhitespace<Remainder>> extends ParserError<string>
       ? ParseFieldTypeCast<EatWhitespace<Remainder>>
       : // `field` or `field->json...`
-        [Field & { parseFieldWithoutEmbeddedResourceAndAggregationBranch: 'field or field->json...' }, EatWhitespace<Remainder>]
+        [
+          Field & {
+            parseFieldWithoutEmbeddedResourceAndAggregationBranch: 'field or field->json...'
+          },
+          EatWhitespace<Remainder>
+        ]
     : CreateParserErrorIfRequired<
         ParseFieldWithoutEmbeddedResourceAndTypeCast<Input>,
         `Expected field at \`${Input}\``
@@ -601,11 +721,23 @@ type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
       ]
       ? // `field->json...`
         [
-          { name: PropertyName; original: PropertyName; type: PropertyType, parseFieldWithoutEmbeddedResourceAndTypeCastBranch: 'field->json...' },
+          {
+            name: PropertyName
+            original: PropertyName
+            type: PropertyType
+            parseFieldWithoutEmbeddedResourceAndTypeCastBranch: 'field->json...'
+          },
           EatWhitespace<Remainder>
         ]
       : // `field`
-        [{ name: Name; original: Name, parseFieldWithoutEmbeddedResourceAndTypeCastBranch: 'field' }, EatWhitespace<Remainder>]
+        [
+          {
+            name: Name
+            original: Name
+            parseFieldWithoutEmbeddedResourceAndTypeCastBranch: 'field'
+          },
+          EatWhitespace<Remainder>
+        ]
     : ParserError<`Expected field at \`${Input}\``>
 
 /**
@@ -616,7 +748,10 @@ type ParseFieldTypeCast<Input extends string> = EatWhitespace<Input> extends `::
   ? ParseIdentifier<EatWhitespace<Remainder>> extends [`${infer CastType}`, `${infer Remainder}`]
     ? // Ensure that `CastType` is a valid type.
       CastType extends PostgreSQLTypes
-      ? [TypeScriptTypes<CastType> & { parseFieldTypeCastBranch: 'field::type' }, EatWhitespace<Remainder>]
+      ? [
+          TypeScriptTypes<CastType> & { parseFieldTypeCastBranch: 'field::type' },
+          EatWhitespace<Remainder>
+        ]
       : ParserError<`Invalid type for \`::\` operator \`${CastType}\``>
     : ParserError<`Invalid type for \`::\` operator at \`${Remainder}\``>
   : Input
@@ -657,7 +792,10 @@ type ParseNode<Input extends string> = Input extends ''
   Input extends `...${infer Remainder}`
   ? ParseField<EatWhitespace<Remainder>> extends [infer Field, `${infer Remainder}`]
     ? Field extends { children: unknown[] }
-      ? [Prettify<{ spread: true } & Field> & { parseNodeBranch: '...field' }, EatWhitespace<Remainder>]
+      ? [
+          Prettify<{ spread: true } & Field> & { parseNodeBranch: '...field' },
+          EatWhitespace<Remainder>
+        ]
       : ParserError<'Unable to parse spread resource'>
     : ParserError<'Unable to parse spread resource'>
   : ParseIdentifier<Input> extends [infer Name, `${infer Remainder}`]
@@ -669,7 +807,10 @@ type ParseNode<Input extends string> = Input extends ''
     ? // `renamed_field:`
       ParseField<EatWhitespace<Remainder>> extends [infer Field, `${infer Remainder}`]
       ? Field extends { name: string }
-        ? [Prettify<Omit<Field, 'name'> & { name: Name, parseNodeBranch: 'renamed_field:field' }>, EatWhitespace<Remainder>]
+        ? [
+            Prettify<Omit<Field, 'name'> & { name: Name; parseNodeBranch: 'renamed_field:field' }>,
+            EatWhitespace<Remainder>
+          ]
         : ParserError<`Unable to parse renamed field`>
       : ParserError<`Unable to parse renamed field`>
     : // Otherwise, just parse it as a field without renaming.

@@ -1,11 +1,42 @@
 import { expectType } from 'tsd'
-import { PostgrestClient, PostgrestSingleResponse } from '../src/index'
+import { TypeEqual } from 'ts-expect'
 import { SelectQueryError } from '../src/select-query-parser'
 import { Prettify } from '../src/types'
 import { Database } from './types'
 import { selectQueries } from './relationships'
-const REST_URL = 'http://localhost:3000'
-const postgrest = new PostgrestClient<Database>(REST_URL)
+
+// nested query with selective fields
+{
+  const { data, error } = await selectQueries.nestedQueryWithSelectiveFields.limit(1).single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Pick<Database['public']['Tables']['users']['Row'], 'username'>>(data)
+  // we need ts-expect TypeEqual here to ensure never properties wont pass the test
+  expectType<TypeEqual<Pick<Database['public']['Tables']['messages']['Row'], 'id' | 'message'>[], typeof data.messages>>(true)
+}
+
+// nested query with multiple levels and selective fields
+{
+  const { data, error } = await selectQueries.nestedQueryWithMultipleLevelsAndSelectiveFields.limit(1).single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Pick<Database['public']['Tables']['users']['Row'], 'username'>>(data)
+  expectType<TypeEqual<Pick<Database['public']['Tables']['messages']['Row'], 'id' | 'message'>[], typeof data.messages>>(true)
+  expectType<TypeEqual<Pick<Database['public']['Tables']['channels']['Row'], 'id' | 'slug'>[], typeof data.messages[number]['channels']>>(true)
+}
+
+// query with multiple one-to-many relationships
+{
+  const { data, error } = await selectQueries.queryWithMultipleOneToManySelectives.limit(1).single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Pick<Database['public']['Tables']['users']['Row'], 'username'>>(data)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['messages']['Row'], 'id'>>, typeof data.messages>>(true)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'id'>>, typeof data.user_profiles>>(true)
+}
 
 // many-to-one relationship
 {
@@ -29,7 +60,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     }
   >
 
-  expectType<ExpectedType>(message.channels)
+  expectType<TypeEqual<ExpectedType, typeof message.channels>>(true)
 }
 
 // one-to-many relationship
@@ -203,9 +234,12 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
+  type ExpectedType = Prettify<Database['public']['Tables']['best_friends']['Row'] & {
+    first_user: string & Database['public']['Tables']['users']['Row']
+  }>
+  expectType<TypeEqual<ExpectedType[], typeof data.first_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.second_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.third_wheel_of>>(true)
 }
 
 // join over a 1-M relation with both nullables and non-nullables fields using no hinting on nested relation
@@ -226,7 +260,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>, typeof data.user_profiles>>(true)
 }
 
 // join on one to 0-1 non-empty relation via column name
@@ -236,7 +270,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>, typeof data.user_profiles>>(true)
 }
 
 // !left join on zero to one with null relation
@@ -246,7 +280,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.users)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.users>>(true)
 }
 
 // !left join on zero to one with valid relation
@@ -256,7 +290,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Pick<Database['public']['Tables']['users']['Row'], 'status'> | null>(data.users)
+  expectType<TypeEqual<Pick<Database['public']['Tables']['users']['Row'], 'status'> | null, typeof data.users>>(true)
 }
 
 // !left join on zero to one empty relation
@@ -266,7 +300,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>, typeof data.user_profiles>>(true)
 }
 
 // join on 1-M relation with selective fk hinting
@@ -276,9 +310,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>>(data.first_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>, typeof data.first_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.second_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.third_wheel_of>>(true)
 }
 
 // join select via column
@@ -288,7 +322,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.username)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.username>>(true)
 }
 
 // join select via column and alias
@@ -298,7 +332,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.user)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
 }
 
 // join select via unique table relationship
@@ -308,5 +342,5 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.users)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.users>>(true)
 }
