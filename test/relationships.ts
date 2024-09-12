@@ -14,6 +14,7 @@ export const selectQueries = {
     leftOneToMany: postgrest.from('users').select('messages!left(*)'),
     leftZeroToOne: postgrest.from('user_profiles').select('users!left(*)'),
     leftOneToOneUsers: postgrest.from('users').select('user_profiles!left(username)'),
+    oneToOneUsersColumnName: postgrest.from('users').select('user_profiles(username)'),
     leftZeroToOneUserProfiles: postgrest.from('user_profiles').select('*,users!left(*)'),
     leftZeroToOneUserProfilesWithNullables: postgrest.from('user_profiles').select('*,users!left(status)'),
     joinOneToOne: postgrest.from('channel_details').select('channels!left(id)'),
@@ -363,6 +364,33 @@ test('!left join on one to 0-1 non-empty relation', async () => {
         }
       `)
 })
+
+
+test('join on one to 0-1 non-empty relation via column name', async () => {
+  const res = await selectQueries.oneToOneUsersColumnName
+      .eq('username', 'supabot')
+      .limit(1)
+      .single()
+  expect(res.error).toBeNull()
+  expect(Array.isArray(res.data?.user_profiles)).toBe(true)
+  expect(res.data?.user_profiles[0].username).not.toBeNull()
+  expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "user_profiles": Array [
+            Object {
+              "username": "supabot",
+            },
+          ],
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+})
+
 
 test('!left join on zero to one with null relation', async () => {
     const res = await selectQueries.leftZeroToOneUserProfiles

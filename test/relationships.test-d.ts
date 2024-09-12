@@ -229,6 +229,16 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
 }
 
+// join on one to 0-1 non-empty relation via column name
+{
+  const { data, error } = await selectQueries.oneToOneUsersColumnName.single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>>(data.user_profiles)
+}
+
 // !left join on zero to one with null relation
 {
   const { data, error } = await selectQueries.leftZeroToOneUserProfiles.single()
