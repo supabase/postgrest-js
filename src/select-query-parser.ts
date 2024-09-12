@@ -218,6 +218,8 @@ type GetTableNameFromFKName<FKName, Relationships> = Relationships extends { tab
     : never
   : never
 
+type RequireHintingSelectQueryError<Field extends { original: string }, RelationName> = SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string ? RelationName: 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+
 /**
  * Constructs a type definition for a single field of an object.
  *
@@ -327,13 +329,13 @@ type ConstructFieldDefinition<
               : Field extends { left: true }
                 // If there is multiples realtionships pointing to the same foreign key, it require hinting
                 ? HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
-                  ? SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string ? RelationName: 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+                  ? RequireHintingSelectQueryError<Field, RelationName>
                   // TODO: This should return null only if the column is actually nullable
                   : Child | null
               // If there is no left or inner join detected
               : HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
                 // If relationship have multiples columns pointing to the same destination it require hinting
-                ? SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string ? RelationName : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+                ? RequireHintingSelectQueryError<Field, RelationName>
                   // Otherwise the result will be an object of the child type
                 : Child | null
           // If FKey not detected with the Field['original']
@@ -354,10 +356,8 @@ type ConstructFieldDefinition<
                   ? R
                   : unknown
               > extends true
-            ? // For 1-M relationships
-              SelectQueryError<`Could not embed because more than one relationship was found for '${Field['original']}' and '${RelationName extends string
-                ? RelationName
-                : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
+            // For 1-M relationships
+            ? RequireHintingSelectQueryError<Field, RelationName>
               // If the relationship is aliased via foreign key name, GetResultHelper will fail to infer the Child type
             : Child extends unknown
                 // in that case, we check if Field['original'] point to an existing foreign key that can be used to know Child type
