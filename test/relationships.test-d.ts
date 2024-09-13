@@ -82,6 +82,19 @@ import { selectQueries } from './relationships'
   expectType<Database['public']['Tables']['messages']['Row'][]>(user.messages)
 }
 
+// one-to-many relationship with selective columns
+{
+  const { data: user, error } = await selectQueries.oneToManySelective.single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    messages: Array<Pick<Database['public']['Tables']['messages']['Row'], 'data'>>
+  }
+  expectType<TypeEqual<ExpectedType, typeof user>>(true)
+}
+
+
 // one-to-one relationship
 {
   const { data: channels, error } = await selectQueries.oneToOne
@@ -130,21 +143,6 @@ import { selectQueries } from './relationships'
   expectType<Database['public']['Tables']['users']['Row'] | null>(zeroToOne.users)
 }
 
-// join over a 1-1 relation with both nullables and non-nullables fields using foreign key name for hinting
-{
-  const { data: bestFriends, error } = await selectQueries.joinOneToOneWithFkHint
-    .single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.first_user)
-  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.second_user)
-  // The third wheel should be nullable
-  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.third_wheel)
-}
-
 // join over a 1-M relation with both nullables and non-nullables fields using foreign key name for hinting
 {
   const { data: users, error } = await selectQueries.joinOneToManyWithFkHint
@@ -154,34 +152,6 @@ import { selectQueries } from './relationships'
     throw new Error(error.message)
   }
   expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof users.first_friend_of>>(true)
-}
-
-// join on 1-M relation
-
-{
-  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHint
-    .single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
-}
-
-// join on 1-1 relation with nullables
-{
-  const { data, error } = await selectQueries.joinOneToOneWithNullablesFkHint
-    .single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Database['public']['Tables']['users']['Row']>(data.first_user)
-  expectType<Database['public']['Tables']['users']['Row']>(data.second_user)
-  // This one might be null
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.third_wheel)
 }
 
 // join over a 1-1 relation with both nullables and non-nullables fields with no hinting
@@ -309,38 +279,6 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>, typeof data.user_profiles>>(true)
 }
 
-// join on 1-M relation with selective fk hinting
-{
-  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHintSelective.limit(1).single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>, typeof data.first_friend_of>>(true)
-  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.second_friend_of>>(true)
-  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.third_wheel_of>>(true)
-}
-
-// join select via column
-{
-  const { data, error } = await selectQueries.joinSelectViaColumn.limit(1).single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.username>>(true)
-}
-
-// join select via column and alias
-{
-  const { data, error } = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
-}
-
 // join select via unique table relationship
 {
   const { data, error } = await selectQueries.joinSelectViaUniqueTableRelationship.limit(1).single()
@@ -367,20 +305,34 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
 }
 
-// select with aggregate count function and alias
+
+// join on 1-1 relation with nullables
 {
-  const { data, error } = await selectQueries.selectWithAggregateCountFunctionAndAlias.limit(1).single()
+  const { data, error } = await selectQueries.joinOneToOneWithNullablesFkHint
+    .single()
 
   if (error) {
     throw new Error(error.message)
   }
-  type ExpectedType = {
-    username: string
-    messages: Array<{
-      message_count: number
-    }>
+  expectType<Database['public']['Tables']['users']['Row']>(data.first_user)
+  expectType<Database['public']['Tables']['users']['Row']>(data.second_user)
+  // This one might be null
+  expectType<Database['public']['Tables']['users']['Row'] | null>(data.third_wheel)
+}
+
+// join over a 1-1 relation with both nullables and non-nullables fields using foreign key name for hinting
+{
+  const { data: bestFriends, error } = await selectQueries.joinOneToOneWithFkHint
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
   }
-  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+
+  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.first_user)
+  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.second_user)
+  // The third wheel should be nullable
+  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.third_wheel)
 }
 
 // select with nested aggregate count function
@@ -396,6 +348,45 @@ import { selectQueries } from './relationships'
       channels: {
         count: number
       } | null
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+// TODO: From here live the dragons and errors
+
+// join on 1-M relation with selective fk hinting
+{
+  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHintSelective.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<TypeEqual<Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>, typeof data.first_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.second_friend_of>>(true)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.third_wheel_of>>(true)
+}
+
+// join select via column
+{
+  const { data, error } = await selectQueries.joinSelectViaColumn.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.username>>(true)
+}
+
+// select with aggregate count function and alias
+{
+  const { data, error } = await selectQueries.selectWithAggregateCountFunctionAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      message_count: number
     }>
   }
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
@@ -526,4 +517,29 @@ import { selectQueries } from './relationships'
     }>
   }
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// join select via column and alias
+{
+  const { data, error } = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
+}
+
+
+// join on 1-M relation
+
+{
+  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHint
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
 }

@@ -101,6 +101,8 @@ type AggregateFunctions = 'count' | 'sum' | 'avg' | 'min' | 'max'
 
 type StripUnderscore<T extends string> = T extends `_${infer U}` ? U : T
 
+type ContainsNull<T> = null extends T ? true : false;
+
 type TypeScriptTypes<T extends PostgreSQLTypes> = T extends ArrayPostgreSQLTypes
   ? TypeScriptSingleValueTypes<StripUnderscore<Extract<T, SingleValuePostgreSQLTypes>>>[]
   : TypeScriptSingleValueTypes<T>
@@ -263,6 +265,45 @@ type GetRelationForField<
   ? GetMatchingRelation<keyof Schema['Views'] & string, [Field['original']], Relationships>
   : GetMatchingRelation<keyof Schema['Tables'] & string, [Field['original']], Relationships>
 
+
+  type FindMatchingRelationships<value extends string, Relationships> = Relationships extends [infer R, ...infer Rest]
+  ? R extends { foreignKeyName: value }
+    ? R
+    : R extends { referencedRelation: value }
+      ? R
+      : R extends { columns: [value] }
+        ? R
+        : FindMatchingRelationships<value, Rest>
+  : never
+
+type FindFieldMathingRelationships<Field extends { original: string, inner?: boolean, left?: boolean, hint?: string, name?: string }, Relationships> = FindMatchingRelationships<Field['original'], Relationships>
+
+type FindTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = 
+{
+[TableName in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[TableName] extends { Relationships: infer R }
+  ? R extends Array<{ foreignKeyName: string }>
+    ? FKName extends R[number]['foreignKeyName']
+      ? TablesAndViews<Schema>[TableName]
+      : never
+    : never
+  : never
+}[keyof TablesAndViews<Schema>]
+
+type IsRelationNullable<Schema extends GenericSchema, FKName extends string> =
+FindTableFromFkeyName<Schema, FKName> extends infer Table
+  ? Table extends { Row: infer Row, Relationships: infer Relationships }
+    ? FindMatchingRelationships<FKName, Relationships> extends { columns: infer Columns }
+      ? Columns extends [infer Column]
+        ? Column extends keyof Row
+          ? ContainsNull<Row[Column]> extends true
+            ? true
+            : false
+          : never
+        : never
+      : never
+    : never
+  : never
+
 type SchemaWithInferedRelationships<Schema extends GenericSchema, Field extends { original: string }> = (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
   Relationships: infer R
 }
@@ -344,7 +385,11 @@ type ConstructFieldWithHint<
   ? HasFKey<Field['hint'], Relationships> extends true
     ? Field extends { inner: true }
       ? Child
-      : Child | null
+      : FindMatchingRelationships<Field['hint'], Relationships> extends { foreignKeyName: string }
+        ? IsRelationNullable<Schema, FindMatchingRelationships<Field['hint'], Relationships>['foreignKeyName']> extends true 
+          ? Child | null
+          : Child
+        : Child | null
     : HasFKeyMatchingColumn<[Field['hint']], Relationships> extends true
     ? // TODO: This should return null only if the column is actually nullable
       // .from('best_friends').select('first_user:users!first_user(*), second_user:users!second_user(*), third_wheel:users!third_wheel(*)')
@@ -375,10 +420,11 @@ type ConstructFieldWithRelationships<
   Relationships,
   Child
 > = HasFKeyToFRel<Field['original'], Relationships> extends true
-  ? ConstructFieldWithFKeyToFRel<Field, RelationName, Relationships, Child>
+  ? ConstructFieldWithFKeyToFRel<Schema, Field, RelationName, Relationships, Child>
   : ConstructFieldWithoutFKeyToFRel<Schema, Field, RelationName, Child>
 
 type ConstructFieldWithFKeyToFRel<
+  Schema extends GenericSchema,
   Field extends { original: string; inner?: boolean; left?: boolean },
   RelationName,
   Relationships,
@@ -388,8 +434,12 @@ type ConstructFieldWithFKeyToFRel<
   : Field extends { left: true }
   ? HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
     ? RequireHintingSelectQueryError<Field, RelationName>
-    : // TODO: This should return null only if the column is actually nullable
-      Child | null
+    // If we found a foreign key for the relationship
+    : FindFieldMathingRelationships<Field, Relationships> extends { foreignKeyName: string }
+      ? IsRelationNullable<Schema, FindFieldMathingRelationships<Field, Relationships>['foreignKeyName']> extends true
+        ? Child | null
+        : Child
+      : Child | null
   : HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
   ? RequireHintingSelectQueryError<Field, RelationName>
   : Child | null
