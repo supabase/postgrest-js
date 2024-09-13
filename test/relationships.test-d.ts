@@ -22,9 +22,19 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  expectType<Pick<Database['public']['Tables']['users']['Row'], 'username'>>(data)
-  expectType<TypeEqual<Pick<Database['public']['Tables']['messages']['Row'], 'id' | 'message'>[], typeof data.messages>>(true)
-  expectType<TypeEqual<Pick<Database['public']['Tables']['channels']['Row'], 'id' | 'slug'>[], typeof data.messages[number]['channels']>>(true)
+  // Complex nested types combination and picking make ts-expect fail
+  type ExpectedType = {
+      messages: Array<{
+          id: number;
+          message: string | null;
+          channels: {
+              id: number;
+              slug: string | null;
+          } | null;
+      }>;
+      username: string;
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
 }
 
 // query with multiple one-to-many relationships
@@ -106,7 +116,7 @@ import { selectQueries } from './relationships'
     throw new Error(error.message)
   }
 
-  expectType<Array<Database['public']['Tables']['messages']['Row']>>(oneToMany.messages)
+  expectType<TypeEqual<Array<Database['public']['Tables']['messages']['Row']>, typeof oneToMany.messages>>(true)
 }
 
 // !left zeroToOne
@@ -150,6 +160,7 @@ import { selectQueries } from './relationships'
 }
 
 // join on 1-M relation
+
 {
   const { data, error } = await selectQueries.joinOneToManyUsersWithFkHint
     .single()

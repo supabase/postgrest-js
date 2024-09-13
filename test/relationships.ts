@@ -271,6 +271,26 @@ test('!left oneToMany', async () => {
   expect(error).toBeNull()
   expect(oneToMany).toBeDefined()
   expect(Array.isArray(oneToMany!.messages)).toBe(true)
+  expect(oneToMany).toMatchInlineSnapshot(`
+    Object {
+      "messages": Array [
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 1,
+          "message": "Hello World 👋",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 2,
+          "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+          "username": "supabot",
+        },
+      ],
+    }
+  `)
 })
 
 test('!left zeroToOne', async () => {

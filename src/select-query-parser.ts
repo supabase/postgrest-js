@@ -249,7 +249,7 @@ type GetMatchingRelation<
         Rest extends { referencedRelation: string; columns: string[] }[] ? Rest : never
       >
   : never
-
+  type IsEmptyObject<T> = T extends Record<string, never> ? true : false;
 // Get the relation for a field based on the columns, try to match first with tables then with views
 type GetRelationForField<
   Schema extends GenericSchema,
@@ -262,6 +262,12 @@ type GetRelationForField<
 > extends never
   ? GetMatchingRelation<keyof Schema['Views'] & string, [Field['original']], Relationships>
   : GetMatchingRelation<keyof Schema['Tables'] & string, [Field['original']], Relationships>
+
+type SchemaWithInferedRelationships<Schema extends GenericSchema, Field extends { original: string }> = (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
+  Relationships: infer R
+}
+  ? R
+  : unknown
 
 /**
  * Constructs a type definition for a single field of an object.
@@ -284,177 +290,172 @@ type ConstructFieldDefinition<
       Schema,
       (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
       Field['original'],
-      (Schema['Tables'] & Schema['Views'])[Field['original']] extends { Relationships: infer R }
-        ? R
-        : unknown,
+      SchemaWithInferedRelationships<Schema, Field>,
       Field['children'],
       unknown
     >
   : Field extends { children: [] }
   ? {}
-  : Field extends { name: string; original: string; hint: string; children: unknown[] }
+  : Field extends { name: string; original: string; hint?: string; children: unknown[] }
   ? {
-      [_ in Field['name']]: GetResultHelper<
+      [_ in Field['name']]: ConstructFieldWithChildren<
         Schema,
-        (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
-        Field['original'],
-        (Schema['Tables'] & Schema['Views'])[Field['original']] extends { Relationships: infer R }
-          ? R
-          : unknown,
-        Field['children'],
-        unknown
-      > extends infer Child
-        ? // One-to-one relationship - referencing column(s) has unique/pkey constraint.
-          HasUniqueFKey<
-            Field['hint'],
-            (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
-              Relationships: infer R
-            }
-              ? R
-              : unknown
-          > extends true
-          ? Field extends { inner: true }
-            ? Child
-            : Child | null
-          : Relationships extends unknown[]
-          ? // If the hint is a foreign key name, check if it exists in the relationships.
-            HasFKey<Field['hint'], Relationships> extends true
-            ? Field extends { inner: true }
-              ? Child
-              : Child | null
-            : // If the hint is the column name holding the relationship, check if it exists in the relationships.
-            // note that it will only work on relations with a single column
-            // TODO: Add support for multiple columns relationships
-            HasFKeyMatchingColumn<Field['hint'][], Relationships> extends true
-            ? // TODO: This should return null only if the column is actually nullable
-              Child | null
-            : Child[]
-          : Child[]
-        : never
-    }
-  : Field extends { name: string; original: string; children: unknown[] }
-  ? {
-      [_ in Field['name']]: GetResultHelper<
-        Schema,
-        (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
-        Field['original'],
-        (Schema['Tables'] & Schema['Views'])[Field['original']] extends { Relationships: infer R }
-          ? R
-          : unknown,
-        Field['children'],
-        unknown
-      > extends infer Child
-        ? // One-to-one relationship - referencing column(s) has unique/pkey constraint.
-          HasUniqueFKeyToFRel<
-            RelationName,
-            (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
-              Relationships: infer R
-            }
-              ? R
-              : unknown
-          > extends true
-          ? Field extends { inner: true }
-            ? Child
-            : Child | null
-          : // Not a one-to-one relationship via unique/pkey constraint
-          Relationships extends unknown[]
-          ? // If the relationship is aliased via foreign key name
-            HasFKeyToFRel<Field['original'], Relationships> extends true
-            ? // If it's the result of a inner join, the result will be an object of the child type
-              Field extends { inner: true }
-              ? Child
-              : // If it's the result of a left join
-              Field extends { left: true }
-              ? // If there is multiples realtionships pointing to the same foreign key, it require hinting
-                HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
-                ? RequireHintingSelectQueryError<Field, RelationName>
-                : // TODO: This should return null only if the column is actually nullable
-                  Child | null
-              : // If there is no left or inner join detected
-              HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
-              ? // If relationship have multiples columns pointing to the same destination it require hinting
-                RequireHintingSelectQueryError<Field, RelationName>
-              : // Otherwise the result will be an object of the child type
-                Child | null
-            : // If FKey not detected with the Field['original']
-            // It can be either
-            // - a field with one to many relationship declared via holding column name eg: from('users').select('messages(*)')
-            // - a one to many relationship with a !left join eg: from('users').select('messages!left(*)')
-            // - a one to many with column renamined and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(*)')
-            // - a one to many with invalid hinting needing desambiguation eg: from('users').select('first_friend_of:best_friends(*), second_friend_of:best_friends(*), third_wheel_of:best_friends(*)')
-            // - a one to many relationship with a !left join eg: from('users').select('user_profiles!left(username)')
-            // - a one to many with only one column pointing to the destination withtout hinting eg: .from('users').select('user_profiles(username)')
-            // - a one to many with multiples columns pointing to the destination with column renaming and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(id),second_friend_of:best_friends_second_user_fkey(*))'
-            HasMultipleFKeysToFRel<
-                RelationName,
-                (Schema['Tables'] & Schema['Views'])[Field['original']] extends {
-                  Relationships: infer R
-                }
-                  ? R
-                  : unknown
-              > extends true
-            ? // For 1-M relationships
-              RequireHintingSelectQueryError<Field, RelationName>
-            : // If the relationship is aliased via foreign key name, GetResultHelper will fail to infer the Child type
-            Child extends unknown
-            ? // in that case, we check if Field['original'] point to an existing foreign key that can be used to know Child type
-              GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
-              ? TablesAndViews<Schema>[GetTableNameFromFKName<
-                  Field['original'],
-                  GetAllRelationships<Schema>
-                >] extends Record<string, unknown>
-                ? GetResultHelper<
-                    Schema,
-                    TablesAndViews<Schema>[GetTableNameFromFKName<
-                      Field['original'],
-                      GetAllRelationships<Schema>
-                    >]['Row'],
-                    Field['original'],
-                    Relationships,
-                    Field['children'],
-                    unknown
-                  > extends Record<string, unknown>
-                  ? GetResultHelper<
-                      Schema,
-                      TablesAndViews<Schema>[GetTableNameFromFKName<
-                        Field['original'],
-                        GetAllRelationships<Schema>
-                      >]['Row'],
-                      Field['original'],
-                      Relationships,
-                      Field['children'],
-                      unknown
-                    > extends never
-                    ? // - a one to one relationship with single column pointing to the destination and column hinting eg: from('user_profiles').select('user:username(*)')
-                      // - a one to one relationship with nullable with single column pointing to the destination and no hinting eg: from('user_profiles').select('users(*)')
-                      Child[]
-                    : GetResultHelper<
-                        Schema,
-                        TablesAndViews<Schema>[GetTableNameFromFKName<
-                          Field['original'],
-                          GetAllRelationships<Schema>
-                        >]['Row'],
-                        Field['original'],
-                        Relationships,
-                        Field['children'],
-                        unknown
-                      >[]
-                  : Child[]
-                : Child[]
-              : Child[]
-            : Child[]
-          : Child[]
-        : never
+        Field,
+        RelationName,
+        Relationships,
+        SchemaWithInferedRelationships<Schema, Field>
+      >
     }
   : Field extends { name: string; type: infer T }
   ? { [K in Field['name']]: T }
   : Field extends { name: string; original: string }
-  ? Field['original'] extends keyof Row
-    ? { [K in Field['name']]: Row[Field['original']] }
-    : Field['original'] extends 'count'
-    ? { count: number }
-    : SelectQueryError<`Referencing missing column \`${Field['original']}\``>
+  ? ConstructSimpleField<Row, Field>
   : Record<string, unknown>
+
+type ConstructFieldWithChildren<
+  Schema extends GenericSchema,
+  Field extends { name: string; original: string; hint?: string; children: unknown[]; inner?: boolean; left?: boolean },
+  RelationName,
+  Relationships,
+  InferedRelationships
+> = GetResultHelper<
+  Schema,
+  (Schema['Tables'] & Schema['Views'])[Field['original']]['Row'],
+  Field['original'],
+  InferedRelationships,
+  Field['children'],
+  unknown
+> extends infer Child
+  ? 'hint' extends keyof Field
+    ? ConstructFieldWithHint<Schema, Field & { hint: string }, Relationships, Child>
+    : ConstructFieldWithoutHint<Schema, Field, RelationName, Relationships, InferedRelationships, Child>
+  : never
+
+type ConstructFieldWithHint<
+  Schema extends GenericSchema,
+  Field extends { original: string; hint: string; inner?: boolean },
+  Relationships,
+  Child
+> = HasUniqueFKey<Field['hint'], SchemaWithInferedRelationships<Schema, Field>> extends true
+  ? Field extends { inner: true }
+    ? Child
+    : Child | null
+  : Relationships extends unknown[]
+  ? HasFKey<Field['hint'], Relationships> extends true
+    ? Field extends { inner: true }
+      ? Child
+      : Child | null
+    : HasFKeyMatchingColumn<[Field['hint']], Relationships> extends true
+    ? // TODO: This should return null only if the column is actually nullable
+      // .from('best_friends').select('first_user:users!first_user(*), second_user:users!second_user(*), third_wheel:users!third_wheel(*)')
+      Child | null
+    : // .from('users').select(`first_friend_of:best_friends!best_friends_first_user_fkey(*),second_friend_of:best_friends!best_friends_second_user_fkey(*),third_wheel_of:best_friends!best_friends_third_wheel_fkey(*)`)
+      Child[]
+  : never
+
+type ConstructFieldWithoutHint<
+  Schema extends GenericSchema,
+  Field extends { original: string; inner?: boolean; left?: boolean },
+  RelationName,
+  Relationships,
+  InferedRelationships,
+  Child
+> = HasUniqueFKeyToFRel<RelationName, InferedRelationships> extends true
+  ? Field extends { inner: true }
+    ? Child
+    : Child | null
+  : Relationships extends unknown[]
+  ? ConstructFieldWithRelationships<Schema, Field, RelationName, Relationships, Child>
+  : never
+
+type ConstructFieldWithRelationships<
+  Schema extends GenericSchema,
+  Field extends { original: string; inner?: boolean; left?: boolean },
+  RelationName,
+  Relationships,
+  Child
+> = HasFKeyToFRel<Field['original'], Relationships> extends true
+  ? ConstructFieldWithFKeyToFRel<Field, RelationName, Relationships, Child>
+  : ConstructFieldWithoutFKeyToFRel<Schema, Field, RelationName, Child>
+
+type ConstructFieldWithFKeyToFRel<
+  Field extends { original: string; inner?: boolean; left?: boolean },
+  RelationName,
+  Relationships,
+  Child
+> = Field extends { inner: true }
+  ? Child
+  : Field extends { left: true }
+  ? HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
+    ? RequireHintingSelectQueryError<Field, RelationName>
+    : // TODO: This should return null only if the column is actually nullable
+      Child | null
+  : HasMultipleFKeysToFRel<Field['original'], Relationships> extends true
+  ? RequireHintingSelectQueryError<Field, RelationName>
+  : Child | null
+
+type ConstructFieldWithoutFKeyToFRel<
+  Schema extends GenericSchema,
+  Field extends { original: string },
+  RelationName,
+  Child
+> = HasMultipleFKeysToFRel<
+  RelationName,
+  SchemaWithInferedRelationships<Schema, Field>
+> extends true
+  ? // For 1-M relationships
+    RequireHintingSelectQueryError<Field, RelationName>
+  : Child extends unknown
+  ? ConstructFieldWithUnknownChild<Schema, Field, Child>
+  : never
+
+type ConstructFieldWithUnknownChild<
+  Schema extends GenericSchema,
+  Field extends { original: string },
+  Child
+> = 
+  IsEmptyObject<Child> extends true ?
+    GetTableNameFromFKName<Field['original'], GetAllRelationships<Schema>> extends string
+    ? TablesAndViews<Schema>[GetTableNameFromFKName<
+        Field['original'],
+        GetAllRelationships<Schema>
+      >] extends Record<string, unknown>
+      ? GetResultHelper<
+          Schema,
+          TablesAndViews<Schema>[GetTableNameFromFKName<
+            Field['original'],
+            GetAllRelationships<Schema>
+          >]['Row'],
+          Field['original'],
+          unknown,
+          [],
+          unknown
+        > extends never
+        ? // - a one to one relationship with single column pointing to the destination and column hinting eg: from('user_profiles').select('user:username(*)')
+          // - a one to one relationship with nullable with single column pointing to the destination and no hinting eg: from('user_profiles').select('users(*)')
+          // - a one to many relationship with a !left join eg: from('users').select('messages!left(*)')
+          // - a field with one to many relationship declared via holding column name eg: from('users').select('messages(*)')
+          Child[]
+        : // - a one to many with multiples columns pointing to the destination with column renaming and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(id),second_friend_of:best_friends_second_user_fkey(*)')
+          // - a one to many relationship with a !left join eg: from('users').select('user_profiles!left(username)')
+          // - a one to many with only one column pointing to the destination withtout hinting eg: .from('users').select('user_profiles(username)')
+          // - a one to many with column renamined and foreign key name hinting eg: from('users').select('first_friend_of:best_friends_first_user_fkey(*)')
+          Child[]
+      : never
+    : never
+  : Child[]
+
+type ConstructSimpleField<
+  Row extends Record<string, unknown>,
+  Field extends { name: string; original: string }
+> = Field['original'] extends keyof Row
+  ? { [K in Field['name']]: Row[Field['original']] }
+  : Field['name'] extends keyof Row
+  ? { [K in Field['name']]: Row[K] }
+  : Field['original'] extends 'count'
+  ? { count: number }
+  : SelectQueryError<`Referencing missing column \`${Field['original']}\``>
+
 
 /**
  * Notes: all `Parse*` types assume that their input strings have their whitespace
