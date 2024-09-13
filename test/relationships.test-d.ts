@@ -350,3 +350,37 @@ import { selectQueries } from './relationships'
   }
   expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.users>>(true)
 }
+
+// select with aggregate count function
+{
+  const { data, error } = await selectQueries.selectWithAggregateCountFunction.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      count: number
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with nested aggregate count function
+{
+  const { data, error } = await selectQueries.selectWithAggregateNestedCountFunction.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+        count: number
+      } | null
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}

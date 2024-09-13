@@ -4,6 +4,8 @@ import { Database } from './types'
 const REST_URL = 'http://localhost:3000'
 const postgrest = new PostgrestClient<Database>(REST_URL)
 
+const userColumn: 'catchphrase' | 'username' = 'username'
+
 export const selectQueries = {
   manyToOne: postgrest.from('messages').select('user:users(*)'),
   inner: postgrest.from('messages').select('channels!inner(*, channel_details!inner(*))'),
@@ -85,6 +87,11 @@ export const selectQueries = {
     .from('users')
     .select('username, messages(id, message, channels(id, slug))'),
   nestedQueryWithSelectiveFields: postgrest.from('users').select('username, messages(id, message)'),
+  selectionWithStringTemplating: postgrest.from('users').select(`status, ${userColumn}`),
+  selectWithAggregateCountFunction: postgrest.from('users').select('username, messages(count)'),
+  selectWithAggregateNestedCountFunction: postgrest
+    .from('users')
+    .select('username, messages(channels(count))'),
 }
 
 test('nested query with selective fields', async () => {
@@ -730,4 +737,67 @@ test('join select via unique table relationship', async () => {
         "statusText": "OK",
       }
     `)
+})
+
+test('join select via column with string templating', async () => {
+  const res = await selectQueries.selectionWithStringTemplating.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "status": "ONLINE",
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate count function', async () => {
+  const res = await selectQueries.selectWithAggregateCountFunction.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "count": 2,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate nested count function', async () => {
+  const res = await selectQueries.selectWithAggregateNestedCountFunction.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 })
