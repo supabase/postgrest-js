@@ -419,6 +419,26 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
 }
 
+// select with aggregate count and spread
+{
+  const { data, error } = await selectQueries.selectWithAggregateCountAndSpread.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+        count: number
+        details: string
+      }
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+
 // select with aggregate sum function
 {
   const { data, error } = await selectQueries.selectWithAggregateSumFunction.limit(1).single()
@@ -462,7 +482,46 @@ import { selectQueries } from './relationships'
     username: string
     messages: Array<{
       channels: {
-          sum: number
+        sum: number
+      }
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with aggregate sum and spread
+{
+  const { data, error } = await selectQueries.selectWithAggregateSumAndSpread.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+        sum: number
+        details: string
+      }
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with aggregate sum and spread on nested relation
+{
+  const { data, error } = await selectQueries.selectWithAggregateSumAndSpreadOnNestedRelation.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+        sum: number
+        details_sum: number
+        details: string
       }
     }>
   }

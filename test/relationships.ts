@@ -98,6 +98,9 @@ export const selectQueries = {
   selectWithAggregateNestedCountFunctionAndAlias: postgrest
     .from('users')
     .select('username, messages(channels(channel_count:count()))'),
+  selectWithAggregateCountAndSpread: postgrest
+    .from('users')
+    .select('username, messages(channels(count(), ...channel_details(details)))'),
   selectWithAggregateSumFunction: postgrest.from('users').select('username, messages(id.sum())'),
   selectWithAggregateAliasedSumFunction: postgrest
     .from('users')
@@ -105,6 +108,14 @@ export const selectQueries = {
   selectWithAggregateSumFunctionOnNestedRelation: postgrest
     .from('users')
     .select('username, messages(channels(id.sum()))'),
+  selectWithAggregateSumAndSpread: postgrest
+    .from('users')
+    .select('username, messages(channels(id.sum(), ...channel_details(details)))'),
+  selectWithAggregateSumAndSpreadOnNestedRelation: postgrest
+    .from('users')
+    .select(
+      'username, messages(channels(id.sum(), ...channel_details(details_sum:id.sum(), details)))'
+    ),
 }
 
 test('nested query with selective fields', async () => {
@@ -862,6 +873,35 @@ test('select with aggregate nested count function and alias', async () => {
   `)
 })
 
+test('select with aggregate count and spread', async () => {
+  const res = await selectQueries.selectWithAggregateCountAndSpread.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
 test('select with aggregate sum function', async () => {
   const res = await selectQueries.selectWithAggregateSumFunction.limit(1).single()
   expect(res).toMatchInlineSnapshot(`
@@ -916,6 +956,66 @@ test('select with aggregate sum function on nested relation', async () => {
           },
           Object {
             "channels": Object {
+              "sum": 2,
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate sum and spread', async () => {
+  const res = await selectQueries.selectWithAggregateSumAndSpread.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate sum and spread on nested relation', async () => {
+  const res = await selectQueries.selectWithAggregateSumAndSpreadOnNestedRelation.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
               "sum": 2,
             },
           },
