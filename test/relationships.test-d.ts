@@ -367,6 +367,22 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
 }
 
+// select with aggregate count function and alias
+{
+  const { data, error } = await selectQueries.selectWithAggregateCountFunctionAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      message_count: number
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
 // select with nested aggregate count function
 {
   const { data, error } = await selectQueries.selectWithAggregateNestedCountFunction.limit(1).single()
@@ -380,6 +396,74 @@ import { selectQueries } from './relationships'
       channels: {
         count: number
       } | null
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with aggregate nested count function and alias
+{
+  const { data, error } = await selectQueries.selectWithAggregateNestedCountFunctionAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+        channel_count: number
+      } | null
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with aggregate sum function
+{
+  const { data, error } = await selectQueries.selectWithAggregateSumFunction.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      sum: number
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+// select with aggregate aliased sum function
+{
+  const { data, error } = await selectQueries.selectWithAggregateSumFunction.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      sum_id: number
+    }>
+  }
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// select with aggregate sum function on nested relation
+{
+  const { data, error } = await selectQueries.selectWithAggregateSumFunctionOnNestedRelation.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  type ExpectedType = {
+    username: string
+    messages: Array<{
+      channels: {
+          sum: number
+      }
     }>
   }
   expectType<TypeEqual<ExpectedType, typeof data>>(true)

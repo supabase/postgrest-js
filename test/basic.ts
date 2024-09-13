@@ -268,8 +268,8 @@ test('on_conflict insert', async () => {
         },
       ],
       "error": null,
-      "status": 201,
-      "statusText": "Created",
+      "status": 200,
+      "statusText": "OK",
     }
   `)
 })
@@ -366,8 +366,8 @@ describe('basic insert, update, delete', () => {
           },
         ],
         "error": null,
-        "status": 201,
-        "statusText": "Created",
+        "status": 200,
+        "statusText": "OK",
       }
     `)
 

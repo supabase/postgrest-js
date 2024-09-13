@@ -89,9 +89,22 @@ export const selectQueries = {
   nestedQueryWithSelectiveFields: postgrest.from('users').select('username, messages(id, message)'),
   selectionWithStringTemplating: postgrest.from('users').select(`status, ${userColumn}`),
   selectWithAggregateCountFunction: postgrest.from('users').select('username, messages(count)'),
+  selectWithAggregateCountFunctionAndAlias: postgrest
+    .from('users')
+    .select('username, messages(message_count:count())'),
   selectWithAggregateNestedCountFunction: postgrest
     .from('users')
     .select('username, messages(channels(count))'),
+  selectWithAggregateNestedCountFunctionAndAlias: postgrest
+    .from('users')
+    .select('username, messages(channels(channel_count:count()))'),
+  selectWithAggregateSumFunction: postgrest.from('users').select('username, messages(id.sum())'),
+  selectWithAggregateAliasedSumFunction: postgrest
+    .from('users')
+    .select('username, messages(sum_id:id.sum())'),
+  selectWithAggregateSumFunctionOnNestedRelation: postgrest
+    .from('users')
+    .select('username, messages(channels(id.sum()))'),
 }
 
 test('nested query with selective fields', async () => {
@@ -775,6 +788,26 @@ test('select with aggregate count function', async () => {
   `)
 })
 
+test('select with aggregate count function and alias', async () => {
+  const res = await selectQueries.selectWithAggregateCountFunctionAndAlias.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "message_count": 2,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
 test('select with aggregate nested count function', async () => {
   const res = await selectQueries.selectWithAggregateNestedCountFunction.limit(1).single()
   expect(res).toMatchInlineSnapshot(`
@@ -790,6 +823,100 @@ test('select with aggregate nested count function', async () => {
           Object {
             "channels": Object {
               "count": 1,
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate nested count function and alias', async () => {
+  const res = await selectQueries.selectWithAggregateNestedCountFunctionAndAlias.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate sum function', async () => {
+  const res = await selectQueries.selectWithAggregateSumFunction.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "sum": 3,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate aliased sum function', async () => {
+  const res = await selectQueries.selectWithAggregateAliasedSumFunction.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "sum_id": 3,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with aggregate sum function on nested relation', async () => {
+  const res = await selectQueries.selectWithAggregateSumFunctionOnNestedRelation.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 2,
             },
           },
         ],
