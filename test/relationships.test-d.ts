@@ -103,8 +103,7 @@ import { selectQueries } from './relationships'
     throw new Error(error.message)
   }
 
-  // TODO: this should never be nullable
-  expectType<Database['public']['Tables']['channels']['Row'] | null>(oneToOne.channels)
+  expectType<Database['public']['Tables']['channels']['Row']>(oneToOne.channels)
 }
 
 // !left oneToMany
@@ -140,9 +139,8 @@ import { selectQueries } from './relationships'
     throw new Error(error.message)
   }
 
-  // TODO: Those two fields shouldn't be nullables
-  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.first_user)
-  expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.second_user)
+  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.first_user)
+  expectType<Database['public']['Tables']['users']['Row']>(bestFriends.second_user)
   // The third wheel should be nullable
   expectType<Database['public']['Tables']['users']['Row'] | null>(bestFriends.third_wheel)
 }
@@ -155,8 +153,7 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  // TODO: type properly the result for this kind of queries
-  expectType<Array<{}>>(users.first_friend_of)
+  expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof users.first_friend_of>>(true)
 }
 
 // join on 1-M relation
@@ -168,7 +165,6 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  // TODO: properly infer the type for this kind of queries should be
   expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
   expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
   expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
@@ -182,9 +178,8 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  // TODO: Those should not be nullables
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.first_user)
-  expectType<Database['public']['Tables']['users']['Row'] | null>(data.second_user)
+  expectType<Database['public']['Tables']['users']['Row']>(data.first_user)
+  expectType<Database['public']['Tables']['users']['Row']>(data.second_user)
   // This one might be null
   expectType<Database['public']['Tables']['users']['Row'] | null>(data.third_wheel)
 }
