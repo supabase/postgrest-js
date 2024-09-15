@@ -466,7 +466,7 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.username>>(true)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'], typeof data.username>>(true)
 }
 
 // join select via column and alias
@@ -476,7 +476,7 @@ import { selectQueries } from './relationships'
   if (error) {
     throw new Error(error.message)
   }
-  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'], typeof data.user>>(true)
 }
 
 // select with aggregate count function and alias

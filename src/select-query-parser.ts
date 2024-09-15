@@ -1,7 +1,7 @@
 // Credits to @bnjmnt4n (https://www.npmjs.com/package/postgrest-query)
 // See https://github.com/PostgREST/postgrest/blob/2f91853cb1de18944a4556df09e52450b881cfb3/src/PostgREST/ApiRequest/QueryParams.hs#L282-L284
 
-import { GenericSchema, Prettify } from './types'
+import { GenericRelationship, GenericSchema, Prettify } from './types'
 
 type Whitespace = ' ' | '\n' | '\t'
 
@@ -314,6 +314,111 @@ type FindReferencedRowFromFkeyName<Schema extends GenericSchema, FKName extends 
   : never
 
 
+  type GetRelationFKName<Schema extends GenericSchema, ReferencedName extends string, FKName extends string> =
+  Schema['Tables'][ReferencedName] extends { Relationships: infer R }
+  ? R extends GenericRelationship[]
+    ? GetRelationFKNameHelper<Schema, R, FKName>
+    : never
+  : never
+
+type GetRelationFKNameHelper<
+Schema extends GenericSchema,
+R extends GenericRelationship[],
+FKName extends string
+> = R extends [infer First, ...infer Rest]
+// We exclude all the relations pointing to views
+? First extends { referencedRelation: keyof Schema['Tables'] }
+  ? First extends { foreignKeyName: FKName }
+  ? First
+  : GetRelationFKNameHelper<Schema, Rest extends GenericRelationship[] ? Rest : [], FKName>
+  : GetRelationFKNameHelper<Schema, Rest extends GenericRelationship[] ? Rest : [], FKName>
+: never
+
+
+// Returns true if the Needle match one of the Tables or Views from the schema
+type IsRelationFKName<Schema extends GenericSchema, ReferenceName extends string, FKName extends string> =
+GetRelationFKName<Schema, ReferenceName, FKName> extends never ? false : true;
+
+
+type GetRelationReferenceByColumnName<
+  Schema extends GenericSchema,
+  ReferencedName extends string,
+  Columns extends string[]
+> = Schema['Tables'][ReferencedName] extends { Relationships: infer R }
+  ? R extends GenericRelationship[]
+    ? GetRelationReferenceByColumnNameHelper<Schema, R, Columns>
+    : never
+  : never
+
+type GetRelationReferenceByColumnNameHelper<
+  Schema extends GenericSchema,
+  R extends GenericRelationship[],
+  Columns extends string[]
+> = R extends [infer First, ...infer Rest]
+  // We exclude all the relations pointing to views
+  ? First extends { referencedRelation: keyof Schema['Tables'] }
+    ? First extends { columns: Columns }
+    ? First
+    : GetRelationReferenceByColumnNameHelper<Schema, Rest extends GenericRelationship[] ? Rest : [], Columns>
+    : GetRelationReferenceByColumnNameHelper<Schema, Rest extends GenericRelationship[] ? Rest : [], Columns>
+  : never
+
+type IsRelationReferenceByColumnName<
+  Schema extends GenericSchema,
+  ReferencedName extends string,
+  Columns extends string[]
+> = GetRelationReferenceByColumnName<Schema, ReferencedName, Columns> extends never ? false : true
+
+type GetRelationReferencedName<
+  Schema extends GenericSchema,
+  ReferenceName extends string,
+  ReferencedName extends string
+> = TablesAndViews<Schema>[ReferenceName] extends { Relationships: GenericRelationship[] }
+  ? GetRelationReferencedNameHelper<Schema, TablesAndViews<Schema>[ReferenceName]['Relationships'], ReferencedName>
+  : never
+
+type GetRelationReferencedNameHelper<
+  Schema extends GenericSchema,
+  Relationships extends GenericRelationship[],
+  ReferencedName extends string
+> = Relationships extends [infer First, ...infer Rest]
+  ? First extends { referencedRelation: ReferencedName }
+    ? First
+    : GetRelationReferencedNameHelper<Schema, Rest extends GenericRelationship[] ? Rest : [], ReferencedName>
+  : never
+
+type IsRelationReferencedName<
+  Schema extends GenericSchema,
+  ReferenceName extends string,
+  ReferencedName extends string
+> = GetRelationReferencedName<Schema, ReferenceName, ReferencedName> extends never ? false : true
+
+
+type FindMathingRelationship<Schema extends GenericSchema, RelationName extends string, Needle extends string> = 
+    GetRelationFKName<Schema, RelationName, Needle> extends never
+    ? GetRelationReferencedName<Schema, RelationName, Needle> extends never
+      ? GetRelationReferenceByColumnName<Schema, RelationName, [Needle]> extends never
+        ? never
+        : { relationship: GetRelationReferenceByColumnName<Schema,RelationName,[Needle]>, type: 'colname' }
+      : { relationship: GetRelationReferencedName<Schema,RelationName,Needle>, type: 'refname' }
+    : { relationship: GetRelationFKName<Schema,RelationName,Needle>, type: 'fkname' }
+
+type FindMatchingRelationshipRow<Schema extends GenericSchema, RelationName extends string, Needle extends string> =
+  FindMathingRelationship<Schema, RelationName, Needle> extends never
+  ? never
+  : TablesAndViews<Schema>[FindMathingRelationship<Schema, RelationName, Needle>['relationship']['referencedRelation']] extends { Row: Record<string, unknown> }
+    ? TablesAndViews<Schema>[FindMathingRelationship<Schema, RelationName, Needle>['relationship']['referencedRelation']]['Row']
+  : never
+
+
+type FindMatchingRelationshipTable<Schema extends GenericSchema, RelationName extends string, Needle extends string> =
+  FindMathingRelationship<Schema, RelationName, Needle> extends never
+  ? never
+  : TablesAndViews<Schema>[FindMathingRelationship<Schema, RelationName, Needle>['relationship']['referencedRelation']] extends { Row: Record<string, unknown> }
+    ? TablesAndViews<Schema>[FindMathingRelationship<Schema, RelationName, Needle>['relationship']['referencedRelation']]
+  : never
+
+
   type FindOriginTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = {
     [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
       ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
@@ -370,50 +475,10 @@ type IsRelationNullable<Schema extends GenericSchema, FKName extends string> =
     : never
 
 
-// Given a referencedRelation name RefRel this type will pull out a list of all the relationships
-// that match the referencedRelation across all Tables from the schema
-type GetAllReferencedRelations<
-  Schema extends GenericSchema,
-  RefRel extends string
-> = {
-  [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
-    ? R extends Array<{ referencedRelation: string }>
-      ? Extract<R[number], { referencedRelation: RefRel }> extends never
-        ? never
-        : RefRel extends keyof Schema['Tables']
-          ? Extract<R[number], { referencedRelation: RefRel }>
-          : never
-      : never
-    : never
-}[keyof Schema['Tables']] extends infer Result
-  ? Result extends never
-    ? []
-    : Result extends unknown[]
-      ? Result
-      : Result extends unknown
-        ? [Result]
-        : never
-  : never
-
 type SchemaWithInferedRelationships<Schema extends GenericSchema, Field extends { original: string }> = TablesAndViews<Schema>[Field['original']] extends {
   Relationships: infer R
 }
   ? R
-  : unknown
-
-// Will attempt to solve the relation Row based on possibles aliases like:
-// foreignKeyName(*) or relationColumnName(*) or relatedTableName(*)
-type FindRelationRow<
-  Schema extends GenericSchema,
-  Field extends { original: string },
-  RelationName extends string,
-  Relationships
-> = 
-  // Check if the Field's original name is a foreign key
-  IsForeignKeyName<Schema, Field['original']> extends true
-  ? 'Field[original]-represent-fkname'
-  : IsForeignKeyName<Schema, RelationName> extends true
-  ? 'RelationName-represent-fkname'
   : unknown
 
 /**
