@@ -80,6 +80,8 @@ export const selectQueries = {
   joinSelectViaColumnSelective: postgrest.from('user_profiles').select('username(status)'),
   joinSelectViaColumnAndAlias: postgrest.from('user_profiles').select('user:username(*)'),
   joinSelectViaUniqueTableRelationship: postgrest.from('user_profiles').select('users(*)'),
+  typeCastingQuery: postgrest.from('best_friends').select('id::text'),
+  joinSelectViaViewNameRelationship: postgrest.from('user_profiles').select('updatable_view(*)'),
   queryWithMultipleOneToManySelectives: postgrest
     .from('users')
     .select('username, messages(id), user_profiles(id)'),
@@ -762,6 +764,23 @@ test('join select via unique table relationship', async () => {
       }
     `)
 })
+test('join select via view name relationship', async () => {
+  const res = await selectQueries.joinSelectViaViewNameRelationship.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "updatable_view": Object {
+          "non_updatable_column": 1,
+          "username": "supabot",
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
 
 test('join select via column with string templating', async () => {
   const res = await selectQueries.selectionWithStringTemplating.limit(1).single()
@@ -1021,6 +1040,22 @@ test('select with aggregate sum and spread on nested relation', async () => {
           },
         ],
         "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('select with type casting query', async () => {
+  const res = await selectQueries.typeCastingQuery.limit(1).single()
+
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": "1",
       },
       "error": null,
       "status": 200,

@@ -216,35 +216,13 @@ type RequireHintingSelectQueryError<
   ? RelationName
   : 'unkown'}' you need to hint the column with ${Field['original']}!<columnName> ?`>
 
-  type IsEmptyObject<T> = T extends Record<string, never> ? true : false;
-  type IsEmptyObject<T> = T extends Record<string, never> ? true : false;
-// Get the relation for a field based on the columns, try to match first with tables then with views
-type GetRelationForField<
-  Schema extends GenericSchema,
-  Field extends { original: string },
-  Relationships extends { referencedRelation: string; columns: string[] }[]
-> = GetMatchingRelation<
-  keyof Schema['Tables'] & string,
-  [Field['original']],
-  Relationships
-> extends never
-  ? GetMatchingRelation<keyof Schema['Views'] & string, [Field['original']], Relationships>
-  : GetMatchingRelation<keyof Schema['Tables'] & string, [Field['original']], Relationships>
-
-type IsEmptyObject<T> = T extends Record<string, never> ? true : false;
-// Get the relation for a field based on the columns, try to match first with tables then with views
-type GetRelationForField<
-  Schema extends GenericSchema,
-  Field extends { original: string },
-  Relationships extends { referencedRelation: string; columns: string[] }[]
-> = GetMatchingRelation<
-  keyof Schema['Tables'] & string,
-  [Field['original']],
-  Relationships
-> extends never
-  ? GetMatchingRelation<keyof Schema['Views'] & string, [Field['original']], Relationships>
-  : GetMatchingRelation<keyof Schema['Tables'] & string, [Field['original']], Relationships>
-
+type IsEmptyOrUnkownObject<T> = T extends Record<string, never>
+  ? true
+  : T extends unknown
+    ? keyof T extends never
+      ? true
+      : false
+    : false;
 
 type FindMatchingRelationships<value extends string, Relationships> = Relationships extends [infer R, ...infer Rest]
   ? R extends { foreignKeyName: value }
@@ -258,56 +236,156 @@ type FindMatchingRelationships<value extends string, Relationships> = Relationsh
 
 type FindFieldMathingRelationships<Field extends { original: string, inner?: boolean, left?: boolean, hint?: string, name?: string }, Relationships> = FindMatchingRelationships<Field['original'], Relationships>
 
+// Given a Schema, will get a smaller schema where all the relationships referencedRelation will have to match
+// one of the key of Schema['Tables'] and return the new schema where all the relationships of all the Tables will
+// always only point to other tables
+type GetSchemaWithoutViewsRelationships<Schema extends GenericSchema> = {
+  [TableName in keyof Schema['Tables']]: {
+    Row: Schema['Tables'][TableName]['Row'];
+    Relationships: Schema['Tables'][TableName] extends { Relationships: infer R }
+      ? {
+          [K in keyof R]: R[K] extends { referencedRelation: infer RefRel }
+            ? RefRel extends keyof Schema['Tables']
+              ? R[K]
+              : never
+            : never
+        }
+      : never
+  }
+}
+
 type FindTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = 
 {
-[TableName in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[TableName] extends { Relationships: infer R }
+[TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
   ? R extends Array<{ foreignKeyName: string }>
     ? FKName extends R[number]['foreignKeyName']
-      ? TablesAndViews<Schema>[TableName]
+      ? Schema['Tables'][TableName]
       : never
     : never
   : never
-}[keyof TablesAndViews<Schema>]
-
-type FindReferencedTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = 
-{
-[TableName in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[TableName] extends { Relationships: infer R }
-  ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
-    ? FKName extends R[number]['foreignKeyName']
-      ? TablesAndViews<Schema>[R[number]['referencedRelation']]
-      : never
-    : never
-  : never
-}[keyof TablesAndViews<Schema>]
-
-type IsRelationNullable<Schema extends GenericSchema, FKName extends string> =
-FindTableFromFkeyName<Schema, FKName> extends infer Table
-  ? Table extends { Row: infer Row, Relationships: infer Relationships }
-    ? FindMatchingRelationships<FKName, Relationships> extends { columns: infer Columns }
-      ? Columns extends [infer Column]
-        ? Column extends keyof Row
-          ? ContainsNull<Row[Column]> extends true
-            ? true
-            : false
+}[keyof Schema['Tables']] extends infer TableResult
+  ? TableResult extends never
+    ? {
+      [ViewName in keyof Schema['Views']]: Schema['Views'][ViewName] extends { Relationships: infer R }
+        ? R extends Array<{ foreignKeyName: string }>
+          ? FKName extends R[number]['foreignKeyName']
+            ? Schema['Views'][ViewName]
+            : never
           : never
+        : never
+    }[keyof Schema['Views']]
+    : TableResult
+  : never
+
+type FindReferencedTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = {
+  [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
+    ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
+      ? FKName extends R[number]['foreignKeyName']
+        ? Schema['Tables'][Extract<R[number], { foreignKeyName: FKName }>['referencedRelation']]
         : never
       : never
     : never
+}[keyof Schema['Tables']] extends infer Result
+  ? Result extends never
+    ? never
+    : Result
   : never
 
 
+type FindReferencedViewFromFkeyName<Schema extends GenericSchema, FKName extends string> = {
+    [ViewName in keyof Schema['Views']]: Schema['Views'][ViewName] extends { Relationships: infer R }
+      ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
+        ? FKName extends R[number]['foreignKeyName']
+          ? Schema['Views'][Extract<R[number], { foreignKeyName: FKName }>['referencedRelation']]
+          : never
+        : never
+      : never
+  }[keyof Schema['Views']] extends infer Result
+    ? Result extends never
+      ? never
+      : Result
+    : never
+
+type FindReferencedRowFromFkeyName<Schema extends GenericSchema, FKName extends string> = 
+  FindReferencedTableFromFkeyName<Schema, FKName> extends { Row: Record<string, unknown> }
+  ? FindReferencedTableFromFkeyName<Schema, FKName>['Row']
+  : FindReferencedViewFromFkeyName<Schema, FKName> extends { Row: Record<string, unknown> }
+  ? FindReferencedViewFromFkeyName<Schema, FKName>['Row']
+  : never
+
+
+  type FindOriginTableFromFkeyName<Schema extends GenericSchema, FKName extends string> = {
+    [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
+      ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
+        ? FKName extends R[number]['foreignKeyName']
+          ? Schema['Tables'][TableName]
+          : never
+        : never
+      : never
+  }[keyof Schema['Tables']] extends infer Result
+    ? Result extends never
+      ? never
+      : Result
+    : never
+  
+  
+  type FindOriginViewFromFkeyName<Schema extends GenericSchema, FKName extends string> = {
+      [ViewName in keyof Schema['Views']]: Schema['Views'][ViewName] extends { Relationships: infer R }
+        ? R extends Array<{ foreignKeyName: string; referencedRelation: string }>
+          ? FKName extends R[number]['foreignKeyName']
+            ? Schema['Views'][ViewName]
+            : never
+          : never
+        : never
+    }[keyof Schema['Views']] extends infer Result
+      ? Result extends never
+        ? never
+        : Result
+      : never
+  
+  type FindOriginRowFromFkeyName<Schema extends GenericSchema, FKName extends string> = 
+    FindOriginTableFromFkeyName<Schema, FKName> extends { Row: Record<string, unknown> }
+    ? FindOriginTableFromFkeyName<Schema, FKName>['Row']
+    : FindOriginViewFromFkeyName<Schema, FKName> extends { Row: Record<string, unknown> }
+    ? FindOriginViewFromFkeyName<Schema, FKName>['Row']
+    : never
+  
+
+type IsColumnsNullable<Table extends { Row: Record<string, unknown> }, Columns extends (keyof Table['Row'])[]> = 
+  Columns extends [infer Column, ...infer Rest]
+    ? Column extends keyof Table['Row']
+      ? ContainsNull<Table['Row'][Column]> extends true
+        ? true
+        : IsColumnsNullable<Table, Rest extends (keyof Table['Row'])[] ? Rest : []>
+      : never
+    : false
+
+type IsRelationNullable<Schema extends GenericSchema, FKName extends string> =
+  FindTableFromFkeyName<Schema, FKName> extends infer Table
+    ? Table extends { Row: Record<string, unknown>, Relationships: unknown[] }
+      ? FindMatchingRelationships<FKName, Table['Relationships']> extends { columns: (keyof Table['Row'])[] }
+        ? IsColumnsNullable<Table, FindMatchingRelationships<FKName, Table['Relationships']>['columns']>
+        : never
+      : never
+    : never
+
+
 // Given a referencedRelation name RefRel this type will pull out a list of all the relationships
-// that match the referencedRelation across all Tables and Views from the schema
+// that match the referencedRelation across all Tables from the schema
 type GetAllReferencedRelations<
   Schema extends GenericSchema,
   RefRel extends string
 > = {
-  [TableName in keyof TablesAndViews<Schema>]: TablesAndViews<Schema>[TableName] extends { Relationships: infer R }
+  [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
     ? R extends Array<{ referencedRelation: string }>
-      ? Extract<R[number], { referencedRelation: RefRel }>
+      ? Extract<R[number], { referencedRelation: RefRel }> extends never
+        ? never
+        : RefRel extends keyof Schema['Tables']
+          ? Extract<R[number], { referencedRelation: RefRel }>
+          : never
       : never
     : never
-}[keyof TablesAndViews<Schema>] extends infer Result
+}[keyof Schema['Tables']] extends infer Result
   ? Result extends never
     ? []
     : Result extends unknown[]
@@ -321,6 +399,21 @@ type SchemaWithInferedRelationships<Schema extends GenericSchema, Field extends 
   Relationships: infer R
 }
   ? R
+  : unknown
+
+// Will attempt to solve the relation Row based on possibles aliases like:
+// foreignKeyName(*) or relationColumnName(*) or relatedTableName(*)
+type FindRelationRow<
+  Schema extends GenericSchema,
+  Field extends { original: string },
+  RelationName extends string,
+  Relationships
+> = 
+  // Check if the Field's original name is a foreign key
+  IsForeignKeyName<Schema, Field['original']> extends true
+  ? 'Field[original]-represent-fkname'
+  : IsForeignKeyName<Schema, RelationName> extends true
+  ? 'RelationName-represent-fkname'
   : unknown
 
 /**
@@ -337,7 +430,25 @@ type ConstructFieldDefinition<
   RelationName,
   Relationships,
   Field
-> = Field extends { star: true }
+> = IsEmptyOrUnkownObject<Row> extends true
+  // If our row is an empty or unknown object, we failed to properly infer the
+  // type of our row, this happen in case of implicit aliasing via columns, fkNames or referenced tables alias
+  // foreignKeyName(*) or relationColumnName(*) or referencedTable(*)
+  // ---------------------------
+  // Check if our RelationName match one of our ForeignKeyName
+  ? RelationName extends string
+    // If it does, use the foreignKey referenced table row as the new Row type
+    ? IsForeignKeyName<Schema, RelationName> extends true 
+      ? ConstructFieldDefinition<
+          Schema,
+          FindOriginRowFromFkeyName<Schema, RelationName>,
+          RelationName,
+          Relationships,
+          Field
+        >
+      : {f: Field, rn: RelationName, rs: Relationships, r: Row, infwithrel: SchemaWithInferedRelationships<Schema, Field>}
+  : 'relation-name-is-not-a-string'
+  : Field extends { star: true }
   ? Row
   : Field extends { spread: true; original: string; children: unknown[] }
   ? GetResultHelper<
@@ -478,6 +589,21 @@ type ConstructFieldWithoutFKeyToFRel<
   ? ConstructFieldWithUnknownChild<Schema, Field, RelationName, Relationships, Child>
   : never
 
+type IsForeignKeyName<
+  Schema extends GenericSchema,
+  FKName extends string
+> = {
+  [TableName in keyof Schema['Tables']]: Schema['Tables'][TableName] extends { Relationships: infer R }
+    ? R extends Array<{ foreignKeyName: string }>
+      ? FKName extends R[number]['foreignKeyName']
+        ? true
+        : never
+      : never
+    : never
+}[keyof Schema['Tables']] extends never
+  ? false
+  : true
+
 type ConstructFieldWithUnknownChild<
   Schema extends GenericSchema,
   Field extends { original: string },
@@ -485,21 +611,56 @@ type ConstructFieldWithUnknownChild<
   Relationships,
   Child
 > = 
-  IsEmptyObject<Child> extends true
+  // Our Child cannot be infered by previous logic, it's an alias such as
+  // reference via a relation table alias
+  // reference via a column holding relation alias
+  IsEmptyOrUnkownObject<Child> extends true
+  // Check if the RelationName is a direct ForeignKey reference
   ? RelationName extends string
-    // Try to find relations matching our RelationName
-    ? GetAllReferencedRelations<Schema, RelationName> extends []
-      // If no relations were found referencing RelationName
-      ? Child[]
-      // Check if our Field['original'] match one of our relationship
-      // either by direct fkname or via column matching or table reference
-      : FindMatchingRelationships<Field['original'], GetAllReferencedRelations<Schema, RelationName>> extends { foreignKeyName: string }
-      ? FindReferencedTableFromFkeyName<Schema, FindMatchingRelationships<Field['original'], GetAllReferencedRelations<Schema, RelationName>>['foreignKeyName']> extends { Row: Record<string, unknown> }
-        ? {field: Field}
-        : Child[]
-      : Child[]
+    ? IsForeignKeyName<Schema, RelationName> extends true
+      ? {type: 'relation-name-is-fk-name',
+        f: Field,
+        isFkName: IsForeignKeyName<Schema, 'best_friends_first_user_fkey'>
+        rname: RelationName, g: FindTableFromFkeyName<Schema, RelationName> }
+      : IsForeignKeyName<Schema, Field['original']> extends true
+      ? 'field-original-is-fk-name'
+      : 'idk'
     : Child[]
   : Child[]
+  //   // Try to find relations matching our RelationName
+  //   ? GetAllReferencedRelations<Schema, RelationName> extends []
+  //     // Check if our Field['original'] match one of our relationship
+  //     // either by direct fkname or via column matching or table reference
+  //     ? FindMatchingRelationships<Field['original'], GetAllReferencedRelations<Schema, RelationName>> extends {foreignKeyName: string}
+  //       ? FindTableFromFkeyName<Schema, Field['original']> extends { Row: Record<string, unknown> }
+  //         ? GetResultHelper<
+  //             Schema,
+  //             FindTableFromFkeyName<Schema, Field['original']>['Row'],
+  //             Field['original'],
+  //             SchemaWithInferedRelationships<Schema, Field>,
+  //             Field extends {'children': unknown[]} ? Field['children'] : [],
+  //             unknown
+  //           >[]
+  //         : Child[]
+  //       : Child[]
+  //     // If no relations were found referencing RelationName the reference might be
+  //     // aliased via Columns name
+  //     : FindMatchingRelationships<Field['original'], Relationships> extends { foreignKeyName: string }
+  //     // We found a matching relationship, we build our result from the related table
+  //     ? FindReferencedTableFromFkeyName<Schema, FindMatchingRelationships<Field['original'], Relationships>['foreignKeyName']> extends { Row: Record<string, unknown> } 
+  //     ? GetResultHelper<
+  //         Schema,
+  //         FindReferencedTableFromFkeyName<Schema, FindMatchingRelationships<Field['original'], Relationships>['foreignKeyName']>['Row'],
+  //         Field['original'],
+  //         SchemaWithInferedRelationships<Schema, Field>,
+  //         Field extends {'children': unknown[]} ? Field['children'] : [],
+  //         unknown
+  //       >[]
+  //     : { rr:  FindReferencedTableFromFkeyName<Schema, FindMatchingRelationships<Field['original'], Relationships>['foreignKeyName']>  }
+  //     : 'toto'
+
+  //   : Child[]
+  // : Child[]
 
 type ConstructSimpleField<
   Row extends Record<string, unknown>,
@@ -510,7 +671,7 @@ type ConstructSimpleField<
   ? { [K in Field['name']]: Row[K] }
   : Field['original'] extends AggregateFunctions
   ? { [K in Field['name']]: number }
-  : SelectQueryError<`Referencing missing column \`${Field['original']}\``>
+  : { r: Row, F: Field, sq: SelectQueryError<`Referencing missing column \`${Field['original']}\``>}
 
 
 /**
@@ -806,7 +967,7 @@ type ParseFieldTypeCast<Input extends string> = EatWhitespace<Input> extends `::
     ? // Ensure that `CastType` is a valid type.
       CastType extends PostgreSQLTypes
       ? [
-          TypeScriptTypes<CastType> & { parseFieldTypeCastBranch: 'field::type' },
+          TypeScriptTypes<CastType>,
           EatWhitespace<Remainder>
         ]
       : ParserError<`Invalid type for \`::\` operator \`${CastType}\``>

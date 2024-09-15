@@ -289,6 +289,16 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.users>>(true)
 }
 
+// join select via view name relationship
+{
+  const { data, error } = await selectQueries.joinSelectViaViewNameRelationship.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<TypeEqual<Database['public']['Views']['updatable_view']['Row'] | null, typeof data.updatable_view>>(true)
+}
+
 // select with aggregate count function
 {
   const { data, error } = await selectQueries.selectWithAggregateCountFunction.limit(1).single()
@@ -405,7 +415,6 @@ import { selectQueries } from './relationships'
   }
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
 }
-// TODO: From here live the dragons and errors
 
 // join on 1-M relation with selective fk hinting
 {
@@ -419,6 +428,37 @@ import { selectQueries } from './relationships'
   expectType<TypeEqual<Array<Database['public']['Tables']['best_friends']['Row']>, typeof data.third_wheel_of>>(true)
 }
 
+// join on 1-M relation
+{
+  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHint
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
+  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
+}
+
+// add a test with type casting
+{
+  const { data, error } = await selectQueries.typeCastingQuery.single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  type ExpectedType = {
+    id: string
+  }
+
+  expectType<TypeEqual<ExpectedType, typeof data>>(true)
+}
+
+// TODO: From here live the dragons and errors
+
+
 // join select via column
 {
   const { data, error } = await selectQueries.joinSelectViaColumn.limit(1).single()
@@ -427,6 +467,16 @@ import { selectQueries } from './relationships'
     throw new Error(error.message)
   }
   expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.username>>(true)
+}
+
+// join select via column and alias
+{
+  const { data, error } = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
 }
 
 // select with aggregate count function and alias
@@ -516,29 +566,4 @@ import { selectQueries } from './relationships'
     }>
   }
   expectType<TypeEqual<ExpectedType, typeof data>>(true)
-}
-
-// join select via column and alias
-{
-  const { data, error } = await selectQueries.joinSelectViaColumnAndAlias.limit(1).single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<TypeEqual<Database['public']['Tables']['users']['Row'] | null, typeof data.user>>(true)
-}
-
-
-// join on 1-M relation
-
-{
-  const { data, error } = await selectQueries.joinOneToManyUsersWithFkHint
-    .single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.first_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.second_friend_of)
-  expectType<Array<Database['public']['Tables']['best_friends']['Row']>>(data.third_wheel_of)
 }
