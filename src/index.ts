@@ -12,7 +12,7 @@ export {
   PostgrestFilterBuilder,
   PostgrestTransformBuilder,
   PostgrestBuilder,
-  PostgrestError
+  PostgrestError,
 }
 export default {
   PostgrestClient,
@@ -20,7 +20,7 @@ export default {
   PostgrestFilterBuilder,
   PostgrestTransformBuilder,
   PostgrestBuilder,
-  PostgrestError
+  PostgrestError,
 }
 export type {
   PostgrestResponse,
