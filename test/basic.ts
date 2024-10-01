@@ -826,8 +826,8 @@ test('maybeSingle w/ throwOnError', async () => {
     .from('messages')
     .select()
     .eq('message', 'i do not exist')
-    .throwOnError()
     .maybeSingle()
+    .throwOnError()
     .then(undefined, () => {
       passes = false
     })

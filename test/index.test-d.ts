@@ -164,6 +164,41 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectType<PostgrestSingleResponse<SelectQueryError<`Referencing missing column \`dat\``>[]>>(res)
 }
 
+// throw on error on query
+{
+  const { data } = await postgrest.from('users').select('username').throwOnError()
+  expectType<{ username: string }[]>(data)
+}
+
+// throw on error with maybeSingle is still nullable
+{
+  const { data } = await postgrest.from('users').select('username').maybeSingle().throwOnError()
+  expectType<{ username: string } | null>(data)
+}
+
+// throw on error with rpc
+{
+  const { data: nullable } = await postgrest.rpc('get_status', { name_param: 'foo' })
+  expectType<'ONLINE' | 'OFFLINE' | null>(nullable)
+
+  const { data: notnull } = await postgrest.rpc('get_status', { name_param: 'foo' }).throwOnError()
+  expectType<'ONLINE' | 'OFFLINE'>(notnull)
+}
+
+// queries without throw on error have nullable results
+{
+  const { data } = await postgrest.from('users').select('username')
+  expectType<{ username: string }[] | null>(data)
+}
+
+// throw on error on client
+{
+  const strictClient = postgrest.throwOnError()
+
+  const { data } = await strictClient.from('users').select('username')
+  expectType<{ username: string }[]>(data)
+}
+
 // one-to-one relationship
 {
   const { data: channels, error } = await postgrest

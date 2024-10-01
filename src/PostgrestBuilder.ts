@@ -1,10 +1,10 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch, PostgrestSingleResponse } from './types'
+import type { Fetch, PostgrestResponseSuccess, PostgrestSingleResponse } from './types'
 import PostgrestError from './PostgrestError'
 
-export default abstract class PostgrestBuilder<Result>
+export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean = false>
   implements PromiseLike<PostgrestSingleResponse<Result>>
 {
   protected method: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
@@ -12,12 +12,12 @@ export default abstract class PostgrestBuilder<Result>
   protected headers: Record<string, string>
   protected schema?: string
   protected body?: unknown
-  protected shouldThrowOnError = false
+  protected shouldThrowOnError: boolean
   protected signal?: AbortSignal
   protected fetch: Fetch
   protected isMaybeSingle: boolean
 
-  constructor(builder: PostgrestBuilder<Result>) {
+  constructor(builder: PostgrestBuilder<Result, ThrowOnError>) {
     this.method = builder.method
     this.url = builder.url
     this.headers = builder.headers
@@ -36,15 +36,9 @@ export default abstract class PostgrestBuilder<Result>
     }
   }
 
-  /**
-   * If there's an error with the query, throwOnError will reject the promise by
-   * throwing the error instead of returning it as part of a successful response.
-   *
-   * {@link https://github.com/supabase/supabase-js/issues/92}
-   */
-  throwOnError(): this {
+  throwOnError(): PostgrestBuilder<Result, true> {
     this.shouldThrowOnError = true
-    return this
+    return this as PostgrestBuilder<Result, true>
   }
 
   /**
@@ -58,7 +52,11 @@ export default abstract class PostgrestBuilder<Result>
 
   then<TResult1 = PostgrestSingleResponse<Result>, TResult2 = never>(
     onfulfilled?:
-      | ((value: PostgrestSingleResponse<Result>) => TResult1 | PromiseLike<TResult1>)
+      | ((
+          value: ThrowOnError extends true
+            ? PostgrestResponseSuccess<Result>
+            : PostgrestSingleResponse<Result>
+        ) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null

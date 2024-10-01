@@ -21,12 +21,14 @@ export default class PostgrestClient<
     : string & keyof Database,
   Schema extends GenericSchema = Database[SchemaName] extends GenericSchema
     ? Database[SchemaName]
-    : any
+    : any,
+  ThrowOnError extends boolean = false
 > {
   url: string
   headers: Record<string, string>
   schemaName?: SchemaName
   fetch?: Fetch
+  shouldThrowOnError: ThrowOnError
 
   // TODO: Add back shouldThrowOnError once we figure out the typings
   /**
@@ -44,36 +46,63 @@ export default class PostgrestClient<
       headers = {},
       schema,
       fetch,
+      shouldThrowOnError,
     }: {
       headers?: Record<string, string>
       schema?: SchemaName
       fetch?: Fetch
+      shouldThrowOnError?: ThrowOnError
     } = {}
   ) {
     this.url = url
     this.headers = { ...DEFAULT_HEADERS, ...headers }
     this.schemaName = schema
     this.fetch = fetch
+    this.shouldThrowOnError = Boolean(shouldThrowOnError) as ThrowOnError
+  }
+
+  throwOnError(): PostgrestClient<Database, SchemaName, Schema, true> {
+    return new PostgrestClient(this.url, {
+      headers: this.headers,
+      schema: this.schemaName,
+      fetch: this.fetch,
+      shouldThrowOnError: true,
+    }) as PostgrestClient<Database, SchemaName, Schema, true>
   }
 
   from<
     TableName extends string & keyof Schema['Tables'],
     Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>
+  >(
+    relation: TableName
+  ): PostgrestQueryBuilder<
+    Schema,
+    Table,
+    any,
+    Table extends { Relationships: infer R } ? R : unknown,
+    ThrowOnError
+  >
   from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
     relation: ViewName
-  ): PostgrestQueryBuilder<Schema, View, ViewName>
+  ): PostgrestQueryBuilder<
+    Schema,
+    View,
+    any,
+    View extends { Relationships: infer R } ? R : unknown,
+    ThrowOnError
+  >
   /**
    * Perform a query on a table or a view.
    *
    * @param relation - The table or view name to query
    */
-  from(relation: string): PostgrestQueryBuilder<Schema, any, any> {
+  from(relation: string): PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError> {
     const url = new URL(`${this.url}/${relation}`)
-    return new PostgrestQueryBuilder(url, {
+    return new PostgrestQueryBuilder<Schema, any, any, any, ThrowOnError>(url, {
       headers: { ...this.headers },
       schema: this.schemaName,
       fetch: this.fetch,
+      shouldThrowOnError: this.shouldThrowOnError,
     })
   }
 
@@ -89,12 +118,14 @@ export default class PostgrestClient<
   ): PostgrestClient<
     Database,
     DynamicSchema,
-    Database[DynamicSchema] extends GenericSchema ? Database[DynamicSchema] : any
+    Database[DynamicSchema] extends GenericSchema ? Database[DynamicSchema] : any,
+    ThrowOnError
   > {
     return new PostgrestClient(this.url, {
       headers: this.headers,
       schema,
       fetch: this.fetch,
+      shouldThrowOnError: this.shouldThrowOnError,
     })
   }
 
@@ -140,7 +171,9 @@ export default class PostgrestClient<
         ? Fn['Returns'][number]
         : never
       : never,
-    Fn['Returns']
+    Fn['Returns'],
+    unknown,
+    ThrowOnError
   > {
     let method: 'HEAD' | 'GET' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)
@@ -174,6 +207,7 @@ export default class PostgrestClient<
       body,
       fetch: this.fetch,
       allowEmpty: false,
-    } as unknown as PostgrestBuilder<Fn['Returns']>)
+      shouldThrowOnError: this.shouldThrowOnError,
+    } as never)
   }
 }

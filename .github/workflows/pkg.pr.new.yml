@@ -1,0 +1,14 @@
+name: pkg.pr.new
+
+on:
+  push: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm clean-install
+      - run: npm run build
+      - name: Create pkg.pr.new release
+        run: npx pkg-pr-new publish
