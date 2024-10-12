@@ -28,4 +28,7 @@ export type {
   PostgrestResponseSuccess,
   PostgrestSingleResponse,
   PostgrestMaybeSingleResponse,
+  GenericSchema,
+  GenericTable,
 } from './types'
+export type { GetResult } from './select-query-parser'
