@@ -604,7 +604,7 @@ type EatWhitespace<Input extends string> = string extends Input
   ? EatWhitespace<Remainder>
   : Input
 
-namespace Ast {
+export namespace Ast {
   export interface IdentifierNode {
     type: 'Identifier'
     name: string

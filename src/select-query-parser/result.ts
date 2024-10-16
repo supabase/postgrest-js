@@ -1,7 +1,6 @@
 import { GenericTable } from '../types'
 import { ContainsNull, GenericRelationship, PostgreSQLTypes } from './types'
-import { FieldNode, Node, SpreadNode, StarNode } from './parser/ast'
-import { ParseQuery } from './parser/parser'
+import { ParseQuery, Ast } from './parser/parser'
 import {
   AggregateFunctions,
   ExtractFirstProperty,
@@ -35,11 +34,11 @@ export type GetResult<
   Relationships,
   Query extends string
 > = Relationships extends null // For .rpc calls the passed relationships will be null in that case, the result will always be the function return type
-  ? ParseQuery<Query> extends infer ParsedQuery extends Node[]
+  ? ParseQuery<Query> extends infer ParsedQuery extends Ast.Node[]
     ? RPCCallNodes<ParsedQuery, RelationName extends string ? RelationName : 'rpc_call', Row>
     : Row
   : ParseQuery<Query> extends infer ParsedQuery
-  ? ParsedQuery extends Node[]
+  ? ParsedQuery extends Ast.Node[]
     ? RelationName extends string
       ? Relationships extends GenericRelationship[]
         ? ProcessNodes<Schema, Row, RelationName, Relationships, ParsedQuery>
@@ -58,21 +57,21 @@ export type GetResult<
 export type ProcessRPCNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
-  NodeType extends Node
-> = NodeType extends StarNode // If the selection is *
+  NodeType extends Ast.Node
+> = NodeType extends Ast.StarNode // If the selection is *
   ? Row
-  : NodeType extends FieldNode
+  : NodeType extends Ast.FieldNode
   ? ProcessSimpleField<Row, RelationName, NodeType>
   : SelectQueryError<'Unsupported node type.'>
 /**
  * Process select call that can be chained after an rpc call
  */
 export type RPCCallNodes<
-  Nodes extends Node[],
+  Nodes extends Ast.Node[],
   RelationName extends string,
   Row extends Record<string, unknown>,
   Acc extends Record<string, unknown> = {} // Acc is now an object
-> = Nodes extends [infer FirstNode extends Node, ...infer RestNodes extends Node[]]
+> = Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
   ? ProcessRPCNode<Row, RelationName, FirstNode> extends infer FieldResult
     ? FieldResult extends Record<string, unknown>
       ? RPCCallNodes<RestNodes, RelationName, Row, Acc & FieldResult>
@@ -97,10 +96,10 @@ export type ProcessNodes<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  Nodes extends Node[],
+  Nodes extends Ast.Node[],
   Acc extends Record<string, unknown> = {} // Acc is now an object
 > = CheckDuplicateEmbededReference<Schema, RelationName, Relationships, Nodes> extends false
-  ? Nodes extends [infer FirstNode extends Node, ...infer RestNodes extends Node[]]
+  ? Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
     ? ProcessNode<Schema, Row, RelationName, Relationships, FirstNode> extends infer FieldResult
       ? FieldResult extends Record<string, unknown>
         ? ProcessNodes<Schema, Row, RelationName, Relationships, RestNodes, Acc & FieldResult>
@@ -125,12 +124,12 @@ export type ProcessNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  NodeType extends Node
-> = NodeType extends StarNode // If the selection is *
+  NodeType extends Ast.Node
+> = NodeType extends Ast.StarNode // If the selection is *
   ? Row
-  : NodeType extends SpreadNode // If the selection is a ...spread
+  : NodeType extends Ast.SpreadNode // If the selection is a ...spread
   ? ProcessSpreadNode<Schema, Row, RelationName, Relationships, NodeType>
-  : NodeType extends FieldNode
+  : NodeType extends Ast.FieldNode
   ? ProcessFieldNode<Schema, Row, RelationName, Relationships, NodeType>
   : SelectQueryError<'Unsupported node type.'>
 
@@ -148,7 +147,7 @@ export type ProcessFieldNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  Field extends FieldNode
+  Field extends Ast.FieldNode
 > = Field['children'] extends []
   ? {}
   : IsNonEmptyArray<Field['children']> extends true // Has embedded resource?
@@ -165,7 +164,7 @@ export type ProcessFieldNode<
 export type ProcessSimpleField<
   Row extends Record<string, unknown>,
   RelationName extends string,
-  Field extends FieldNode
+  Field extends Ast.FieldNode
 > = Field['aggregateFunction'] extends AggregateFunctions
   ? {
       // An aggregate function will always override the column name id.sum() will become sum
@@ -195,7 +194,7 @@ export type ProcessSimpleField<
 export type ProcessEmbeddedResource<
   Schema extends GenericSchema,
   Relationships extends GenericRelationship[],
-  Field extends FieldNode,
+  Field extends Ast.FieldNode,
   CurrentTableOrView extends keyof TablesAndViews<Schema>
 > = ResolveRelationship<Schema, Relationships, Field, CurrentTableOrView> extends infer Resolved
   ? Resolved extends {
@@ -221,7 +220,7 @@ type ProcessEmbeddedResourceResult<
     relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' }
     direction: string
   },
-  Field extends FieldNode,
+  Field extends Ast.FieldNode,
   CurrentTableOrView extends keyof TablesAndViews<Schema>
 > = ProcessNodes<
   Schema,
@@ -230,7 +229,7 @@ type ProcessEmbeddedResourceResult<
   Resolved['referencedTable']['Relationships'],
   Field['children'] extends undefined
     ? []
-    : Exclude<Field['children'], undefined> extends Node[]
+    : Exclude<Field['children'], undefined> extends Ast.Node[]
     ? Exclude<Field['children'], undefined>
     : []
 > extends infer ProcessedChildren
@@ -284,7 +283,7 @@ export type ProcessSpreadNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  Spread extends SpreadNode
+  Spread extends Ast.SpreadNode
 > = ProcessNode<Schema, Row, RelationName, Relationships, Spread['target']> extends infer Result
   ? Result extends SelectQueryError<infer E>
     ? SelectQueryError<E>
