@@ -8,28 +8,28 @@ import { selectParams } from '../relationships'
 // Basic select with multiple fields
 {
   expectAssignable<ParseQuery<'username, email, created_at'>>([
-    { type: 'Field', name: 'username' },
-    { type: 'Field', name: 'email' },
-    { type: 'Field', name: 'created_at' },
+    { type: 'field', name: 'username' },
+    { type: 'field', name: 'email' },
+    { type: 'field', name: 'created_at' },
   ])
 }
 
 // Select with star
 {
-  expectAssignable<ParseQuery<'*'>>([{ type: 'Star' }])
+  expectAssignable<ParseQuery<'*'>>([{ type: 'star' }])
 }
 
 {
   expectAssignable<ParseQuery<'username, *'>>([
-    { type: 'Field', name: 'username' },
-    { type: 'Star' },
+    { type: 'field', name: 'username' },
+    { type: 'star' },
   ])
 }
 
 // Select with renamed field
 {
   expectAssignable<ParseQuery<'display_name:username'>>([
-    { type: 'Field', name: 'username', alias: 'display_name' },
+    { type: 'field', name: 'username', alias: 'display_name' },
   ])
 }
 
@@ -37,12 +37,12 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'posts(id, title, content)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'title' },
-        { type: 'Field', name: 'content' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'title' },
+        { type: 'field', name: 'content' },
       ],
     },
   ])
@@ -52,17 +52,17 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'posts(id, title, author(name, email))'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'title' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'title' },
         {
-          type: 'Field',
+          type: 'field',
           name: 'author',
           children: [
-            { type: 'Field', name: 'name' },
-            { type: 'Field', name: 'email' },
+            { type: 'field', name: 'name' },
+            { type: 'field', name: 'email' },
           ],
         },
       ],
@@ -74,9 +74,9 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'posts(count)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'count', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'count', aggregateFunction: 'count' }],
     },
   ])
 }
@@ -84,14 +84,14 @@ import { selectParams } from '../relationships'
 // Select with JSON accessor
 {
   expectAssignable<ParseQuery<'data->preferences->theme'>>([
-    { type: 'Field', name: 'data', alias: 'theme', castType: 'json' },
+    { type: 'field', name: 'data', alias: 'theme', castType: 'json' },
   ])
 }
 
 // Select with JSON accessor and text conversion
 {
   expectAssignable<ParseQuery<'data->preferences->>theme'>>([
-    { type: 'Field', name: 'data', alias: 'theme', castType: 'text' },
+    { type: 'field', name: 'data', alias: 'theme', castType: 'text' },
   ])
 }
 
@@ -99,17 +99,17 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'username, ...posts(id, title)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'username',
     },
     {
-      type: 'Spread',
+      type: 'spread',
       target: {
-        type: 'Field',
+        type: 'field',
         name: 'posts',
         children: [
-          { type: 'Field', name: 'id' },
-          { type: 'Field', name: 'title' },
+          { type: 'field', name: 'id' },
+          { type: 'field', name: 'title' },
         ],
       },
     },
@@ -118,13 +118,13 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'...users (first_name, last_name)'>>([
     {
-      type: 'Spread',
+      type: 'spread',
       target: {
-        type: 'Field',
+        type: 'field',
         name: 'users',
         children: [
-          { type: 'Field', name: 'first_name' },
-          { type: 'Field', name: 'last_name' },
+          { type: 'field', name: 'first_name' },
+          { type: 'field', name: 'last_name' },
         ],
       },
     },
@@ -135,11 +135,11 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'posts!inner(id, title)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'title' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'title' },
       ],
       inner: true,
     },
@@ -150,11 +150,11 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'posts!left(id, title)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'title' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'title' },
       ],
       left: true,
     },
@@ -165,13 +165,13 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'author:users!user_id(id, name)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'users',
       alias: 'author',
       hint: 'user_id',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'name' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'name' },
       ],
     },
   ])
@@ -182,26 +182,26 @@ import { selectParams } from '../relationships'
   expectAssignable<
     ParseQuery<'id, username, posts!left(id, title, comments(id, content)), profile->settings->>theme::text'>
   >([
-    { type: 'Field', name: 'id' },
-    { type: 'Field', name: 'username' },
+    { type: 'field', name: 'id' },
+    { type: 'field', name: 'username' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'title' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'title' },
         {
-          type: 'Field',
+          type: 'field',
           name: 'comments',
           children: [
-            { type: 'Field', name: 'id' },
-            { type: 'Field', name: 'content' },
+            { type: 'field', name: 'id' },
+            { type: 'field', name: 'content' },
           ],
         },
       ],
       left: true,
     },
-    { type: 'Field', name: 'profile', alias: 'theme', castType: 'text' },
+    { type: 'field', name: 'profile', alias: 'theme', castType: 'text' },
   ])
 }
 {
@@ -210,61 +210,61 @@ import { selectParams } from '../relationships'
   type isCount = aggFunction extends 'count' ? true : false
   expectAssignable<isCount>(true)
   expectAssignable<ParseQuery<'id, posts(count), comments(sum:id.sum())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'count', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'count', aggregateFunction: 'count' }],
     },
     {
-      type: 'Field',
+      type: 'field',
       name: 'comments',
-      children: [{ type: 'Field', alias: 'sum', name: 'id', aggregateFunction: 'sum' }],
+      children: [{ type: 'field', alias: 'sum', name: 'id', aggregateFunction: 'sum' }],
     },
   ])
 }
 {
   expectAssignable<ParseQuery<'id, posts(count), comments(id.sum())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'count', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'count', aggregateFunction: 'count' }],
     },
     {
-      type: 'Field',
+      type: 'field',
       name: 'comments',
-      children: [{ type: 'Field', name: 'id', aggregateFunction: 'sum' }],
+      children: [{ type: 'field', name: 'id', aggregateFunction: 'sum' }],
     },
   ])
 }
 {
   expectAssignable<ParseQuery<'id, posts(id.count())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'id', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'id', aggregateFunction: 'count' }],
     },
   ])
 }
 {
   expectAssignable<ParseQuery<'id, posts(aliased:id.count())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'id', alias: 'aliased', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'id', alias: 'aliased', aggregateFunction: 'count' }],
     },
   ])
 }
 {
   expectAssignable<ParseQuery<'id, posts(count())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
-      children: [{ type: 'Field', name: 'count', aggregateFunction: 'count' }],
+      children: [{ type: 'field', name: 'count', aggregateFunction: 'count' }],
     },
   ])
 }
@@ -274,12 +274,12 @@ import { selectParams } from '../relationships'
   type isCount = aggFunction extends 'count' ? true : false
   expectAssignable<isCount>(true)
   expectAssignable<ParseQuery<'id, posts(renamed_count:count())'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', alias: 'renamed_count', name: 'count', aggregateFunction: 'count' },
+        { type: 'field', alias: 'renamed_count', name: 'count', aggregateFunction: 'count' },
       ],
     },
   ])
@@ -290,17 +290,17 @@ import { selectParams } from '../relationships'
   type isCount = aggFunction extends 'count' ? true : false
   expectAssignable<isCount>(true)
   expectAssignable<ParseQuery<'username, messages(channels(channel_count:count()))'>>([
-    { type: 'Field', name: 'username' },
+    { type: 'field', name: 'username' },
     {
-      type: 'Field',
+      type: 'field',
       name: 'messages',
       children: [
         {
-          type: 'Field',
+          type: 'field',
           name: 'channels',
           children: [
             {
-              type: 'Field',
+              type: 'field',
               alias: 'channel_count',
               name: 'count',
               aggregateFunction: 'count',
@@ -315,46 +315,46 @@ import { selectParams } from '../relationships'
 // should be a field like any other
 {
   expectAssignable<ParseQuery<'posts(sum)'>>([
-    { type: 'Field', name: 'posts', children: [{ type: 'Field', name: 'sum' }] },
+    { type: 'field', name: 'posts', children: [{ type: 'field', name: 'sum' }] },
   ])
 }
 // Should be considered embeded with parenthesis
 {
   expectAssignable<ParseQuery<'posts(sum())'>>([
-    { type: 'Field', name: 'posts', children: [{ type: 'Field', name: 'sum', children: [] }] },
+    { type: 'field', name: 'posts', children: [{ type: 'field', name: 'sum', children: [] }] },
   ])
 }
 
 // Select with nested JSON accessors
 {
   expectAssignable<ParseQuery<'data->preferences->theme->color'>>([
-    { type: 'Field', name: 'data', alias: 'color', castType: 'json' },
+    { type: 'field', name: 'data', alias: 'color', castType: 'json' },
   ])
 }
 
 // Select with multiple spreads
 {
   expectAssignable<ParseQuery<'id, ...profile(name, email), ...settings(theme, language)'>>([
-    { type: 'Field', name: 'id' },
+    { type: 'field', name: 'id' },
     {
-      type: 'Spread',
+      type: 'spread',
       target: {
-        type: 'Field',
+        type: 'field',
         name: 'profile',
         children: [
-          { type: 'Field', name: 'name' },
-          { type: 'Field', name: 'email' },
+          { type: 'field', name: 'name' },
+          { type: 'field', name: 'email' },
         ],
       },
     },
     {
-      type: 'Spread',
+      type: 'spread',
       target: {
-        type: 'Field',
+        type: 'field',
         name: 'settings',
         children: [
-          { type: 'Field', name: 'theme' },
-          { type: 'Field', name: 'language' },
+          { type: 'field', name: 'theme' },
+          { type: 'field', name: 'language' },
         ],
       },
     },
@@ -365,22 +365,22 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'author:users!user_id(id, name), posts!post_id(title, content)'>>([
     {
-      type: 'Field',
+      type: 'field',
       alias: 'author',
       name: 'users',
       hint: 'user_id',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'name' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'name' },
       ],
     },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       hint: 'post_id',
       children: [
-        { type: 'Field', name: 'title' },
-        { type: 'Field', name: 'content' },
+        { type: 'field', name: 'title' },
+        { type: 'field', name: 'content' },
       ],
     },
   ])
@@ -390,20 +390,20 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'users!inner(id, name), posts!left(title, content)'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'users',
       children: [
-        { type: 'Field', name: 'id' },
-        { type: 'Field', name: 'name' },
+        { type: 'field', name: 'id' },
+        { type: 'field', name: 'name' },
       ],
       inner: true,
     },
     {
-      type: 'Field',
+      type: 'field',
       name: 'posts',
       children: [
-        { type: 'Field', name: 'title' },
-        { type: 'Field', name: 'content' },
+        { type: 'field', name: 'title' },
+        { type: 'field', name: 'content' },
       ],
       left: true,
     },
@@ -413,12 +413,12 @@ import { selectParams } from '../relationships'
 // Select with quoted identifiers
 {
   expectAssignable<ParseQuery<'"user name":"complex name", "post-title":posts("content-body")'>>([
-    { type: 'Field', name: 'complex name', alias: 'user name' },
+    { type: 'field', name: 'complex name', alias: 'user name' },
     {
-      type: 'Field',
+      type: 'field',
       alias: 'post-title',
       name: 'posts',
-      children: [{ type: 'Field', name: 'content-body' }],
+      children: [{ type: 'field', name: 'content-body' }],
     },
   ])
 }
@@ -427,17 +427,17 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'users(id, posts(count::int, avg_likes:likes.avg()::float))'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'users',
       children: [
-        { type: 'Field', name: 'id' },
+        { type: 'field', name: 'id' },
         {
-          type: 'Field',
+          type: 'field',
           name: 'posts',
           children: [
-            { type: 'Field', name: 'count', castType: 'int', aggregateFunction: 'count' },
+            { type: 'field', name: 'count', castType: 'int', aggregateFunction: 'count' },
             {
-              type: 'Field',
+              type: 'field',
               alias: 'avg_likes',
               name: 'likes',
               castType: 'float',
@@ -454,7 +454,7 @@ import { selectParams } from '../relationships'
 {
   expectAssignable<ParseQuery<'id::invalid_type'>>([
     {
-      type: 'Field',
+      type: 'field',
       name: 'id',
       castType: 'invalid_type',
     },
@@ -464,34 +464,34 @@ import { selectParams } from '../relationships'
 // Select with multiple type castings
 {
   expectAssignable<ParseQuery<'id::text, created_at::date, data->age::int'>>([
-    { type: 'Field', name: 'id', castType: 'text' },
-    { type: 'Field', name: 'created_at', castType: 'date' },
-    { type: 'Field', name: 'data', alias: 'age', castType: 'int' },
+    { type: 'field', name: 'id', castType: 'text' },
+    { type: 'field', name: 'created_at', castType: 'date' },
+    { type: 'field', name: 'data', alias: 'age', castType: 'int' },
   ])
 }
 
 // Select with type casting
 {
   expectAssignable<ParseQuery<'id::text, created_at::date, other::int'>>([
-    { type: 'Field', name: 'id', castType: 'text' },
-    { type: 'Field', name: 'created_at', castType: 'date' },
-    { type: 'Field', name: 'other', castType: 'int' },
+    { type: 'field', name: 'id', castType: 'text' },
+    { type: 'field', name: 'created_at', castType: 'date' },
+    { type: 'field', name: 'other', castType: 'int' },
   ])
 }
 
 // select JSON accessor
 {
   expect<ParseQuery<typeof selectParams.selectJsonAccessor.select>>([
-    { type: 'Field', name: 'data', alias: 'bar', castType: 'json' },
-    { type: 'Field', name: 'data', alias: 'baz', castType: 'text' },
+    { type: 'field', name: 'data', alias: 'bar', castType: 'json' },
+    { type: 'field', name: 'data', alias: 'baz', castType: 'text' },
   ])
 }
 
 // embed resource with no fields
 {
   expect<ParseQuery<typeof selectParams.selectEmbedRessourceWithNoFields.select>>([
-    { type: 'Field', name: 'message' },
-    { type: 'Field', name: 'users', children: [] },
+    { type: 'field', name: 'message' },
+    { type: 'field', name: 'users', children: [] },
   ])
 }
 

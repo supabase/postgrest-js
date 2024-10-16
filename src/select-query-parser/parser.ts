@@ -32,9 +32,9 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input> extends [
   infer Name extends string,
   `${infer Remainder}`
 ]
-  ? [{ type: 'Identifier'; name: Name }, `${Remainder}`]
+  ? [{ type: 'identifier'; name: Name }, `${Remainder}`]
   : ReadQuotedLetters<Input> extends [infer Name extends string, `${infer Remainder}`]
-  ? [{ type: 'Identifier'; name: Name }, `${Remainder}`]
+  ? [{ type: 'identifier'; name: Name }, `${Remainder}`]
   : ParserError<`No (possibly double-quoted) identifier at \`${Input}\``>
 
 /**
@@ -58,7 +58,7 @@ type ParseField<Input extends string> = Input extends ''
       ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: IdNode['name']
             inner: true
             children: Children
@@ -76,7 +76,7 @@ type ParseField<Input extends string> = Input extends ''
       ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: IdNode['name']
             left: true
             children: Children
@@ -99,7 +99,7 @@ type ParseField<Input extends string> = Input extends ''
           ]
           ? [
               Ast.FieldNode & {
-                type: 'Field'
+                type: 'field'
                 name: IdNode['name']
                 hint: HintIdNode['name']
                 inner: true
@@ -117,7 +117,7 @@ type ParseField<Input extends string> = Input extends ''
           ]
         ? [
             Ast.FieldNode & {
-              type: 'Field'
+              type: 'field'
               name: IdNode['name']
               hint: HintIdNode['name']
               children: Children
@@ -135,7 +135,7 @@ type ParseField<Input extends string> = Input extends ''
       ]
     ? [
         Ast.FieldNode & {
-          type: 'Field'
+          type: 'field'
           name: IdNode['name']
           children: Children
         },
@@ -175,7 +175,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
       ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: AggregateFunction
             aggregateFunction: AggregateFunction
           },
@@ -191,7 +191,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
         ]
         ? [
             Ast.FieldNode & {
-              type: 'Field'
+              type: 'field'
               name: Field['name']
               alias?: Field['alias']
               hint?: Field['hint']
@@ -207,7 +207,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
         ? ParserError<E>
         : [
             Ast.FieldNode & {
-              type: 'Field'
+              type: 'field'
               name: Field['name']
               alias?: Field['alias']
               hint?: Field['hint']
@@ -245,7 +245,7 @@ type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
       ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: Field['name']
             alias?: Field['alias']
             hint?: Field['hint']
@@ -279,7 +279,7 @@ type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
       ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: IdNode['name']
             alias: JsonFieldName
             castType: JsonFieldType
@@ -288,7 +288,7 @@ type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
         ]
       : [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: IdNode['name']
           },
           EatWhitespace<Remainder>
@@ -357,7 +357,7 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
   : Input extends `*${infer Remainder}`
   ? [
       Ast.StarNode & {
-        type: 'Star'
+        type: 'star'
       },
       EatWhitespace<Remainder>
     ]
@@ -368,7 +368,7 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
     ]
     ? [
         Ast.SpreadNode & {
-          type: 'Spread'
+          type: 'spread'
           target: TargetField
         },
         EatWhitespace<Remainder>
@@ -391,7 +391,7 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
       ]
       ? [
           {
-            type: 'Field'
+            type: 'field'
             name: AggregateFunction
             alias: AliasIdNode['name']
             aggregateFunction: AggregateFunction
@@ -404,7 +404,7 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
         ]
       ? [
           Ast.FieldNode & {
-            type: 'Field'
+            type: 'field'
             name: Field['name']
             alias: AliasIdNode['name']
             hint?: Field['hint']
@@ -425,7 +425,7 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
       ]
     ? [
         {
-          type: 'Field'
+          type: 'field'
           name: AggregateFunction
           aggregateFunction: AggregateFunction
         },
@@ -606,12 +606,12 @@ type EatWhitespace<Input extends string> = string extends Input
 
 export namespace Ast {
   export interface IdentifierNode {
-    type: 'Identifier'
+    type: 'identifier'
     name: string
   }
 
   export interface FieldNode {
-    type: 'Field'
+    type: 'field'
     name: string
     alias?: string
     hint?: unknown
@@ -623,11 +623,11 @@ export namespace Ast {
   }
 
   export interface StarNode {
-    type: 'Star'
+    type: 'star'
   }
 
   export interface SpreadNode {
-    type: 'Spread'
+    type: 'spread'
     target: FieldNode
   }
 
