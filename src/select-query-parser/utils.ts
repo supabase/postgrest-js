@@ -12,8 +12,6 @@ import {
 
 export type SelectQueryError<Message extends string> = { error: true } & Message
 
-export type ProcessedNodeResult = Record<string, unknown> | SelectQueryError<string>
-
 type RequireHintingSelectQueryError<
   DistantName extends string,
   RelationName extends string
@@ -37,7 +35,7 @@ type FilterRelationNodes<Nodes extends Ast.Node[]> = UnionToArray<
   }[number]
 >
 
-export type ResolveRelationships<
+type ResolveRelationships<
   Schema extends GenericSchema,
   RelationName extends string,
   Relationships extends GenericRelationship[],
@@ -269,7 +267,7 @@ export type FindMatchingTableRelationships<
     : false
   : false
 
-export type FindMatchingViewRelationships<
+type FindMatchingViewRelationships<
   Schema extends GenericSchema,
   Relationships extends GenericRelationship[],
   value extends string
