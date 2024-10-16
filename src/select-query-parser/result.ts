@@ -1,6 +1,6 @@
 import { GenericTable } from '../types'
 import { ContainsNull, GenericRelationship, PostgreSQLTypes } from './types'
-import { ParseQuery, Ast } from './parser/parser'
+import { ParseQuery, Ast } from './parser'
 import {
   AggregateFunctions,
   ExtractFirstProperty,

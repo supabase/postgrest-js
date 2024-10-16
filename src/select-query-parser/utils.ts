@@ -1,4 +1,4 @@
-import { Ast } from './parser/parser'
+import { Ast } from './parser'
 import {
   AggregateFunctions,
   ContainsNull,

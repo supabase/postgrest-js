@@ -12,7 +12,7 @@ import {
   IsRelationNullable,
 } from '../../src/select-query-parser/utils'
 import { Json } from '../../src/select-query-parser/types'
-import { ParseQuery } from '../../src/select-query-parser/parser/parser'
+import { ParseQuery } from '../../src/select-query-parser/parser'
 
 // This test file is here to ensure some of our helpers behave as expected for ease of development
 // and debugging purposes
@@ -124,11 +124,8 @@ import { ParseQuery } from '../../src/select-query-parser/parser/parser'
   type Row = Schema['Tables'][RelationName]['Row']
   type Relationships = Schema['Tables'][RelationName]['Relationships']
   type ParsedQuery = ParseQuery<typeof select>
-  // First field of the query is username and is properly parsed
-  type f1 = ParsedQuery[0]
   type r1 = ProcessNode<Schema, Row, RelationName, Relationships, ParsedQuery[0]>
   expectType<TypeEqual<r1, { username: string }>>(true)
-  type f2 = ParsedQuery[1]
   type r2 = ProcessNodes<Schema, Row, RelationName, Relationships, ParsedQuery>
   // fail because result for messages is ({id: string} | {message: string | null })[]
   expectType<

@@ -1,5 +1,5 @@
 import { expectAssignable } from 'tsd'
-import type { ParseQuery, ParserError } from '../../src/select-query-parser/parser/parser'
+import type { ParseQuery, ParserError } from '../../src/select-query-parser/parser'
 import { selectParams } from '../relationships'
 
 // This test file is here to ensure some of our perser behave as expected
