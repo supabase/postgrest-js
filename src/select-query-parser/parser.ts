@@ -506,40 +506,6 @@ type ParseNodesHelper<
 // Some utils type for the ParseQuery parser logic
 // Count is a special case where an aggregate function won't need a column to be run against
 // see: https://postgrest.org/en/v12/references/api/aggregate_functions.html#the-case-of-count
-type LowerAlphabet =
-  | 'a'
-  | 'b'
-  | 'c'
-  | 'd'
-  | 'e'
-  | 'f'
-  | 'g'
-  | 'h'
-  | 'i'
-  | 'j'
-  | 'k'
-  | 'l'
-  | 'm'
-  | 'n'
-  | 'o'
-  | 'p'
-  | 'q'
-  | 'r'
-  | 's'
-  | 't'
-  | 'u'
-  | 'v'
-  | 'w'
-  | 'x'
-  | 'y'
-  | 'z'
-
-type Alphabet = LowerAlphabet | Uppercase<LowerAlphabet>
-
-type Digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0'
-
-type Letter = Alphabet | Digit | '_'
-
 /**
  * Reads a consecutive sequence of 1 or more letters, where letters are `[0-9a-zA-Z_]`.
  */
@@ -554,7 +520,7 @@ type ReadLetters<Input extends string> = string extends Input
 type ReadLettersHelper<Input extends string, Acc extends string> = string extends Input
   ? GenericStringError
   : Input extends `${infer L}${infer Remainder}`
-  ? L extends Letter
+  ? L extends Token.Letter
     ? ReadLettersHelper<Remainder, `${Acc}${L}`>
     : [Acc, Input]
   : [Acc, '']
@@ -588,16 +554,51 @@ type CreateParserErrorIfRequired<Input, Message extends string> = Input extends 
   ? Input
   : ParserError<Message>
 
-type Whitespace = ' ' | '\n' | '\t'
-
 /**
  * Trims whitespace from the left of the input.
  */
 type EatWhitespace<Input extends string> = string extends Input
   ? GenericStringError
-  : Input extends `${Whitespace}${infer Remainder}`
+  : Input extends `${Token.Whitespace}${infer Remainder}`
   ? EatWhitespace<Remainder>
   : Input
+
+namespace Token {
+  type LowerAlphabet =
+    | 'a'
+    | 'b'
+    | 'c'
+    | 'd'
+    | 'e'
+    | 'f'
+    | 'g'
+    | 'h'
+    | 'i'
+    | 'j'
+    | 'k'
+    | 'l'
+    | 'm'
+    | 'n'
+    | 'o'
+    | 'p'
+    | 'q'
+    | 'r'
+    | 's'
+    | 't'
+    | 'u'
+    | 'v'
+    | 'w'
+    | 'x'
+    | 'y'
+    | 'z'
+
+  type Alphabet = LowerAlphabet | Uppercase<LowerAlphabet>
+
+  type Digit = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0'
+
+  export type Letter = Alphabet | Digit | '_'
+  export type Whitespace = ' ' | '\n' | '\t'
+}
 
 export namespace Ast {
   export interface IdentifierNode {
