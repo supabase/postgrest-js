@@ -78,7 +78,6 @@ type ParseField<Input extends string> = Input extends ''
           Ast.FieldNode & {
             type: 'field'
             name: IdNode['name']
-            left: true
             children: Children
           },
           EatWhitespace<Remainder>
@@ -196,7 +195,6 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
               alias?: Field['alias']
               hint?: Field['hint']
               inner?: Field['inner']
-              left?: Field['left']
               children?: Field['children']
               aggregateFunction: AggregateFunction
               castType: CastType
@@ -212,7 +210,6 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
               alias?: Field['alias']
               hint?: Field['hint']
               inner?: Field['inner']
-              left?: Field['left']
               children?: Field['children']
               aggregateFunction: AggregateFunction
             },
@@ -250,7 +247,6 @@ type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
             alias?: Field['alias']
             hint?: Field['hint']
             inner?: Field['inner']
-            left?: Field['left']
             children?: Field['children']
             castType: CastType
           },
@@ -409,7 +405,6 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
             alias: AliasIdNode['name']
             hint?: Field['hint']
             inner?: Field['inner']
-            left?: Field['left']
             children?: Field['children']
             castType?: Field['castType']
             aggregateFunction?: Field['aggregateFunction']
@@ -616,7 +611,6 @@ export namespace Ast {
     alias?: string
     hint?: unknown
     inner?: boolean
-    left?: boolean
     children?: unknown
     aggregateFunction?: AggregateFunctions
     castType?: PostgreSQLTypes

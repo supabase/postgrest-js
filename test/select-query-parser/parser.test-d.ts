@@ -156,7 +156,6 @@ import { selectParams } from '../relationships'
         { type: 'field', name: 'id' },
         { type: 'field', name: 'title' },
       ],
-      left: true,
     },
   ])
 }
@@ -199,7 +198,6 @@ import { selectParams } from '../relationships'
           ],
         },
       ],
-      left: true,
     },
     { type: 'field', name: 'profile', alias: 'theme', castType: 'text' },
   ])
@@ -405,7 +403,6 @@ import { selectParams } from '../relationships'
         { type: 'field', name: 'title' },
         { type: 'field', name: 'content' },
       ],
-      left: true,
     },
   ])
 }
