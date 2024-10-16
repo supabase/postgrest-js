@@ -35,7 +35,7 @@ export type GetResult<
   Relationships,
   Query extends string
 > = Relationships extends null // For .rpc calls the passed relationships will be null in that case, the result will always be the function return type
-  ? ParseQuery<Query> extends infer ParsedQuery extends Ast.Node[]
+  ? ParseQuery<Query> extends infer ParsedQuery extends Node[]
     ? RPCCallNodes<ParsedQuery, RelationName extends string ? RelationName : 'rpc_call', Row>
     : Row
   : ParseQuery<Query> extends infer ParsedQuery
@@ -58,21 +58,21 @@ export type GetResult<
 export type ProcessRPCNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
-  NodeType extends Ast.Node
-> = NodeType extends Ast.StarNode // If the selection is *
+  NodeType extends Node
+> = NodeType extends StarNode // If the selection is *
   ? Row
-  : NodeType extends Ast.FieldNode
+  : NodeType extends FieldNode
   ? ProcessSimpleField<Row, RelationName, NodeType>
   : SelectQueryError<'Unsupported node type.'>
 /**
  * Process select call that can be chained after an rpc call
  */
 export type RPCCallNodes<
-  Nodes extends Ast.Node[],
+  Nodes extends Node[],
   RelationName extends string,
   Row extends Record<string, unknown>,
   Acc extends Record<string, unknown> = {} // Acc is now an object
-> = Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
+> = Nodes extends [infer FirstNode extends Node, ...infer RestNodes extends Node[]]
   ? ProcessRPCNode<Row, RelationName, FirstNode> extends infer FieldResult
     ? FieldResult extends Record<string, unknown>
       ? RPCCallNodes<RestNodes, RelationName, Row, Acc & FieldResult>
