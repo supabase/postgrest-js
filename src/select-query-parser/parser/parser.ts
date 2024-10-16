@@ -1,7 +1,6 @@
 // Credits to @bnjmnt4n (https://www.npmjs.com/package/postgrest-query)
 // See https://github.com/PostgREST/postgrest/blob/2f91853cb1de18944a4556df09e52450b881cfb3/src/PostgREST/ApiRequest/QueryParams.hs#L282-L284
 
-import type { FieldNode, IdentifierNode, Node, SpreadNode, StarNode } from './ast'
 import type { AggregateFunctions, AggregateWithoutColumnFunctions, PostgreSQLTypes } from '../types'
 
 /**
@@ -13,7 +12,7 @@ import type { AggregateFunctions, AggregateWithoutColumnFunctions, PostgreSQLTyp
  */
 export type ParseQuery<Query extends string> = string extends Query
   ? GenericStringError
-  : ParseNodes<EatWhitespace<Query>> extends [infer Nodes extends Node[], `${infer Remainder}`]
+  : ParseNodes<EatWhitespace<Query>> extends [infer Nodes extends Ast.Node[], `${infer Remainder}`]
   ? EatWhitespace<Remainder> extends ''
     ? Nodes
     : ParserError<`Unexpected input: ${Remainder}`>
@@ -51,14 +50,14 @@ type ParseIdentifier<Input extends string> = ReadLetters<Input> extends [
  */
 type ParseField<Input extends string> = Input extends ''
   ? ParserError<'Empty string'>
-  : ParseIdentifier<Input> extends [infer IdNode extends IdentifierNode, `${infer Remainder}`]
+  : ParseIdentifier<Input> extends [infer IdNode extends Ast.IdentifierNode, `${infer Remainder}`]
   ? EatWhitespace<Remainder> extends `!inner${infer Rest}`
     ? ParseEmbeddedResource<EatWhitespace<Rest>> extends [
-        infer Children extends Node[],
+        infer Children extends Ast.Node[],
         `${infer Remainder}`
       ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: IdNode['name']
             inner: true
@@ -72,11 +71,11 @@ type ParseField<Input extends string> = Input extends ''
         >
     : EatWhitespace<Remainder> extends `!left${infer Rest}`
     ? ParseEmbeddedResource<EatWhitespace<Rest>> extends [
-        infer Children extends Node[],
+        infer Children extends Ast.Node[],
         `${infer Remainder}`
       ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: IdNode['name']
             left: true
@@ -90,16 +89,16 @@ type ParseField<Input extends string> = Input extends ''
         >
     : EatWhitespace<Remainder> extends `!${infer Rest}`
     ? ParseIdentifier<EatWhitespace<Rest>> extends [
-        infer HintIdNode extends IdentifierNode,
+        infer HintIdNode extends Ast.IdentifierNode,
         `${infer Remainder}`
       ]
       ? EatWhitespace<Remainder> extends `!inner${infer InnerRest}`
         ? ParseEmbeddedResource<EatWhitespace<InnerRest>> extends [
-            infer Children extends Node[],
+            infer Children extends Ast.Node[],
             `${infer Remainder}`
           ]
           ? [
-              FieldNode & {
+              Ast.FieldNode & {
                 type: 'Field'
                 name: IdNode['name']
                 hint: HintIdNode['name']
@@ -113,11 +112,11 @@ type ParseField<Input extends string> = Input extends ''
               'Expected embedded resource after `!inner`'
             >
         : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [
-            infer Children extends Node[],
+            infer Children extends Ast.Node[],
             `${infer Remainder}`
           ]
         ? [
-            FieldNode & {
+            Ast.FieldNode & {
               type: 'Field'
               name: IdNode['name']
               hint: HintIdNode['name']
@@ -131,11 +130,11 @@ type ParseField<Input extends string> = Input extends ''
           >
       : ParserError<`Expected identifier after '!' at ${Rest}`>
     : ParseEmbeddedResource<EatWhitespace<Remainder>> extends [
-        infer Children extends Node[],
+        infer Children extends Ast.Node[],
         `${infer Remainder}`
       ]
     ? [
-        FieldNode & {
+        Ast.FieldNode & {
           type: 'Field'
           name: IdNode['name']
           children: Children
@@ -167,7 +166,7 @@ type ParseField<Input extends string> = Input extends ''
  */
 type ParseFieldWithoutEmbeddedResource<Input extends string> =
   ParseFieldWithoutEmbeddedResourceAndAggregation<Input> extends [
-    infer Field extends FieldNode,
+    infer Field extends Ast.FieldNode,
     `${infer Remainder}`
   ]
     ? ParseFieldAggregation<EatWhitespace<Remainder>, false> extends [
@@ -175,7 +174,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
         `${infer Remainder}`
       ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: AggregateFunction
             aggregateFunction: AggregateFunction
@@ -191,7 +190,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
           `${infer Remainder}`
         ]
         ? [
-            FieldNode & {
+            Ast.FieldNode & {
               type: 'Field'
               name: Field['name']
               alias?: Field['alias']
@@ -207,7 +206,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
         : ParseFieldTypeCast<EatWhitespace<Remainder>> extends ParserError<infer E>
         ? ParserError<E>
         : [
-            FieldNode & {
+            Ast.FieldNode & {
               type: 'Field'
               name: Field['name']
               alias?: Field['alias']
@@ -237,7 +236,7 @@ type ParseFieldWithoutEmbeddedResource<Input extends string> =
  */
 type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
   ParseFieldWithoutEmbeddedResourceAndTypeCast<Input> extends [
-    infer Field extends FieldNode,
+    infer Field extends Ast.FieldNode,
     `${infer Remainder}`
   ]
     ? ParseFieldTypeCast<EatWhitespace<Remainder>> extends [
@@ -245,7 +244,7 @@ type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
         `${infer Remainder}`
       ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: Field['name']
             alias?: Field['alias']
@@ -272,14 +271,14 @@ type ParseFieldWithoutEmbeddedResourceAndAggregation<Input extends string> =
  * - `field->json...`
  */
 type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
-  ParseIdentifier<Input> extends [infer IdNode extends IdentifierNode, `${infer Remainder}`]
+  ParseIdentifier<Input> extends [infer IdNode extends Ast.IdentifierNode, `${infer Remainder}`]
     ? ParseJsonAccessor<EatWhitespace<Remainder>> extends [
         infer JsonFieldName extends string,
         infer JsonFieldType,
         `${infer Remainder}`
       ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: IdNode['name']
             alias: JsonFieldName
@@ -288,7 +287,7 @@ type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
           EatWhitespace<Remainder>
         ]
       : [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: IdNode['name']
           },
@@ -302,7 +301,7 @@ type ParseFieldWithoutEmbeddedResourceAndTypeCast<Input extends string> =
  */
 type ParseFieldTypeCast<Input extends string> = EatWhitespace<Input> extends `::${infer Remainder}`
   ? ParseIdentifier<EatWhitespace<Remainder>> extends [
-      infer TypeIdNode extends IdentifierNode,
+      infer TypeIdNode extends Ast.IdentifierNode,
       `${infer Remainder}`
     ]
     ? // Ensure that `CastType` is a valid PostgreSQL type.
@@ -326,7 +325,7 @@ type ParseFieldAggregation<
 > = IsField extends true
   ? EatWhitespace<Input> extends `.${infer Remainder}`
     ? ParseIdentifier<EatWhitespace<Remainder>> extends [
-        infer FuncIdNode extends IdentifierNode,
+        infer FuncIdNode extends Ast.IdentifierNode,
         `${infer Remainder}`
       ]
       ? FuncIdNode['name'] extends AggregateFunctions
@@ -337,7 +336,7 @@ type ParseFieldAggregation<
       : ParserError<`Invalid function for \`.\` operator at \`${Remainder}\``>
     : Input
   : // Check if the function is just count or count()
-  ParseIdentifier<Input> extends [infer FuncIdNode extends IdentifierNode, `${infer Remainder}`]
+  ParseIdentifier<Input> extends [infer FuncIdNode extends Ast.IdentifierNode, `${infer Remainder}`]
   ? FuncIdNode['name'] extends AggregateWithoutColumnFunctions
     ? EatWhitespace<Remainder> extends `()${infer Remainder}`
       ? [FuncIdNode['name'], EatWhitespace<Remainder>]
@@ -357,25 +356,28 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
   ? ParserError<'Empty string'>
   : Input extends `*${infer Remainder}`
   ? [
-      StarNode & {
+      Ast.StarNode & {
         type: 'Star'
       },
       EatWhitespace<Remainder>
     ]
   : Input extends `...${infer Rest}`
   ? ParseField<EatWhitespace<Rest>> extends [
-      infer TargetField extends FieldNode,
+      infer TargetField extends Ast.FieldNode,
       `${infer Remainder}`
     ]
     ? [
-        SpreadNode & {
+        Ast.SpreadNode & {
           type: 'Spread'
           target: TargetField
         },
         EatWhitespace<Remainder>
       ]
     : ParserError<`Unable to parse spread resource at ${NodesInput}`>
-  : ParseIdentifier<Input> extends [infer AliasIdNode extends IdentifierNode, `${infer Remainder}`]
+  : ParseIdentifier<Input> extends [
+      infer AliasIdNode extends Ast.IdentifierNode,
+      `${infer Remainder}`
+    ]
   ? EatWhitespace<Remainder> extends `::${infer _Rest}`
     ? // If we find '::', it's a type cast, so treat it as part of the field
       ParseField<Input>
@@ -397,11 +399,11 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
           EatWhitespace<Remainder>
         ]
       : ParseField<EatWhitespace<Rest>> extends [
-          infer Field extends FieldNode,
+          infer Field extends Ast.FieldNode,
           `${infer Remainder}`
         ]
       ? [
-          FieldNode & {
+          Ast.FieldNode & {
             type: 'Field'
             name: Field['name']
             alias: AliasIdNode['name']
@@ -442,14 +444,14 @@ type ParseNode<Input extends string, NodesInput extends string> = Input extends 
 type ParseJsonAccessor<Input extends string> = EatWhitespace<Input> extends `->${infer Remainder}`
   ? EatWhitespace<Remainder> extends `>${infer Rest}`
     ? ParseIdentifier<EatWhitespace<Rest>> extends [
-        infer NameIdNode extends IdentifierNode,
+        infer NameIdNode extends Ast.IdentifierNode,
         `${infer Remainder}`
       ]
       ? // In the case of a ->> the result will be casted as text by default
         [NameIdNode['name'], 'text', EatWhitespace<Remainder>]
       : ParserError<`Expected property name after '->>'${Rest}`>
     : ParseIdentifier<EatWhitespace<Remainder>> extends [
-        infer NameIdNode extends IdentifierNode,
+        infer NameIdNode extends Ast.IdentifierNode,
         `${infer Remainder}`
       ]
     ? ParseJsonAccessor<Remainder> extends [
@@ -473,7 +475,7 @@ type ParseJsonAccessor<Input extends string> = EatWhitespace<Input> extends `->$
 type ParseEmbeddedResource<Input extends string> =
   EatWhitespace<Input> extends `(${infer Remainder}`
     ? ParseNodes<EatWhitespace<Remainder>> extends [
-        infer Nodes extends Node[],
+        infer Nodes extends Ast.Node[],
         `${infer Remainder}`
       ]
       ? EatWhitespace<Remainder> extends `)${infer Remainder}`
@@ -498,9 +500,9 @@ type ParseNodes<Input extends string> = string extends Input
 
 type ParseNodesHelper<
   Input extends string,
-  Nodes extends Node[],
+  Nodes extends Ast.Node[],
   NodesInput extends string
-> = ParseNode<Input, NodesInput> extends [infer NodeResult extends Node, `${infer Remainder}`]
+> = ParseNode<Input, NodesInput> extends [infer NodeResult extends Ast.Node, `${infer Remainder}`]
   ? EatWhitespace<Remainder> extends `,${infer Rest}`
     ? ParseNodesHelper<EatWhitespace<Rest>, [...Nodes, NodeResult], NodesInput>
     : [[...Nodes, NodeResult], EatWhitespace<Remainder>]
@@ -601,3 +603,33 @@ type EatWhitespace<Input extends string> = string extends Input
   : Input extends `${Whitespace}${infer Remainder}`
   ? EatWhitespace<Remainder>
   : Input
+
+namespace Ast {
+  export interface IdentifierNode {
+    type: 'Identifier'
+    name: string
+  }
+
+  export interface FieldNode {
+    type: 'Field'
+    name: string
+    alias?: string
+    hint?: unknown
+    inner?: boolean
+    left?: boolean
+    children?: unknown
+    aggregateFunction?: AggregateFunctions
+    castType?: PostgreSQLTypes
+  }
+
+  export interface StarNode {
+    type: 'Star'
+  }
+
+  export interface SpreadNode {
+    type: 'Spread'
+    target: FieldNode
+  }
+
+  export type Node = IdentifierNode | FieldNode | StarNode | SpreadNode
+}
