@@ -54,7 +54,7 @@ export type GetResult<
  * @param RelationName - The name of the current rpc function
  * @param NodeType - The Node to process.
  */
-export type ProcessRPCNode<
+type ProcessRPCNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
   NodeType extends Ast.Node
@@ -66,7 +66,7 @@ export type ProcessRPCNode<
 /**
  * Process select call that can be chained after an rpc call
  */
-export type RPCCallNodes<
+type RPCCallNodes<
   Nodes extends Ast.Node[],
   RelationName extends string,
   Row extends Record<string, unknown>,
@@ -142,7 +142,7 @@ export type ProcessNode<
  * @param Relationships - Relationships of the current table.
  * @param Field - The FieldNode to process.
  */
-export type ProcessFieldNode<
+type ProcessFieldNode<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   RelationName extends string,
@@ -161,7 +161,7 @@ export type ProcessFieldNode<
  * @param RelationName - The name of the current table or view.
  * @param Field - The FieldNode to process.
  */
-export type ProcessSimpleField<
+type ProcessSimpleField<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Field extends Ast.FieldNode
@@ -278,7 +278,7 @@ type ProcessEmbeddedResourceResult<
  * @param Relationships - Relationships of the current table.
  * @param Spread - The SpreadNode to process.
  */
-export type ProcessSpreadNode<
+type ProcessSpreadNode<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
   RelationName extends string,
