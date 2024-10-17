@@ -69,6 +69,20 @@ export type Database = {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
             isOneToOne: false
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
+            isOneToOne: false
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
+            isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
           },
@@ -156,6 +170,32 @@ export type Database = {
           slug?: string | null
         }
         Relationships: []
+      }
+      collections: {
+        Row: {
+          description: string | null
+          id: number
+          parent_id: number | null
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          parent_id?: number | null
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          parent_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'collections_parent_id_fkey'
+            columns: ['parent_id']
+            isOneToOne: false
+            referencedRelation: 'collections'
+            referencedColumns: ['id']
+          }
+        ]
       }
       messages: {
         Row: {
@@ -331,6 +371,16 @@ export type Database = {
           name_param: string
         }
         Returns: Database['public']['Enums']['user_status']
+      }
+      get_all_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }[]
       }
       get_username_and_status: {
         Args: {

@@ -2,7 +2,7 @@ import { PostgrestClient } from '../src/index'
 import { Database } from './types'
 
 const REST_URL = 'http://localhost:3000'
-const postgrest = new PostgrestClient<Database>(REST_URL)
+export const postgrest = new PostgrestClient<Database>(REST_URL)
 
 const userColumn: 'catchphrase' | 'username' = 'username'
 
@@ -164,6 +164,18 @@ export const selectParams = {
     from: 'messages',
     select:
       'message, users.count(), casted_message:message::int4, casted_count:users.count()::text',
+  },
+  innerJoinOnManyRelation: {
+    from: 'channels',
+    select: 'id, messages!channel_id!inner(id, username)',
+  },
+  selfReferenceRelation: {
+    from: 'collections',
+    select: '*, collections(*)',
+  },
+  selfReferenceRelationViaColumn: {
+    from: 'collections',
+    select: '*, parent_id(*)',
   },
 } as const
 
@@ -328,6 +340,15 @@ export const selectQueries = {
   typecastingAndAggregate: postgrest
     .from(selectParams.typecastingAndAggregate.from)
     .select(selectParams.typecastingAndAggregate.select),
+  innerJoinOnManyRelation: postgrest
+    .from(selectParams.innerJoinOnManyRelation.from)
+    .select(selectParams.innerJoinOnManyRelation.select),
+  selfReferenceRelation: postgrest
+    .from(selectParams.selfReferenceRelation.from)
+    .select(selectParams.selfReferenceRelation.select),
+  selfReferenceRelationViaColumn: postgrest
+    .from(selectParams.selfReferenceRelationViaColumn.from)
+    .select(selectParams.selfReferenceRelationViaColumn.select),
 } as const
 
 test('nested query with selective fields', async () => {
@@ -1713,4 +1734,75 @@ test('typecasting and aggregate', async () => {
       "statusText": "Bad Request",
     }
 `)
+})
+
+test('inner join on many relation', async () => {
+  const res = await selectQueries.innerJoinOnManyRelation.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": 1,
+        "messages": Array [
+          Object {
+            "id": 1,
+            "username": "supabot",
+          },
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('self reference relation', async () => {
+  const res = await selectQueries.selfReferenceRelation.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "collections": Array [
+          Object {
+            "description": "Child of Root",
+            "id": 2,
+            "parent_id": 1,
+          },
+          Object {
+            "description": "Another Child of Root",
+            "id": 3,
+            "parent_id": 1,
+          },
+        ],
+        "description": "Root Collection",
+        "id": 1,
+        "parent_id": null,
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('self reference relation via column', async () => {
+  const res = await selectQueries.selfReferenceRelationViaColumn.eq('id', 2).limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "description": "Child of Root",
+        "id": 2,
+        "parent_id": Object {
+          "description": "Root Collection",
+          "id": 1,
+          "parent_id": null,
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 })
