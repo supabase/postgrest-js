@@ -84,6 +84,13 @@ RETURNS TABLE(username text, status user_status) AS $$
   SELECT username, status from users WHERE username=name_param;
 $$ LANGUAGE SQL IMMUTABLE;
 
+
+create function get_all_users() returns setof users
+language sql stable
+as $$
+  select * from users;
+$$;
+
 CREATE FUNCTION public.offline_user(name_param text)
 RETURNS user_status AS $$
   UPDATE users SET status = 'OFFLINE' WHERE username=name_param

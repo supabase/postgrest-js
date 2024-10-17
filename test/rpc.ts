@@ -4,7 +4,8 @@ import { Database } from './types'
 const REST_URL = 'http://localhost:3000'
 export const postgrest = new PostgrestClient<Database>(REST_URL)
 
-export const RPC_NAME = 'get_username_and_status'
+export const RPC_NAME_SCALAR = 'get_username_and_status'
+export const RPC_SETOF_NAME = 'get_all_users'
 
 export const selectParams = {
   noParams: undefined,
@@ -14,24 +15,32 @@ export const selectParams = {
   fieldAliasing: 'name:username',
   fieldCasting: 'status::text',
   fieldAggregate: 'username.count(), status',
+  selectFieldAndEmbedRelation: 'username, status, profile:user_profiles(id)',
 } as const
 
 export const selectQueries = {
-  noParams: postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select(selectParams.noParams),
-  starSelect: postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select(selectParams.starSelect),
-  fieldSelect: postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select(selectParams.fieldSelect),
+  noParams: postgrest.rpc(RPC_NAME_SCALAR, { name_param: 'supabot' }).select(selectParams.noParams),
+  starSelect: postgrest
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
+    .select(selectParams.starSelect),
+  fieldSelect: postgrest
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
+    .select(selectParams.fieldSelect),
   fieldsSelect: postgrest
-    .rpc(RPC_NAME, { name_param: 'supabot' })
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
     .select(selectParams.fieldsSelect),
   fieldAliasing: postgrest
-    .rpc(RPC_NAME, { name_param: 'supabot' })
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
     .select(selectParams.fieldAliasing),
   fieldCasting: postgrest
-    .rpc(RPC_NAME, { name_param: 'supabot' })
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
     .select(selectParams.fieldCasting),
   fieldAggregate: postgrest
-    .rpc(RPC_NAME, { name_param: 'supabot' })
+    .rpc(RPC_NAME_SCALAR, { name_param: 'supabot' })
     .select(selectParams.fieldAggregate),
+  selectFieldAndEmbedRelation: postgrest
+    .rpc(RPC_SETOF_NAME, {})
+    .select(selectParams.selectFieldAndEmbedRelation),
 } as const
 
 test('RPC call with no params', async () => {
@@ -148,6 +157,49 @@ test('RPC call with field aggregate', async () => {
         Object {
           "count": 1,
           "status": "ONLINE",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('RPC call with select field and embed relation', async () => {
+  const res = await selectQueries.selectFieldAndEmbedRelation
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "profile": Array [
+            Object {
+              "id": 1,
+            },
+          ],
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        Object {
+          "profile": Array [],
+          "status": "OFFLINE",
+          "username": "kiwicopple",
+        },
+        Object {
+          "profile": Array [],
+          "status": "ONLINE",
+          "username": "awailas",
+        },
+        Object {
+          "profile": Array [],
+          "status": "ONLINE",
+          "username": "jsonuser",
+        },
+        Object {
+          "profile": Array [],
+          "status": "ONLINE",
+          "username": "dragarcia",
         },
       ],
       "error": null,

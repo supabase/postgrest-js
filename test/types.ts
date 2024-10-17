@@ -372,6 +372,16 @@ export type Database = {
         }
         Returns: Database['public']['Enums']['user_status']
       }
+      get_all_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }[]
+      }
       get_username_and_status: {
         Args: {
           name_param: string
