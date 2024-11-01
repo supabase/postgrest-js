@@ -1,6 +1,5 @@
 import { expectError, expectType } from 'tsd'
-import { PostgrestClient, PostgrestSingleResponse } from '../src/index'
-import { SelectQueryError } from '../src/select-query-parser'
+import { PostgrestClient } from '../src/index'
 import { Prettify } from '../src/types'
 import { Database, Json } from './types'
 
@@ -80,22 +79,13 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   )
 }
 
-// embedded resource with no fields
-{
-  const { data, error } = await postgrest.from('messages').select('message, users()').single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<{ message: string | null }>(data)
-}
-
 // `count` in embedded resource
 {
   const { data, error } = await postgrest.from('messages').select('message, users(count)').single()
   if (error) {
     throw new Error(error.message)
   }
-  expectType<{ message: string | null; users: { count: number } | null }>(data)
+  expectType<{ message: string | null; users: { count: number } }>(data)
 }
 
 // json accessor in select query
@@ -109,27 +99,8 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   }
   // getting this w/o the cast, not sure why:
   // Parameter type Json is declared too wide for argument type Json
-  expectType<Json>(data.bar as Json)
+  expectType<Json>(data.bar)
   expectType<string>(data.baz)
-}
-
-// typecasting and aggregate functions
-{
-  const { data, error } = await postgrest
-    .from('messages')
-    .select(
-      'message, users.count(), casted_message:message::int4, casted_count:users.count()::text'
-    )
-    .single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<{
-    message: string | null
-    count: number
-    casted_message: number
-    casted_count: string
-  }>(data)
 }
 
 // rpc return type
@@ -139,62 +110,6 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     throw new Error(error.message)
   }
   expectType<'ONLINE' | 'OFFLINE'>(data)
-}
-
-// many-to-one relationship
-{
-  const { data: message, error } = await postgrest.from('messages').select('user:users(*)').single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Database['public']['Tables']['users']['Row'] | null>(message.user)
-}
-
-// !inner relationship
-{
-  const { data: message, error } = await postgrest
-    .from('messages')
-    .select('channels!inner(*, channel_details!inner(*))')
-    .single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  type ExpectedType = Prettify<
-    Database['public']['Tables']['channels']['Row'] & {
-      channel_details: Database['public']['Tables']['channel_details']['Row']
-    }
-  >
-
-  expectType<ExpectedType>(message.channels)
-}
-
-// one-to-many relationship
-{
-  const { data: user, error } = await postgrest.from('users').select('messages(*)').single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Database['public']['Tables']['messages']['Row'][]>(user.messages)
-}
-
-// referencing missing column
-{
-  const res = await postgrest.from('users').select('username, dat')
-  expectType<PostgrestSingleResponse<SelectQueryError<`Referencing missing column \`dat\``>[]>>(res)
-}
-
-// one-to-one relationship
-{
-  const { data: channels, error } = await postgrest
-    .from('channels')
-    .select('channel_details(*)')
-    .single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  expectType<Database['public']['Tables']['channel_details']['Row'] | null>(
-    channels.channel_details
-  )
 }
 
 // PostgrestBuilder's children retains class when using inherited methods

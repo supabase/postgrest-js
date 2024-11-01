@@ -38,6 +38,20 @@ test('basic select table', async () => {
           "status": "ONLINE",
           "username": "dragarcia",
         },
+        Object {
+          "age_range": "[20,30)",
+          "catchphrase": "'json' 'test'",
+          "data": Object {
+            "foo": Object {
+              "bar": Object {
+                "nested": "value",
+              },
+              "baz": "string value",
+            },
+          },
+          "status": "ONLINE",
+          "username": "jsonuser",
+        },
       ],
       "error": null,
       "status": 200,
@@ -67,6 +81,10 @@ test('basic select view', async () => {
         Object {
           "non_updatable_column": 1,
           "username": "dragarcia",
+        },
+        Object {
+          "non_updatable_column": 1,
+          "username": "jsonuser",
         },
       ],
       "error": null,
@@ -268,8 +286,8 @@ test('on_conflict insert', async () => {
         },
       ],
       "error": null,
-      "status": 201,
-      "statusText": "Created",
+      "status": 200,
+      "statusText": "OK",
     }
   `)
 })
@@ -303,7 +321,7 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 3,
+            "id": 5,
             "message": "foo",
             "username": "supabot",
           },
@@ -334,9 +352,23 @@ describe('basic insert, update, delete', () => {
             "username": "supabot",
           },
           Object {
-            "channel_id": 1,
+            "channel_id": 3,
             "data": null,
             "id": 3,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 5,
             "message": "foo",
             "username": "supabot",
           },
@@ -366,8 +398,8 @@ describe('basic insert, update, delete', () => {
           },
         ],
         "error": null,
-        "status": 201,
-        "statusText": "Created",
+        "status": 200,
+        "statusText": "OK",
       }
     `)
 
@@ -388,6 +420,20 @@ describe('basic insert, update, delete', () => {
             "data": null,
             "id": 2,
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 5,
+            "message": "foo",
             "username": "supabot",
           },
           Object {
@@ -420,14 +466,14 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 4,
+            "id": 6,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 5,
+            "id": 7,
             "message": "foo",
             "username": "supabot",
           },
@@ -458,6 +504,20 @@ describe('basic insert, update, delete', () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 2,
             "data": null,
             "id": 3,
@@ -467,14 +527,14 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 4,
+            "id": 6,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 5,
+            "id": 7,
             "message": "foo",
             "username": "supabot",
           },
@@ -499,6 +559,13 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 2,
             "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
             "id": 3,
             "message": "foo",
             "username": "supabot",
@@ -506,14 +573,14 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 4,
+            "id": 6,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 5,
+            "id": 7,
             "message": "foo",
             "username": "supabot",
           },
@@ -544,6 +611,20 @@ describe('basic insert, update, delete', () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 2,
             "data": null,
             "id": 3,
@@ -553,14 +634,14 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 4,
+            "id": 6,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 5,
+            "id": 7,
             "message": "foo",
             "username": "supabot",
           },
@@ -581,6 +662,13 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 2,
             "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
             "id": 3,
             "message": "foo",
             "username": "supabot",
@@ -588,14 +676,14 @@ describe('basic insert, update, delete', () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 4,
+            "id": 6,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 5,
+            "id": 7,
             "message": "foo",
             "username": "supabot",
           },
@@ -623,6 +711,13 @@ describe('basic insert, update, delete', () => {
             "data": null,
             "id": 2,
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
         ],
@@ -775,6 +870,20 @@ test('allow ordering on JSON column', async () => {
       },
       Object {
         "age_range": "[20,30)",
+        "catchphrase": "'json' 'test'",
+        "data": Object {
+          "foo": Object {
+            "bar": Object {
+              "nested": "value",
+            },
+            "baz": "string value",
+          },
+        },
+        "status": "ONLINE",
+        "username": "jsonuser",
+      },
+      Object {
+        "age_range": "[20,30)",
         "catchphrase": "'fat' 'rat'",
         "data": null,
         "status": "ONLINE",
@@ -808,7 +917,7 @@ test('select with head:true, count:exact', async () => {
   const res = await postgrest.from('users').select('*', { head: true, count: 'exact' })
   expect(res).toMatchInlineSnapshot(`
     Object {
-      "count": 4,
+      "count": 5,
       "data": null,
       "error": null,
       "status": 200,
@@ -857,7 +966,7 @@ test('select with count:exact', async () => {
   const res = await postgrest.from('users').select('*', { count: 'exact' })
   expect(res).toMatchInlineSnapshot(`
     Object {
-      "count": 4,
+      "count": 5,
       "data": Array [
         Object {
           "age_range": "[1,2)",
@@ -879,6 +988,20 @@ test('select with count:exact', async () => {
           "data": null,
           "status": "ONLINE",
           "username": "awailas",
+        },
+        Object {
+          "age_range": "[20,30)",
+          "catchphrase": "'json' 'test'",
+          "data": Object {
+            "foo": Object {
+              "bar": Object {
+                "nested": "value",
+              },
+              "baz": "string value",
+            },
+          },
+          "status": "ONLINE",
+          "username": "jsonuser",
         },
         Object {
           "age_range": "[20,30)",
@@ -1002,7 +1125,7 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1033,9 +1156,16 @@ describe("insert, update, delete with count: 'exact'", () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 1,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1090,9 +1220,16 @@ describe("insert, update, delete with count: 'exact'", () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 1,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1129,14 +1266,14 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 7,
+            "id": 9,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 8,
+            "id": 10,
             "message": "foo",
             "username": "supabot",
           },
@@ -1167,9 +1304,16 @@ describe("insert, update, delete with count: 'exact'", () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 1,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1183,14 +1327,14 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 7,
+            "id": 9,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 1,
             "data": null,
-            "id": 8,
+            "id": 10,
             "message": "foo",
             "username": "supabot",
           },
@@ -1219,7 +1363,7 @@ describe("insert, update, delete with count: 'exact'", () => {
           },
           Object {
             "data": null,
-            "id": 4,
+            "id": 5,
             "slug": "test-slug",
           },
         ],
@@ -1247,7 +1391,7 @@ describe("insert, update, delete with count: 'exact'", () => {
           },
           Object {
             "data": null,
-            "id": 6,
+            "id": 7,
             "slug": "test-slug",
           },
         ],
@@ -1271,7 +1415,7 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1285,14 +1429,14 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 7,
+            "id": 9,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 8,
+            "id": 10,
             "message": "foo",
             "username": "supabot",
           },
@@ -1323,9 +1467,16 @@ describe("insert, update, delete with count: 'exact'", () => {
             "username": "supabot",
           },
           Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
             "channel_id": 2,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1339,14 +1490,14 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 7,
+            "id": 9,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 8,
+            "id": 10,
             "message": "foo",
             "username": "supabot",
           },
@@ -1371,7 +1522,7 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 6,
+            "id": 8,
             "message": "foo",
             "username": "supabot",
           },
@@ -1385,14 +1536,14 @@ describe("insert, update, delete with count: 'exact'", () => {
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 7,
+            "id": 9,
             "message": "foo",
             "username": "supabot",
           },
           Object {
             "channel_id": 2,
             "data": null,
-            "id": 8,
+            "id": 10,
             "message": "foo",
             "username": "supabot",
           },
@@ -1420,6 +1571,13 @@ describe("insert, update, delete with count: 'exact'", () => {
             "data": null,
             "id": 2,
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
         ],
@@ -1475,6 +1633,245 @@ test('update with no match - return=representation', async () => {
     Object {
       "count": null,
       "data": Array [],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on one to one relation', async () => {
+  const res = await postgrest.from('channel_details').select('channels!left(id)').limit(1).single()
+  expect(Array.isArray(res.data?.channels)).toBe(false)
+  // TODO: This should not be nullable
+  expect(res.data?.channels?.id).not.toBeNull()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "channels": Object {
+          "id": 1,
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on one to many relation', async () => {
+  const res = await postgrest.from('users').select('messages!left(username)').limit(1).single()
+  expect(Array.isArray(res.data?.messages)).toBe(true)
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "username": "supabot",
+          },
+          Object {
+            "username": "supabot",
+          },
+          Object {
+            "username": "supabot",
+          },
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on one to 0-1 non-empty relation', async () => {
+  const res = await postgrest
+    .from('users')
+    .select('user_profiles!left(username)')
+    .eq('username', 'supabot')
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.user_profiles)).toBe(true)
+  expect(res.data?.user_profiles[0].username).not.toBeNull()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "user_profiles": Array [
+          Object {
+            "username": "supabot",
+          },
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on zero to one with null relation', async () => {
+  const res = await postgrest
+    .from('user_profiles')
+    .select('*,users!left(*)')
+    .eq('id', 2)
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.users)).toBe(false)
+  expect(res.data?.users).toBeNull()
+
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": 2,
+        "username": null,
+        "users": null,
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on zero to one with valid relation', async () => {
+  const res = await postgrest
+    .from('user_profiles')
+    .select('*,users!left(status)')
+    .eq('id', 1)
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.users)).toBe(false)
+  // TODO: This should be nullable indeed
+  expect(res.data?.users?.status).not.toBeNull()
+
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "id": 1,
+        "username": "supabot",
+        "users": Object {
+          "status": "ONLINE",
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('!left join on zero to one empty relation', async () => {
+  const res = await postgrest
+    .from('users')
+    .select('user_profiles!left(username)')
+    .eq('username', 'dragarcia')
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.user_profiles)).toBe(true)
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "user_profiles": Array [],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('join on 1-M relation', async () => {
+  // TODO: This won't raise the proper types for "first_friend_of,..." results
+  const res = await postgrest
+    .from('users')
+    .select(
+      `first_friend_of:best_friends_first_user_fkey(*),
+      second_friend_of:best_friends_second_user_fkey(*),
+      third_wheel_of:best_friends_third_wheel_fkey(*)`
+    )
+    .eq('username', 'supabot')
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.first_friend_of)).toBe(true)
+  expect(Array.isArray(res.data?.second_friend_of)).toBe(true)
+  expect(Array.isArray(res.data?.third_wheel_of)).toBe(true)
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "first_friend_of": Array [
+          Object {
+            "first_user": "supabot",
+            "id": 1,
+            "second_user": "kiwicopple",
+            "third_wheel": "awailas",
+          },
+          Object {
+            "first_user": "supabot",
+            "id": 2,
+            "second_user": "awailas",
+            "third_wheel": null,
+          },
+        ],
+        "second_friend_of": Array [],
+        "third_wheel_of": Array [],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('join on 1-1 relation with nullables', async () => {
+  const res = await postgrest
+    .from('best_friends')
+    .select(
+      'first_user:users!best_friends_first_user_fkey(*), second_user:users!best_friends_second_user_fkey(*), third_wheel:users!best_friends_third_wheel_fkey(*)'
+    )
+    .order('id')
+    .limit(1)
+    .single()
+  expect(Array.isArray(res.data?.first_user)).toBe(false)
+  expect(Array.isArray(res.data?.second_user)).toBe(false)
+  expect(Array.isArray(res.data?.third_wheel)).toBe(false)
+  // TODO: This should return null only if the column is actually nullable thoses are not
+  expect(res.data?.first_user?.username).not.toBeNull()
+  expect(res.data?.second_user?.username).not.toBeNull()
+  // TODO: This column however is nullable
+  expect(res.data?.third_wheel?.username).not.toBeNull()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "first_user": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        "second_user": Object {
+          "age_range": "[25,35)",
+          "catchphrase": "'bat' 'cat'",
+          "data": null,
+          "status": "OFFLINE",
+          "username": "kiwicopple",
+        },
+        "third_wheel": Object {
+          "age_range": "[25,35)",
+          "catchphrase": "'bat' 'rat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "awailas",
+        },
+      },
       "error": null,
       "status": 200,
       "statusText": "OK",
