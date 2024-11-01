@@ -472,54 +472,36 @@ export type FindFieldMatchingRelationships<
   Schema extends GenericSchema,
   Relationships extends GenericRelationship[],
   Field extends Ast.FieldNode
-> = Field extends { hint: infer Hint }
-  ? Hint extends string
-    ? FindMatchingHintTableRelationships<
-        Schema,
-        Relationships,
-        Hint,
-        Field['name']
-      > extends infer TableRelationViaHint
-      ? TableRelationViaHint extends GenericRelationship
-        ? TableRelationViaHint & {
-            branch: 'found-in-table-via-hint'
-            hint: Field['hint']
-          }
-        : FindMatchingHintViewRelationships<
-            Schema,
-            Relationships,
-            Hint,
-            Field['name']
-          > extends infer TableViewViaHint
-        ? TableViewViaHint extends GenericRelationship
-          ? TableViewViaHint & {
-              branch: 'found-in-view-via-hint'
-              hint: Field['hint']
-            }
-          : SelectQueryError<'Failed to find matching relation via hint'>
-        : SelectQueryError<'Failed to find matching relation via hint'>
-      : SelectQueryError<'Failed to find matching relation via hint'>
-    : SelectQueryError<'Failed to find matching relation via hint'>
-  : FindMatchingTableRelationships<
+> = Field extends { hint: string }
+  ? FindMatchingHintTableRelationships<
       Schema,
       Relationships,
+      Field['hint'],
       Field['name']
-    > extends infer TableRelationViaName
-  ? TableRelationViaName extends GenericRelationship
-    ? TableRelationViaName & {
-        branch: 'found-in-table-via-name'
-        name: Field['name']
+    > extends GenericRelationship
+    ? FindMatchingHintTableRelationships<Schema, Relationships, Field['hint'], Field['name']> & {
+        branch: 'found-in-table-via-hint'
+        hint: Field['hint']
       }
-    : FindMatchingViewRelationships<
+    : FindMatchingHintViewRelationships<
         Schema,
         Relationships,
+        Field['hint'],
         Field['name']
-      > extends infer ViewRelationViaName
-    ? ViewRelationViaName extends GenericRelationship
-      ? ViewRelationViaName & {
-          branch: 'found-in-view-via-name'
-          name: Field['name']
-        }
-      : SelectQueryError<'Failed to find matching relation via name'>
-    : SelectQueryError<'Failed to find matching relation via name'>
+      > extends GenericRelationship
+    ? FindMatchingHintViewRelationships<Schema, Relationships, Field['hint'], Field['name']> & {
+        branch: 'found-in-view-via-hint'
+        hint: Field['hint']
+      }
+    : SelectQueryError<'Failed to find matching relation via hint'>
+  : FindMatchingTableRelationships<Schema, Relationships, Field['name']> extends GenericRelationship
+  ? FindMatchingTableRelationships<Schema, Relationships, Field['name']> & {
+      branch: 'found-in-table-via-name'
+      name: Field['name']
+    }
+  : FindMatchingViewRelationships<Schema, Relationships, Field['name']> extends GenericRelationship
+  ? FindMatchingViewRelationships<Schema, Relationships, Field['name']> & {
+      branch: 'found-in-view-via-name'
+      name: Field['name']
+    }
   : SelectQueryError<'Failed to find matching relation via name'>
