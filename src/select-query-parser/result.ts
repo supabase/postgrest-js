@@ -35,14 +35,18 @@ export type GetResult<
   Relationships,
   Query extends string
 > = IsAny<Schema> extends true
-  ? ParseQuery<Query> extends infer ParsedQuery extends Ast.Node[]
-    ? RelationName extends string
-      ? ProcessNodesWithoutSchema<ParsedQuery>
-      : any
+  ? ParseQuery<Query> extends infer ParsedQuery
+    ? ParsedQuery extends Ast.Node[]
+      ? RelationName extends string
+        ? ProcessNodesWithoutSchema<ParsedQuery>
+        : any
+      : ParsedQuery
     : any
   : Relationships extends null // For .rpc calls the passed relationships will be null in that case, the result will always be the function return type
-  ? ParseQuery<Query> extends infer ParsedQuery extends Ast.Node[]
-    ? RPCCallNodes<ParsedQuery, RelationName extends string ? RelationName : 'rpc_call', Row>
+  ? ParseQuery<Query> extends infer ParsedQuery
+    ? ParsedQuery extends Ast.Node[]
+      ? RPCCallNodes<ParsedQuery, RelationName extends string ? RelationName : 'rpc_call', Row>
+      : ParsedQuery
     : Row
   : ParseQuery<Query> extends infer ParsedQuery
   ? ParsedQuery extends Ast.Node[]
@@ -52,7 +56,7 @@ export type GetResult<
         : SelectQueryError<'Invalid Relationships cannot infer result type'>
       : SelectQueryError<'Invalid RelationName cannot infer result type'>
     : ParsedQuery
-  : never
+  : SelectQueryError<'Failed to parse query'>
 
 type ProcessSimpleFieldWithoutSchema<Field extends Ast.FieldNode> =
   Field['aggregateFunction'] extends AggregateFunctions
@@ -103,7 +107,7 @@ type ProcessNodeWithoutSchema<Node extends Ast.Node> = Node extends Ast.StarNode
     : any
   : Node extends Ast.FieldNode
   ? ProcessFieldNodeWithoutSchema<Node>
-  : any
+  : SelectQueryError<'Invalid node type when processing without schema'>
 
 /**
  * Processes nodes when Schema is any, providing basic type inference
@@ -111,12 +115,16 @@ type ProcessNodeWithoutSchema<Node extends Ast.Node> = Node extends Ast.StarNode
 type ProcessNodesWithoutSchema<
   Nodes extends Ast.Node[],
   Acc extends Record<string, unknown> = {}
-> = Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
-  ? ProcessNodeWithoutSchema<FirstNode> extends infer FieldResult
-    ? FieldResult extends Record<string, unknown>
-      ? ProcessNodesWithoutSchema<RestNodes, Acc & FieldResult>
-      : FieldResult
-    : any
+> = Nodes extends [infer FirstNode, ...infer RestNodes]
+  ? FirstNode extends Ast.Node
+    ? RestNodes extends Ast.Node[]
+      ? ProcessNodeWithoutSchema<FirstNode> extends infer FieldResult
+        ? FieldResult extends Record<string, unknown>
+          ? ProcessNodesWithoutSchema<RestNodes, Acc & FieldResult>
+          : FieldResult
+        : SelectQueryError<'Failed to process node without schema'>
+      : SelectQueryError<'Invalid rest nodes array type'>
+    : SelectQueryError<'Invalid first node type'>
   : Prettify<Acc>
 
 /**
@@ -130,11 +138,11 @@ export type ProcessRPCNode<
   Row extends Record<string, unknown>,
   RelationName extends string,
   NodeType extends Ast.Node
-> = NodeType extends Ast.StarNode // If the selection is *
+> = NodeType['type'] extends Ast.StarNode['type'] // If the selection is *
   ? Row
-  : NodeType extends Ast.FieldNode
-  ? ProcessSimpleField<Row, RelationName, NodeType>
-  : SelectQueryError<'Unsupported node type.'>
+  : NodeType['type'] extends Ast.FieldNode['type']
+  ? ProcessSimpleField<Row, RelationName, Extract<NodeType, Ast.FieldNode>>
+  : SelectQueryError<'RPC Unsupported node type.'>
 /**
  * Process select call that can be chained after an rpc call
  */
@@ -143,14 +151,18 @@ export type RPCCallNodes<
   RelationName extends string,
   Row extends Record<string, unknown>,
   Acc extends Record<string, unknown> = {} // Acc is now an object
-> = Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
-  ? ProcessRPCNode<Row, RelationName, FirstNode> extends infer FieldResult
-    ? FieldResult extends Record<string, unknown>
-      ? RPCCallNodes<RestNodes, RelationName, Row, Acc & FieldResult>
-      : FieldResult extends SelectQueryError<infer E>
-      ? SelectQueryError<E>
-      : SelectQueryError<'Could not retrieve a valid record or error value'>
-    : SelectQueryError<'Processing node failed.'>
+> = Nodes extends [infer FirstNode, ...infer RestNodes]
+  ? FirstNode extends Ast.Node
+    ? RestNodes extends Ast.Node[]
+      ? ProcessRPCNode<Row, RelationName, FirstNode> extends infer FieldResult
+        ? FieldResult extends Record<string, unknown>
+          ? RPCCallNodes<RestNodes, RelationName, Row, Acc & FieldResult>
+          : FieldResult extends SelectQueryError<infer E>
+          ? SelectQueryError<E>
+          : SelectQueryError<'Could not retrieve a valid record or error value'>
+        : SelectQueryError<'Processing node failed.'>
+      : SelectQueryError<'Invalid rest nodes array in RPC call'>
+    : SelectQueryError<'Invalid first node in RPC call'>
   : Prettify<Acc>
 
 /**
@@ -171,14 +183,18 @@ export type ProcessNodes<
   Nodes extends Ast.Node[],
   Acc extends Record<string, unknown> = {} // Acc is now an object
 > = CheckDuplicateEmbededReference<Schema, RelationName, Relationships, Nodes> extends false
-  ? Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
-    ? ProcessNode<Schema, Row, RelationName, Relationships, FirstNode> extends infer FieldResult
-      ? FieldResult extends Record<string, unknown>
-        ? ProcessNodes<Schema, Row, RelationName, Relationships, RestNodes, Acc & FieldResult>
-        : FieldResult extends SelectQueryError<infer E>
-        ? SelectQueryError<E>
-        : SelectQueryError<'Could not retrieve a valid record or error value'>
-      : SelectQueryError<'Processing node failed.'>
+  ? Nodes extends [infer FirstNode, ...infer RestNodes]
+    ? FirstNode extends Ast.Node
+      ? RestNodes extends Ast.Node[]
+        ? ProcessNode<Schema, Row, RelationName, Relationships, FirstNode> extends infer FieldResult
+          ? FieldResult extends Record<string, unknown>
+            ? ProcessNodes<Schema, Row, RelationName, Relationships, RestNodes, Acc & FieldResult>
+            : FieldResult extends SelectQueryError<infer E>
+            ? SelectQueryError<E>
+            : SelectQueryError<'Could not retrieve a valid record or error value'>
+          : SelectQueryError<'Processing node failed.'>
+        : SelectQueryError<'Invalid rest nodes array type in ProcessNodes'>
+      : SelectQueryError<'Invalid first node type in ProcessNodes'>
     : Prettify<Acc>
   : Prettify<CheckDuplicateEmbededReference<Schema, RelationName, Relationships, Nodes>>
 
@@ -197,12 +213,12 @@ export type ProcessNode<
   RelationName extends string,
   Relationships extends GenericRelationship[],
   NodeType extends Ast.Node
-> = NodeType extends Ast.StarNode // If the selection is *
+> = NodeType['type'] extends Ast.StarNode['type'] // If the selection is *
   ? Row
-  : NodeType extends Ast.SpreadNode // If the selection is a ...spread
-  ? ProcessSpreadNode<Schema, Row, RelationName, Relationships, NodeType>
-  : NodeType extends Ast.FieldNode
-  ? ProcessFieldNode<Schema, Row, RelationName, Relationships, NodeType>
+  : NodeType['type'] extends Ast.SpreadNode['type'] // If the selection is a ...spread
+  ? ProcessSpreadNode<Schema, Row, RelationName, Relationships, Extract<NodeType, Ast.SpreadNode>>
+  : NodeType['type'] extends Ast.FieldNode['type']
+  ? ProcessFieldNode<Schema, Row, RelationName, Relationships, Extract<NodeType, Ast.FieldNode>>
   : SelectQueryError<'Unsupported node type.'>
 
 /**
@@ -364,13 +380,18 @@ type ProcessSpreadNode<
         [K in Spread['target']['name']]: SelectQueryError<`"${RelationName}" and "${Spread['target']['name']}" do not form a many-to-one or one-to-one relationship spread not possible`>
       }
     : ProcessSpreadNodeResult<Result>
-  : never
+  : SelectQueryError<'Failed to process spread node target'>
 
 /**
  * Helper type to process the result of a spread node.
  */
-type ProcessSpreadNodeResult<Result> = ExtractFirstProperty<Result> extends infer SpreadedObject
+type ProcessSpreadNodeResult<Result> = Result extends Record<
+  string,
+  SelectQueryError<string> | null
+>
+  ? Result
+  : ExtractFirstProperty<Result> extends infer SpreadedObject
   ? ContainsNull<SpreadedObject> extends true
     ? Exclude<{ [K in keyof SpreadedObject]: SpreadedObject[K] | null }, null>
     : Exclude<{ [K in keyof SpreadedObject]: SpreadedObject[K] }, null>
-  : SelectQueryError<'An error occurred spreading the object'>
+  : SelectQueryError<'Failed to extract spread node properties'>
