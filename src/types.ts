@@ -92,4 +92,3 @@ type BuiltIns = Primitive | void | Date | RegExp
 type Primitive = null | undefined | string | number | boolean | symbol | bigint
 
 export type FetchOptions = Omit<RequestInit, 'method' | 'body'>
-  
