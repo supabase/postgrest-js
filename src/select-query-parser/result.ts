@@ -127,6 +127,71 @@ type ProcessNodesWithoutSchema<
     : SelectQueryError<'Invalid first node type'>
   : Prettify<Acc>
 
+type ProcessSimpleFieldWithoutSchema<Field extends Ast.FieldNode> =
+  Field['aggregateFunction'] extends AggregateFunctions
+    ? {
+        // An aggregate function will always override the column name id.sum() will become sum
+        // except if it has been aliased
+        [K in GetFieldNodeResultName<Field>]: Field['castType'] extends PostgreSQLTypes
+          ? TypeScriptTypes<Field['castType']>
+          : number
+      }
+    : {
+        // Aliases override the property name in the result
+        [K in GetFieldNodeResultName<Field>]: Field['castType'] extends PostgreSQLTypes // We apply the detected casted as the result type
+          ? TypeScriptTypes<Field['castType']>
+          : any
+      }
+
+type ProcessFieldNodeWithoutSchema<Node extends Ast.FieldNode> = IsNonEmptyArray<
+  Node['children']
+> extends true
+  ? {
+      [K in Node['name']]: Node['children'] extends Ast.StarNode[]
+        ? any[]
+        : Node['children'] extends Ast.FieldNode[]
+        ? {
+            [P in Node['children'][number] as GetFieldNodeResultName<P>]: P['castType'] extends PostgreSQLTypes
+              ? TypeScriptTypes<P['castType']>
+              : any
+          }[]
+        : any[]
+    }
+  : ProcessSimpleFieldWithoutSchema<Node>
+
+/**
+ * Processes a single Node without schema and returns the resulting TypeScript type.
+ */
+type ProcessNodeWithoutSchema<Node extends Ast.Node> = Node extends Ast.StarNode
+  ? any
+  : Node extends Ast.SpreadNode
+  ? Node['target']['children'] extends Ast.StarNode[]
+    ? any
+    : Node['target']['children'] extends Ast.FieldNode[]
+    ? {
+        [P in Node['target']['children'][number] as GetFieldNodeResultName<P>]: P['castType'] extends PostgreSQLTypes
+          ? TypeScriptTypes<P['castType']>
+          : any
+      }
+    : any
+  : Node extends Ast.FieldNode
+  ? ProcessFieldNodeWithoutSchema<Node>
+  : any
+
+/**
+ * Processes nodes when Schema is any, providing basic type inference
+ */
+type ProcessNodesWithoutSchema<
+  Nodes extends Ast.Node[],
+  Acc extends Record<string, unknown> = {}
+> = Nodes extends [infer FirstNode extends Ast.Node, ...infer RestNodes extends Ast.Node[]]
+  ? ProcessNodeWithoutSchema<FirstNode> extends infer FieldResult
+    ? FieldResult extends Record<string, unknown>
+      ? ProcessNodesWithoutSchema<RestNodes, Acc & FieldResult>
+      : FieldResult
+    : any
+  : Prettify<Acc>
+
 /**
  * Processes a single Node from a select chained after a rpc call
  *
@@ -143,6 +208,7 @@ export type ProcessRPCNode<
   : NodeType['type'] extends Ast.FieldNode['type']
   ? ProcessSimpleField<Row, RelationName, Extract<NodeType, Ast.FieldNode>>
   : SelectQueryError<'RPC Unsupported node type.'>
+
 /**
  * Process select call that can be chained after an rpc call
  */

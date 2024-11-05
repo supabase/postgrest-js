@@ -3,6 +3,7 @@ import { selectParams } from '../relationships'
 import { GetResult } from '../../src/select-query-parser/result'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
+import { SelectQueryError } from '../../src/select-query-parser/utils'
 
 type SelectQueryFromTableResult<
   TableName extends keyof Database['public']['Tables'],
@@ -69,4 +70,51 @@ type SelectQueryFromTableResult<
     }[]
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+// nested query with selective fields
+{
+  let result: SelectQueryFromTableResult<
+    'users',
+    `msgs:messages(id, ...message_details(created_at, channel!inner(id, slug, owner:users(*))))`
+  >
+  let expected: {
+    msgs: {
+      id: number
+      message_details: SelectQueryError<`Could not embed because more than one relationship was found for 'messages' and '${string}' you need to hint the column with messages!<columnName> ?`>
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  let result: SelectQueryFromTableResult<
+    'users',
+    `msgs:messages(id, ...channels(id, ...channel_details(id, missing_col)))`
+  >
+  let expected: {
+    msgs: {
+      id: number
+      channel_details: SelectQueryError<"column 'missing_col' does not exist on 'channel_details'."> | null
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  let result1: SelectQueryFromTableResult<
+    'users',
+    `msgs:messages(...channels(slug, channel_details!inner(id, details, channel:channels(*))))`
+  >
+  let result2: SelectQueryFromTableResult<
+    'users',
+    `msgs:messages(...channels(slug, channel_details!inner(channel:channels(*), id, details)))`
+  >
+  let result3: SelectQueryFromTableResult<
+    'users',
+    `msgs:messages(...channels!inner(slug, channel_details!inner(id, details, channel:channels(*))))`
+  >
+  // All variations should not change the result
+  expectType<typeof result1>(result2!)
+  expectType<typeof result2>(result3!)
 }
