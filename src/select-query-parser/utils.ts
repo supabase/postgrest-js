@@ -36,7 +36,7 @@ type ResolveRelationships<
   Schema extends GenericSchema,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  Nodes extends readonly Ast.FieldNode[]
+  Nodes extends Ast.FieldNode[]
 > = UnionToArray<{
   [K in keyof Nodes]: Nodes[K] extends Ast.FieldNode
     ? ResolveRelationship<Schema, Relationships, Nodes[K], RelationName> extends infer Relation

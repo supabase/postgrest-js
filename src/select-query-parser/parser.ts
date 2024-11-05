@@ -176,7 +176,7 @@ type ParseCountField<Input extends string> = ParseIdentifier<Input> extends [
           ]
         : ParseFieldTypeCast<Remainder>
       : [{ type: 'field'; name: 'count'; aggregateFunction: 'count' }, Remainder]
-    : ParserError<'Invalid remainder in count field'>
+    : never
   : ParserError<`Expected "count" at \`${Input}\``>
 
 /**
@@ -260,10 +260,10 @@ type ParseNonEmbeddedResourceField<Input extends string> = ParseIdentifier<Input
                 : [Field & { aggregateFunction: AggregateFunction }, Remainder]
               : ParseFieldAggregation<Remainder>
             : [Field, Remainder]
-          : ParserError<'Invalid parsed field structure'>
-        : ParserError<'Invalid typecast parsing result'>
-      : ParserError<'Expected property name after `->`'>
-    : ParserError<'Invalid field parsing result'>
+          : Parsed
+        : never
+      : Parsed
+    : never
   : ParserError<`Expected identifier at \`${Input}\``>
 
 /**

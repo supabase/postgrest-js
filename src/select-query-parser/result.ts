@@ -56,7 +56,7 @@ export type GetResult<
         : SelectQueryError<'Invalid Relationships cannot infer result type'>
       : SelectQueryError<'Invalid RelationName cannot infer result type'>
     : ParsedQuery
-  : SelectQueryError<'Failed to parse query'>
+  : never
 
 type ProcessSimpleFieldWithoutSchema<Field extends Ast.FieldNode> =
   Field['aggregateFunction'] extends AggregateFunctions
@@ -107,7 +107,7 @@ type ProcessNodeWithoutSchema<Node extends Ast.Node> = Node extends Ast.StarNode
     : any
   : Node extends Ast.FieldNode
   ? ProcessFieldNodeWithoutSchema<Node>
-  : SelectQueryError<'Invalid node type when processing without schema'>
+  : any
 
 /**
  * Processes nodes when Schema is any, providing basic type inference
@@ -122,9 +122,9 @@ type ProcessNodesWithoutSchema<
         ? FieldResult extends Record<string, unknown>
           ? ProcessNodesWithoutSchema<RestNodes, Acc & FieldResult>
           : FieldResult
-        : SelectQueryError<'Failed to process node without schema'>
-      : SelectQueryError<'Invalid rest nodes array type'>
-    : SelectQueryError<'Invalid first node type'>
+        : any
+      : any
+    : any
   : Prettify<Acc>
 
 /**
@@ -380,7 +380,7 @@ type ProcessSpreadNode<
         [K in Spread['target']['name']]: SelectQueryError<`"${RelationName}" and "${Spread['target']['name']}" do not form a many-to-one or one-to-one relationship spread not possible`>
       }
     : ProcessSpreadNodeResult<Result>
-  : SelectQueryError<'Failed to process spread node target'>
+  : never
 
 /**
  * Helper type to process the result of a spread node.
@@ -394,4 +394,4 @@ type ProcessSpreadNodeResult<Result> = Result extends Record<
   ? ContainsNull<SpreadedObject> extends true
     ? Exclude<{ [K in keyof SpreadedObject]: SpreadedObject[K] | null }, null>
     : Exclude<{ [K in keyof SpreadedObject]: SpreadedObject[K] }, null>
-  : SelectQueryError<'Failed to extract spread node properties'>
+  : SelectQueryError<'An error occurred spreading the object'>
