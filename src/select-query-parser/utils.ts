@@ -55,7 +55,7 @@ type ResolveRelationships<
             match: Relation['relation']['match']
             fieldName: GetFieldNodeResultName<Nodes[K]>
           }
-        : never
+        : Relation
       : never
     : never
 }>[0]
@@ -381,7 +381,7 @@ type FilterRelationships<R, TName, From> = R extends readonly (infer Rel)[]
     : never
   : never
 
-type ResolveForwardRelationship<
+export type ResolveForwardRelationship<
   Schema extends GenericSchema,
   Field extends Ast.FieldNode,
   CurrentTableOrView extends keyof TablesAndViews<Schema> & string
@@ -449,7 +449,7 @@ type ResolveForwardRelationship<
  *   referencedColumns: ["id"]
  * }
  */
-export type FindJoinTableRelationship<
+type ResolveJoinTableRelationship<
   Schema extends GenericSchema,
   CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
   FieldName extends string
@@ -465,6 +465,15 @@ export type FindJoinTableRelationship<
     : never
 }[keyof TablesAndViews<Schema>]
 
+export type FindJoinTableRelationship<
+  Schema extends GenericSchema,
+  CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
+  FieldName extends string
+> = ResolveJoinTableRelationship<Schema, CurrentTableOrView, FieldName> extends infer Result
+  ? [Result] extends [never]
+    ? false
+    : Result
+  : never
 /**
  * Finds a matching relationship based on the FieldNode's name and optional hint.
  */
