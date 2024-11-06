@@ -143,6 +143,7 @@ export type ProcessRPCNode<
   : NodeType['type'] extends Ast.FieldNode['type']
   ? ProcessSimpleField<Row, RelationName, Extract<NodeType, Ast.FieldNode>>
   : SelectQueryError<'RPC Unsupported node type.'>
+
 /**
  * Process select call that can be chained after an rpc call
  */
