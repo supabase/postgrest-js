@@ -71,6 +71,7 @@ export type GenericSchema = {
 
 // https://twitter.com/mattpocockuk/status/1622730173446557697
 export type Prettify<T> = { [K in keyof T]: T[K] } & {}
+
 // https://github.com/sindresorhus/type-fest
 export type SimplifyDeep<Type, ExcludeType = never> = ConditionalSimplifyDeep<
   Type,
@@ -89,3 +90,5 @@ type ConditionalSimplifyDeep<
 type NonRecursiveType = BuiltIns | Function | (new (...arguments_: any[]) => unknown)
 type BuiltIns = Primitive | void | Date | RegExp
 type Primitive = null | undefined | string | number | boolean | symbol | bigint
+
+export type FetchOptions = Omit<RequestInit, 'method' | 'body'>
