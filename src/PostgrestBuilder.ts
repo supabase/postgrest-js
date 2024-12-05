@@ -1,8 +1,6 @@
-// @ts-ignore
-import nodeFetch from '@supabase/node-fetch'
-
 import type { Fetch, PostgrestSingleResponse } from './types'
 import PostgrestError from './PostgrestError'
+import { resolveFetch } from './lib/helpers'
 
 export default abstract class PostgrestBuilder<Result>
   implements PromiseLike<PostgrestSingleResponse<Result>>
@@ -27,13 +25,7 @@ export default abstract class PostgrestBuilder<Result>
     this.signal = builder.signal
     this.isMaybeSingle = builder.isMaybeSingle
 
-    if (builder.fetch) {
-      this.fetch = builder.fetch
-    } else if (typeof fetch === 'undefined') {
-      this.fetch = nodeFetch
-    } else {
-      this.fetch = fetch
-    }
+    this.fetch = resolveFetch(builder.fetch)
   }
 
   /**
