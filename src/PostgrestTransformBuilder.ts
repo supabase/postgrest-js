@@ -1,6 +1,6 @@
 import PostgrestBuilder from './PostgrestBuilder'
-import { GetResult } from './select-query-parser/result'
-import { GenericSchema } from './types'
+import { GetResult } from './select-query-parser/reesult'
+import type { FetchOptions, GenericSchema } from './types'
 
 export default class PostgrestTransformBuilder<
   Schema extends GenericSchema,
@@ -176,9 +176,43 @@ export default class PostgrestTransformBuilder<
    * Set the AbortSignal for the fetch request.
    *
    * @param signal - The AbortSignal to use for the fetch request
+   * @deprecated Use fetchOptions instead. E.g. `fetchOptions({ signal: new AbortController().signal })`
    */
   abortSignal(signal: AbortSignal): this {
-    this.signal = signal
+    this.fetchOptions({ signal })
+
+    return this
+  }
+
+  /**
+   * Set fetch options for the request.
+   *
+   * @param init - Fetch options.
+   */
+  fetchOptions(init: FetchOptions): this {
+    const { headers, ...rest } = init
+
+    this.fetchOpts = {
+      ...this.fetchOpts,
+      ...rest,
+    }
+
+    if (headers) {
+      let entries: Iterable<string[]>
+
+      if (Array.isArray(headers)) {
+        entries = headers.values()
+      } else if (headers instanceof Headers) {
+        entries = headers.entries()
+      } else {
+        entries = Object.entries(headers)
+      }
+
+      for (const [name, val] of entries) {
+        this.headers[name] = val
+      }
+    }
+
     return this
   }
 
