@@ -21,11 +21,25 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
   expectError(postgrest.from('users').select().eq('username', nullableVar))
 }
 
-// `.eq()`, '.neq()' and `.in()` validate value when column is an enum
+// `.eq()`, '.neq()' and `.in()` validate provided filter value when column is an enum.
+// Behaves the same for simple columns, as well as relationship filters.
 {
   expectError(postgrest.from('users').select().eq('status', 'invalid'))
   expectError(postgrest.from('users').select().neq('status', 'invalid'))
   expectError(postgrest.from('users').select().in('status', ['invalid']))
+
+  expectError(
+    postgrest.from('best_friends').select('users!first_user(status)').eq('users.status', 'invalid')
+  )
+  expectError(
+    postgrest.from('best_friends').select('users!first_user(status)').neq('users.status', 'invalid')
+  )
+  expectError(
+    postgrest
+      .from('best_friends')
+      .select('users!first_user(status)')
+      .in('users.status', ['invalid'])
+  )
 
   {
     const { data, error } = await postgrest.from('users').select('status').eq('status', 'ONLINE')
@@ -52,6 +66,39 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
       throw new Error(error.message)
     }
     expectType<{ status: Database['public']['Enums']['user_status'] | null }[]>(data)
+  }
+
+  {
+    const { data, error } = await postgrest
+      .from('best_friends')
+      .select('users!first_user(status)')
+      .eq('users.status', 'ONLINE')
+    if (error) {
+      throw new Error(error.message)
+    }
+    expectType<{ users: { status: Database['public']['Enums']['user_status'] | null } }[]>(data)
+  }
+
+  {
+    const { data, error } = await postgrest
+      .from('best_friends')
+      .select('users!first_user(status)')
+      .neq('users.status', 'ONLINE')
+    if (error) {
+      throw new Error(error.message)
+    }
+    expectType<{ users: { status: Database['public']['Enums']['user_status'] | null } }[]>(data)
+  }
+
+  {
+    const { data, error } = await postgrest
+      .from('best_friends')
+      .select('users!first_user(status)')
+      .in('users.status', ['ONLINE', 'OFFLINE'])
+    if (error) {
+      throw new Error(error.message)
+    }
+    expectType<{ users: { status: Database['public']['Enums']['user_status'] | null } }[]>(data)
   }
 }
 
