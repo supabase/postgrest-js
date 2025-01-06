@@ -40,6 +40,16 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
       .select('users!first_user(status)')
       .in('users.status', ['invalid'])
   )
+  // Validate deeply nested embedded tables
+  expectError(
+    postgrest.from('users').select('messages(channels(*))').eq('messages.channels.id', 'invalid')
+  )
+  expectError(
+    postgrest.from('users').select('messages(channels(*))').neq('messages.channels.id', 'invalid')
+  )
+  expectError(
+    postgrest.from('users').select('messages(channels(*))').in('messages.channels.id', ['invalid'])
+  )
 
   {
     const { data, error } = await postgrest.from('users').select('status').eq('status', 'ONLINE')

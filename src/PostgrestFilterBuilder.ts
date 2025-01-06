@@ -31,8 +31,10 @@ type ResolveFilterValue<
   Tables extends Record<string, GenericTable>,
   Row extends Record<string, unknown>,
   ColumnName extends string
-> = ColumnName extends `${infer RelationshipTable}.${infer RelationshipColumn}`
-  ? ResolveFilterRelationshipValue<Tables, RelationshipTable, RelationshipColumn>
+> = ColumnName extends `${infer RelationshipTable}.${infer Remainder}`
+  ? Remainder extends `${infer _}.${infer _}`
+    ? ResolveFilterValue<Tables, Row, Remainder>
+    : ResolveFilterRelationshipValue<Tables, RelationshipTable, Remainder>
   : ColumnName extends keyof Row
   ? Row[ColumnName]
   : never
