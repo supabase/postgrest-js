@@ -25,7 +25,7 @@ type FilterOperator =
   | 'phfts'
   | 'wfts'
 
-// Match relationshop filters with `table.column` syntax and resolve underlying column value.
+// Match relationship filters with `table.column` syntax and resolve underlying column value.
 // If not matched, fallback to generic type.
 type ResolveFilterValue<
   Tables extends Record<string, GenericTable>,
