@@ -25,8 +25,11 @@ type FilterOperator =
   | 'phfts'
   | 'wfts'
 
-// Match relationship filters with `table.column` syntax and resolve underlying column value.
-// If not matched, fallback to generic type.
+// Match relationship filters with `table.column` syntax and resolve underlying
+// column value. If not matched, fallback to generic type.
+// TODO: Validate the relationship itself ala select-query-parser. Currently we
+// assume that all tables have valid relationships to each other, despite
+// nonexistent foreign keys.
 type ResolveFilterValue<
   Tables extends Record<string, GenericTable>,
   Row extends Record<string, unknown>,
