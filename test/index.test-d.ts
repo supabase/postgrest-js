@@ -240,7 +240,6 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
     .limit(1)
     .throwOnError()
   const { data } = result
-  // @ts-expect-error error property does not exist when using throwOnError()
   const { error } = result
   let expected:
     | {
@@ -251,6 +250,6 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
         }[]
       }[]
   expectType<TypeEqual<typeof data, typeof expected>>(true)
-  // just here so our variable isn't unused
+  expectType<TypeEqual<typeof error, null>>(true)
   error
 }

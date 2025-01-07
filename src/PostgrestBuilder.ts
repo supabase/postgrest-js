@@ -1,21 +1,13 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch } from './types'
+import type { Fetch, PostgrestSingleResponse, PostgrestResponseSuccess } from './types'
 import PostgrestError from './PostgrestError'
 
 export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean = false>
   implements
     PromiseLike<
-      ThrowOnError extends true
-        ? { data: Result; count: number | null; status: number; statusText: string }
-        : {
-            data: Result | null
-            error: PostgrestError | null
-            count: number | null
-            status: number
-            statusText: string
-          }
+      ThrowOnError extends true ? PostgrestResponseSuccess<Result> : PostgrestSingleResponse<Result>
     >
 {
   protected method: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
@@ -69,27 +61,15 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError extends bool
 
   then<
     TResult1 = ThrowOnError extends true
-      ? { data: Result; count: number | null; status: number; statusText: string }
-      : {
-          data: Result | null
-          error: PostgrestError | null
-          count: number | null
-          status: number
-          statusText: string
-        },
+      ? PostgrestResponseSuccess<Result>
+      : PostgrestSingleResponse<Result>,
     TResult2 = never
   >(
     onfulfilled?:
       | ((
           value: ThrowOnError extends true
-            ? { data: Result; count: number | null; status: number; statusText: string }
-            : {
-                data: Result | null
-                error: PostgrestError | null
-                count: number | null
-                status: number
-                statusText: string
-              }
+            ? PostgrestResponseSuccess<Result>
+            : PostgrestSingleResponse<Result>
         ) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
