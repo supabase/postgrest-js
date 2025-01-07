@@ -45,9 +45,9 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError extends bool
    *
    * {@link https://github.com/supabase/supabase-js/issues/92}
    */
-  throwOnError(): PostgrestBuilder<Result, true> {
+  throwOnError(): this & PostgrestBuilder<Result, true> {
     this.shouldThrowOnError = true
-    return this as PostgrestBuilder<Result, true>
+    return this as this & PostgrestBuilder<Result, true>
   }
 
   /**
