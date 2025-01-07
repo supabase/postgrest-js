@@ -1,11 +1,22 @@
 // @ts-ignore
 import nodeFetch from '@supabase/node-fetch'
 
-import type { Fetch, PostgrestSingleResponse } from './types'
+import type { Fetch } from './types'
 import PostgrestError from './PostgrestError'
 
-export default abstract class PostgrestBuilder<Result>
-  implements PromiseLike<PostgrestSingleResponse<Result>>
+export default abstract class PostgrestBuilder<Result, ThrowOnError extends boolean = false>
+  implements
+    PromiseLike<
+      ThrowOnError extends true
+        ? { data: Result; count: number | null; status: number; statusText: string }
+        : {
+            data: Result | null
+            error: PostgrestError | null
+            count: number | null
+            status: number
+            statusText: string
+          }
+    >
 {
   protected method: 'GET' | 'HEAD' | 'POST' | 'PATCH' | 'DELETE'
   protected url: URL
@@ -42,9 +53,9 @@ export default abstract class PostgrestBuilder<Result>
    *
    * {@link https://github.com/supabase/supabase-js/issues/92}
    */
-  throwOnError(): this {
+  throwOnError(): PostgrestBuilder<Result, true> {
     this.shouldThrowOnError = true
-    return this
+    return this as PostgrestBuilder<Result, true>
   }
 
   /**
@@ -56,9 +67,30 @@ export default abstract class PostgrestBuilder<Result>
     return this
   }
 
-  then<TResult1 = PostgrestSingleResponse<Result>, TResult2 = never>(
+  then<
+    TResult1 = ThrowOnError extends true
+      ? { data: Result; count: number | null; status: number; statusText: string }
+      : {
+          data: Result | null
+          error: PostgrestError | null
+          count: number | null
+          status: number
+          statusText: string
+        },
+    TResult2 = never
+  >(
     onfulfilled?:
-      | ((value: PostgrestSingleResponse<Result>) => TResult1 | PromiseLike<TResult1>)
+      | ((
+          value: ThrowOnError extends true
+            ? { data: Result; count: number | null; status: number; statusText: string }
+            : {
+                data: Result | null
+                error: PostgrestError | null
+                count: number | null
+                status: number
+                statusText: string
+              }
+        ) => TResult1 | PromiseLike<TResult1>)
       | undefined
       | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
