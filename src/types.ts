@@ -89,3 +89,34 @@ type ConditionalSimplifyDeep<
 type NonRecursiveType = BuiltIns | Function | (new (...arguments_: any[]) => unknown)
 type BuiltIns = Primitive | void | Date | RegExp
 type Primitive = null | undefined | string | number | boolean | symbol | bigint
+
+// Match relationship filters with `table.column` syntax and resolve underlying
+// column value. If not matched, fallback to generic type.
+// TODO: Validate the relationship itself ala select-query-parser. Currently we
+// assume that all tables have valid relationships to each other, despite
+// nonexistent foreign keys.
+export type ResolveFilterValue<
+  Schema extends GenericSchema,
+  Row extends Record<string, unknown>,
+  ColumnName extends string
+> = ColumnName extends `${infer RelationshipTable}.${infer Remainder}`
+  ? Remainder extends `${infer _}.${infer _}`
+    ? ResolveFilterValue<Schema, Row, Remainder>
+    : ResolveFilterRelationshipValue<Schema, RelationshipTable, Remainder>
+  : ColumnName extends keyof Row
+    ? Row[ColumnName]
+    : never
+
+export type ResolveFilterRelationshipValue<
+  Schema extends GenericSchema,
+  RelationshipTable extends string,
+  RelationshipColumn extends string
+> = Schema['Tables'] & Schema['Views'] extends infer TablesAndViews
+  ? RelationshipTable extends keyof TablesAndViews
+    ? 'Row' extends keyof TablesAndViews[RelationshipTable]
+      ? RelationshipColumn extends keyof TablesAndViews[RelationshipTable]['Row']
+        ? TablesAndViews[RelationshipTable]['Row'][RelationshipColumn]
+        : unknown
+      : unknown
+    : unknown
+  : never
