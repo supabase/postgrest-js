@@ -3,7 +3,7 @@ import { TypeEqual } from 'ts-expect'
 import { Json } from '../../src/select-query-parser/types'
 import { SelectQueryError } from '../../src/select-query-parser/utils'
 import { Prettify } from '../../src/types'
-import { Database } from '../types'
+import { CustomUserDataType, Database } from '../types'
 import { selectQueries } from '../relationships'
 
 // This test file is here to ensure that for a query against a specfic datatabase
@@ -617,7 +617,7 @@ type Schema = Database['public']
     users: {
       age_range: unknown | null
       catchphrase: unknown | null
-      data: Json | null
+      data: CustomUserDataType | null
       status: Database['public']['Enums']['user_status'] | null
       username: string
     }
@@ -741,7 +741,7 @@ type Schema = Database['public']
 {
   const { data, error } = await selectQueries.aggregateOnMissingColumnWithAlias.limit(1).single()
   if (error) throw error
-  expectType<SelectQueryError<`column 'missing_column' does not exist on 'users'.`>>(data)
+  expectType<SelectQueryError<`column 'missing_column' does not exist on 'users'.`>>(data!)
 }
 
 // many-to-many with join table

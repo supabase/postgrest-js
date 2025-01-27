@@ -1,4 +1,5 @@
 import PostgrestTransformBuilder from './PostgrestTransformBuilder'
+import { JsonPathToAccessor, JsonPathToType } from './select-query-parser/utils'
 import { GenericSchema } from './types'
 
 type FilterOperator =
@@ -25,6 +26,49 @@ type FilterOperator =
   | 'phfts'
   | 'wfts'
 
+export type IsStringOperator<Path extends string> = Path extends `${string}->>${string}`
+  ? true
+  : false
+
+// Match relationship filters with `table.column` syntax and resolve underlying
+// column value. If not matched, fallback to generic type.
+// TODO: Validate the relationship itself ala select-query-parser. Currently we
+// assume that all tables have valid relationships to each other, despite
+// nonexistent foreign keys.
+type ResolveFilterValue<
+  Schema extends GenericSchema,
+  Row extends Record<string, unknown>,
+  ColumnName extends string
+> = ColumnName extends `${infer RelationshipTable}.${infer Remainder}`
+  ? Remainder extends `${infer _}.${infer _}`
+    ? ResolveFilterValue<Schema, Row, Remainder>
+    : ResolveFilterRelationshipValue<Schema, RelationshipTable, Remainder>
+  : ColumnName extends keyof Row
+  ? Row[ColumnName]
+  : // If the column selection is a jsonpath like `data->value` or `data->>value` we attempt to match
+  // the expected type with the parsed custom json type
+  IsStringOperator<ColumnName> extends true
+  ? string
+  : JsonPathToType<Row, JsonPathToAccessor<ColumnName>> extends infer JsonPathValue
+  ? JsonPathValue extends never
+    ? never
+    : JsonPathValue
+  : never
+
+type ResolveFilterRelationshipValue<
+  Schema extends GenericSchema,
+  RelationshipTable extends string,
+  RelationshipColumn extends string
+> = Schema['Tables'] & Schema['Views'] extends infer TablesAndViews
+  ? RelationshipTable extends keyof TablesAndViews
+    ? 'Row' extends keyof TablesAndViews[RelationshipTable]
+      ? RelationshipColumn extends keyof TablesAndViews[RelationshipTable]['Row']
+        ? TablesAndViews[RelationshipTable]['Row'][RelationshipColumn]
+        : unknown
+      : unknown
+    : unknown
+  : never
+
 export default class PostgrestFilterBuilder<
   Schema extends GenericSchema,
   Row extends Record<string, unknown>,
@@ -32,11 +76,6 @@ export default class PostgrestFilterBuilder<
   RelationName = unknown,
   Relationships = unknown
 > extends PostgrestTransformBuilder<Schema, Row, Result, RelationName, Relationships> {
-  eq<ColumnName extends string & keyof Row>(
-    column: ColumnName,
-    value: NonNullable<Row[ColumnName]>
-  ): this
-  eq<Value extends unknown>(column: string, value: NonNullable<Value>): this
   /**
    * Match only rows where `column` is equal to `value`.
    *
@@ -45,20 +84,35 @@ export default class PostgrestFilterBuilder<
    * @param column - The column to filter on
    * @param value - The value to filter with
    */
-  eq(column: string, value: unknown): this {
+  eq<ColumnName extends string>(
+    column: ColumnName,
+    value: ResolveFilterValue<Schema, Row, ColumnName> extends never
+      ? NonNullable<unknown>
+      : // We want to infer the type before wrapping it into a `NonNullable` to avoid too deep
+      // type resolution error
+      ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue
+      ? NonNullable<ResolvedFilterValue>
+      : // We should never enter this case as all the branches are covered above
+        never
+  ): this {
     this.url.searchParams.append(column, `eq.${value}`)
     return this
   }
 
-  neq<ColumnName extends string & keyof Row>(column: ColumnName, value: Row[ColumnName]): this
-  neq(column: string, value: unknown): this
   /**
    * Match only rows where `column` is not equal to `value`.
    *
    * @param column - The column to filter on
    * @param value - The value to filter with
    */
-  neq(column: string, value: unknown): this {
+  neq<ColumnName extends string>(
+    column: ColumnName,
+    value: ResolveFilterValue<Schema, Row, ColumnName> extends never
+      ? unknown
+      : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue
+      ? ResolvedFilterValue
+      : never
+  ): this {
     this.url.searchParams.append(column, `neq.${value}`)
     return this
   }
@@ -227,18 +281,25 @@ export default class PostgrestFilterBuilder<
     return this
   }
 
-  in<ColumnName extends string & keyof Row>(
-    column: ColumnName,
-    values: ReadonlyArray<Row[ColumnName]>
-  ): this
-  in(column: string, values: readonly unknown[]): this
   /**
    * Match only rows where `column` is included in the `values` array.
    *
    * @param column - The column to filter on
    * @param values - The values array to filter with
    */
-  in(column: string, values: readonly unknown[]): this {
+  in<ColumnName extends string>(
+    column: ColumnName,
+    values: ReadonlyArray<
+      ResolveFilterValue<Schema, Row, ColumnName> extends never
+        ? unknown
+        : // We want to infer the type before wrapping it into a `NonNullable` to avoid too deep
+        // type resolution error
+        ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue
+        ? ResolvedFilterValue
+        : // We should never enter this case as all the branches are covered above
+          never
+    >
+  ): this {
     const cleanedValues = Array.from(new Set(values))
       .map((s) => {
         // handle postgrest reserved characters

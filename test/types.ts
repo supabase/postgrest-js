@@ -1,24 +1,32 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
+export type CustomUserDataType = {
+  foo: string
+  bar: {
+    baz: number
+  }
+  en: 'ONE' | 'TWO' | 'THREE'
+}
+
 export type Database = {
   personal: {
     Tables: {
       users: {
         Row: {
           age_range: unknown | null
-          data: Json | null
+          data: CustomUserDataType | null
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Insert: {
           age_range?: unknown | null
-          data?: Json | null
+          data?: CustomUserDataType | null
           status?: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Update: {
           age_range?: unknown | null
-          data?: Json | null
+          data?: CustomUserDataType | null
           status?: Database['public']['Enums']['user_status'] | null
           username?: string
         }
@@ -87,6 +95,13 @@ export type Database = {
             referencedColumns: ['username']
           },
           {
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          },
+          {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
             isOneToOne: false
@@ -108,6 +123,13 @@ export type Database = {
             referencedColumns: ['username']
           },
           {
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          },
+          {
             foreignKeyName: 'best_friends_third_wheel_fkey'
             columns: ['third_wheel']
             isOneToOne: false
@@ -119,6 +141,13 @@ export type Database = {
             columns: ['third_wheel']
             isOneToOne: false
             referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
+            isOneToOne: false
+            referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
@@ -144,6 +173,13 @@ export type Database = {
           id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: 'channel_details_id_fkey'
+            columns: ['id']
+            isOneToOne: true
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'channel_details_id_fkey'
             columns: ['id']
@@ -194,6 +230,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'collections'
             referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'collections_parent_id_fkey'
+            columns: ['parent_id']
+            isOneToOne: false
+            referencedRelation: 'collections'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -228,6 +271,13 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
+            foreignKeyName: 'messages_channel_id_fkey'
+            columns: ['channel_id']
+            isOneToOne: false
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
             isOneToOne: false
@@ -239,6 +289,13 @@ export type Database = {
             columns: ['username']
             isOneToOne: false
             referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
@@ -264,6 +321,20 @@ export type Database = {
           product_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: 'product_categories_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_categories_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'product_categories_category_id_fkey'
             columns: ['category_id']
@@ -337,25 +408,43 @@ export type Database = {
         }
         Relationships: []
       }
+      cornercase: {
+        Row: {
+          'column whitespace': string | null
+          array_column: unknown | null
+          id: number
+        }
+        Insert: {
+          'column whitespace'?: string | null
+          array_column?: unknown | null
+          id: number
+        }
+        Update: {
+          'column whitespace'?: string | null
+          array_column?: unknown | null
+          id?: number
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           age_range: unknown | null
           catchphrase: unknown | null
-          data: Json | null
+          data: CustomUserDataType | null
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Insert: {
           age_range?: unknown | null
           catchphrase?: unknown | null
-          data?: Json | null
+          data?: CustomUserDataType | null
           status?: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Update: {
           age_range?: unknown | null
           catchphrase?: unknown | null
-          data?: Json | null
+          data?: CustomUserDataType | null
           status?: Database['public']['Enums']['user_status'] | null
           username?: string
         }
@@ -387,6 +476,13 @@ export type Database = {
             columns: ['username']
             isOneToOne: false
             referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
