@@ -2,6 +2,8 @@ import { PostgrestClient } from '../src/index'
 import { Database } from './types'
 
 import { AbortController } from 'node-abort-controller'
+// @ts-ignore
+import nodeFetch from '@supabase/node-fetch'
 
 const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
@@ -538,4 +540,58 @@ test('rollback delete', async () => {
       "username": "dragarcia",
     }
   `)
+})
+
+test('Next.js options', async () => {
+  let fetchImpl = fetch
+  if (typeof fetchImpl === 'undefined') {
+    fetchImpl = nodeFetch
+  }
+  const fetchSpy = jest.fn(fetchImpl)
+
+  const postgrest = new PostgrestClient<Database>('http://localhost:3000', {
+    fetch: fetchSpy,
+  })
+
+  const builder = postgrest
+    .from('users')
+    .select()
+    .eq('username', 'supabot')
+    .fetchOptions({
+      next: {
+        tags: ['users', 'supabot'],
+      },
+    } as any)
+  const res = await builder
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  expect(fetchSpy).toHaveBeenCalledWith(
+    'http://localhost:3000/users?select=*&username=eq.supabot',
+    {
+      body: undefined,
+      headers: {
+        'X-Client-Info': 'postgrest-js/0.0.0-automated',
+      },
+      method: 'GET',
+      next: {
+        tags: ['users', 'supabot'],
+      },
+      signal: undefined,
+    }
+  )
 })
