@@ -209,4 +209,18 @@ export default abstract class PostgrestBuilder<Result, ThrowOnError extends bool
 
     return res.then(onfulfilled, onrejected)
   }
+
+  /**
+   * Return data from query or throw if there were any errors.
+   */
+  dataOrThrow<T extends Result = Result>(): PromiseLike<T> {
+    return this.throwOnError().then((r) => r.data!) as PromiseLike<T>
+  }
+
+  /**
+   * Return count from query or throw if there were any errors.
+   */
+  countOrThrow(): PromiseLike<number> {
+    return this.throwOnError().then((r) => r.count!)
+  }
 }
