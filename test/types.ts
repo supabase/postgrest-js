@@ -76,88 +76,76 @@ export type Database = {
           {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
-            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
-            isOneToOne: false
             referencedRelation: 'updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'best_friends_first_user_fkey'
-            columns: ['first_user']
-            isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
-            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
-            isOneToOne: false
             referencedRelation: 'updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'best_friends_second_user_fkey'
-            columns: ['second_user']
-            isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_third_wheel_fkey'
             columns: ['third_wheel']
-            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_third_wheel_fkey'
             columns: ['third_wheel']
-            isOneToOne: false
             referencedRelation: 'updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'best_friends_third_wheel_fkey'
             columns: ['third_wheel']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'best_friends_third_wheel_fkey'
-            columns: ['third_wheel']
-            isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
           }
         ]
+      }
+      categories: {
+        Row: {
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
       }
       channel_details: {
         Row: {
@@ -227,18 +215,28 @@ export type Database = {
           {
             foreignKeyName: 'collections_parent_id_fkey'
             columns: ['parent_id']
-            isOneToOne: false
-            referencedRelation: 'collections'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'collections_parent_id_fkey'
-            columns: ['parent_id']
-            isOneToOne: false
             referencedRelation: 'collections'
             referencedColumns: ['id']
           }
         ]
+      }
+      cornercase: {
+        Row: {
+          array_column: string[] | null
+          'column whitespace': string | null
+          id: number
+        }
+        Insert: {
+          array_column?: string[] | null
+          'column whitespace'?: string | null
+          id: number
+        }
+        Update: {
+          array_column?: string[] | null
+          'column whitespace'?: string | null
+          id?: number
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -266,42 +264,24 @@ export type Database = {
           {
             foreignKeyName: 'messages_channel_id_fkey'
             columns: ['channel_id']
-            isOneToOne: false
-            referencedRelation: 'channels'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'messages_channel_id_fkey'
-            columns: ['channel_id']
-            isOneToOne: false
             referencedRelation: 'channels'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
-            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
-            isOneToOne: false
             referencedRelation: 'updatable_view'
             referencedColumns: ['username']
           },
           {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'messages_username_fkey'
-            columns: ['username']
-            isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
           }
@@ -324,28 +304,12 @@ export type Database = {
           {
             foreignKeyName: 'product_categories_category_id_fkey'
             columns: ['category_id']
-            isOneToOne: false
             referencedRelation: 'categories'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'product_categories_product_id_fkey'
             columns: ['product_id']
-            isOneToOne: false
-            referencedRelation: 'products'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'product_categories_category_id_fkey'
-            columns: ['category_id']
-            isOneToOne: false
-            referencedRelation: 'categories'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'product_categories_product_id_fkey'
-            columns: ['product_id']
-            isOneToOne: false
             referencedRelation: 'products'
             referencedColumns: ['id']
           }
@@ -372,24 +336,6 @@ export type Database = {
         }
         Relationships: []
       }
-      categories: {
-        Row: {
-          description: string | null
-          id: number
-          name: string
-        }
-        Insert: {
-          description?: string | null
-          id?: number
-          name: string
-        }
-        Update: {
-          description?: string | null
-          id?: number
-          name?: string
-        }
-        Relationships: []
-      }
       shops: {
         Row: {
           address: string | null
@@ -408,23 +354,40 @@ export type Database = {
         }
         Relationships: []
       }
-      cornercase: {
+      user_profiles: {
         Row: {
-          'column whitespace': string | null
-          array_column: unknown | null
           id: number
+          username: string | null
+          get_user: unknown | null
         }
         Insert: {
-          'column whitespace'?: string | null
-          array_column?: unknown | null
-          id: number
+          id?: number
+          username?: string | null
         }
         Update: {
-          'column whitespace'?: string | null
-          array_column?: unknown | null
           id?: number
+          username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
+        ]
       }
       users: {
         Row: {
@@ -449,50 +412,6 @@ export type Database = {
           username?: string
         }
         Relationships: []
-      }
-      user_profiles: {
-        Row: {
-          id: number
-          username: string | null
-        }
-        Insert: {
-          id?: number
-          username?: string | null
-        }
-        Update: {
-          id?: number
-          username?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'user_profiles_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'non_updatable_view'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'user_profiles_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'updatable_view'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'user_profiles_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'user_profiles_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          }
-        ]
       }
     }
     Views: {
@@ -536,6 +455,18 @@ export type Database = {
           name_param: string
         }
         Returns: Database['public']['Enums']['user_status']
+      }
+      get_user: {
+        Args: {
+          '': unknown
+        }
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }[]
       }
       get_username_and_status: {
         Args: {

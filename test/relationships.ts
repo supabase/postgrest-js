@@ -190,6 +190,10 @@ export const selectParams = {
     select:
       'msgs:messages(id, ...message_details(created_at, channel!inner(id, slug, owner:users(*))))',
   },
+  embededRelationViaFunction: {
+    from: 'user_profiles',
+    select: 'username, get_user(*), linked_user:get_user(*)',
+  },
 } as const
 
 export const selectQueries = {
@@ -371,6 +375,9 @@ export const selectQueries = {
   nestedQueryWithSelectiveFieldsAndInnerJoin: postgrest
     .from(selectParams.nestedQueryWithSelectiveFieldsAndInnerJoin.from)
     .select(selectParams.nestedQueryWithSelectiveFieldsAndInnerJoin.select),
+  embededRelationViaFunction: postgrest
+    .from(selectParams.embededRelationViaFunction.from)
+    .select(selectParams.embededRelationViaFunction.select),
 } as const
 
 test('nested query with selective fields', async () => {
@@ -1891,6 +1898,35 @@ test('nested query with selective fields and inner join should error on non exis
       },
       "status": 400,
       "statusText": "Bad Request",
+    }
+  `)
+})
+
+test('select embeded object via function that use relation', async () => {
+  const res = await selectQueries.embededRelationViaFunction.limit(1).single()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "get_user": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        "linked_user": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
     }
   `)
 })

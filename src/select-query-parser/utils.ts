@@ -545,6 +545,13 @@ export type FindFieldMatchingRelationships<
     }
   : SelectQueryError<'Failed to find matching relation via name'>
 
+export type RowFilteredFunctionsFields<
+  Functions extends Record<string, unknown>,
+  Row extends Record<string, any>
+> = {
+  [K in keyof Row as K extends keyof Functions ? (Row[K] extends unknown ? never : K) : K]: Row[K]
+}
+
 export type JsonPathToAccessor<Path extends string> = Path extends `${infer P1}->${infer P2}`
   ? P2 extends `>${infer Rest}` // Handle ->> operator
     ? JsonPathToAccessor<`${P1}.${Rest}`>
