@@ -381,19 +381,27 @@ describe('embedded transforms', () => {
     `)
   })
   test('embedded with function having same name as table', async () => {
-    const res = await postgrest.from('users').select('username, cornercase(2)')
+    const res = await postgrest.from('best_friends').select('id, cornercase(id)')
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": null,
-        "error": Object {
-          "code": "PGRST200",
-          "details": "Searched for a foreign key relationship between 'users' and 'cornercase' in the schema 'public', but no matches were found.",
-          "hint": null,
-          "message": "Could not find a relationship between 'users' and 'cornercase' in the schema cache",
-        },
-        "status": 400,
-        "statusText": "Bad Request",
+        "data": Array [
+          Object {
+            "cornercase": Object {
+              "id": 1,
+            },
+            "id": 1,
+          },
+          Object {
+            "cornercase": Object {
+              "id": 1,
+            },
+            "id": 2,
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
       }
     `)
   })

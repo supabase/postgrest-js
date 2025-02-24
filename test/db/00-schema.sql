@@ -167,3 +167,8 @@ create function public.cornercase(id int)
 returns int as $$
   select id * 2;
 $$ stable language sql;
+
+create or replace function public.cornercase(best_friends)
+returns setof best_friends rows 1 as $$
+  select * from best_friends where id = 1
+$$ stable language sql;

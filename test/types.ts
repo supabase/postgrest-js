@@ -450,12 +450,24 @@ export type Database = {
       }
     }
     Functions: {
-      cornercase: {
-        Args: {
-          id: number
-        }
-        Returns: number
-      }
+      cornercase:
+        | {
+            Args: {
+              '': unknown
+            }
+            Returns: {
+              first_user: string
+              id: number
+              second_user: string
+              third_wheel: string | null
+            }[]
+          }
+        | {
+            Args: {
+              id: number
+            }
+            Returns: number
+          }
       custom_access_token_hook: {
         Args: {
           event: Json
