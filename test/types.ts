@@ -1,5 +1,3 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
-
 export type CustomUserDataType = {
   foo: string
   bar: {
@@ -9,6 +7,7 @@ export type CustomUserDataType = {
   record: Record<string, Json | undefined> | null
   recordNumber: Record<number, Json | undefined> | null
 }
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   personal: {
@@ -97,13 +96,6 @@ export type Database = {
             referencedColumns: ['username']
           },
           {
-            foreignKeyName: 'best_friends_first_user_fkey'
-            columns: ['first_user']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
             isOneToOne: false
@@ -125,13 +117,6 @@ export type Database = {
             referencedColumns: ['username']
           },
           {
-            foreignKeyName: 'best_friends_second_user_fkey'
-            columns: ['second_user']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
-          },
-          {
             foreignKeyName: 'best_friends_third_wheel_fkey'
             columns: ['third_wheel']
             isOneToOne: false
@@ -143,13 +128,6 @@ export type Database = {
             columns: ['third_wheel']
             isOneToOne: false
             referencedRelation: 'updatable_view'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'best_friends_third_wheel_fkey'
-            columns: ['third_wheel']
-            isOneToOne: false
-            referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
@@ -160,6 +138,24 @@ export type Database = {
             referencedColumns: ['username']
           }
         ]
+      }
+      categories: {
+        Row: {
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
       }
       channel_details: {
         Row: {
@@ -175,13 +171,6 @@ export type Database = {
           id?: number
         }
         Relationships: [
-          {
-            foreignKeyName: 'channel_details_id_fkey'
-            columns: ['id']
-            isOneToOne: true
-            referencedRelation: 'channels'
-            referencedColumns: ['id']
-          },
           {
             foreignKeyName: 'channel_details_id_fkey'
             columns: ['id']
@@ -232,15 +221,26 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'collections'
             referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'collections_parent_id_fkey'
-            columns: ['parent_id']
-            isOneToOne: false
-            referencedRelation: 'collections'
-            referencedColumns: ['id']
           }
         ]
+      }
+      cornercase: {
+        Row: {
+          array_column: string[] | null
+          'column whitespace': string | null
+          id: number
+        }
+        Insert: {
+          array_column?: string[] | null
+          'column whitespace'?: string | null
+          id: number
+        }
+        Update: {
+          array_column?: string[] | null
+          'column whitespace'?: string | null
+          id?: number
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -273,13 +273,6 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'messages_channel_id_fkey'
-            columns: ['channel_id']
-            isOneToOne: false
-            referencedRelation: 'channels'
-            referencedColumns: ['id']
-          },
-          {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
             isOneToOne: false
@@ -291,13 +284,6 @@ export type Database = {
             columns: ['username']
             isOneToOne: false
             referencedRelation: 'updatable_view'
-            referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'messages_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'users'
             referencedColumns: ['username']
           },
           {
@@ -336,20 +322,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'products'
             referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'product_categories_category_id_fkey'
-            columns: ['category_id']
-            isOneToOne: false
-            referencedRelation: 'categories'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'product_categories_product_id_fkey'
-            columns: ['product_id']
-            isOneToOne: false
-            referencedRelation: 'products'
-            referencedColumns: ['id']
           }
         ]
       }
@@ -374,24 +346,6 @@ export type Database = {
         }
         Relationships: []
       }
-      categories: {
-        Row: {
-          description: string | null
-          id: number
-          name: string
-        }
-        Insert: {
-          description?: string | null
-          id?: number
-          name: string
-        }
-        Update: {
-          description?: string | null
-          id?: number
-          name?: string
-        }
-        Relationships: []
-      }
       shops: {
         Row: {
           address: string | null
@@ -407,48 +361,6 @@ export type Database = {
           address?: string | null
           id?: number
           shop_geom?: unknown | null
-        }
-        Relationships: []
-      }
-      cornercase: {
-        Row: {
-          'column whitespace': string | null
-          array_column: unknown | null
-          id: number
-        }
-        Insert: {
-          'column whitespace'?: string | null
-          array_column?: unknown | null
-          id: number
-        }
-        Update: {
-          'column whitespace'?: string | null
-          array_column?: unknown | null
-          id?: number
-        }
-        Relationships: []
-      }
-      users: {
-        Row: {
-          age_range: unknown | null
-          catchphrase: unknown | null
-          data: CustomUserDataType | null
-          status: Database['public']['Enums']['user_status'] | null
-          username: string
-        }
-        Insert: {
-          age_range?: unknown | null
-          catchphrase?: unknown | null
-          data?: CustomUserDataType | null
-          status?: Database['public']['Enums']['user_status'] | null
-          username: string
-        }
-        Update: {
-          age_range?: unknown | null
-          catchphrase?: unknown | null
-          data?: CustomUserDataType | null
-          status?: Database['public']['Enums']['user_status'] | null
-          username?: string
         }
         Relationships: []
       }
@@ -486,15 +398,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['username']
-          },
-          {
-            foreignKeyName: 'user_profiles_username_fkey'
-            columns: ['username']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['username']
           }
         ]
+      }
+      users: {
+        Row: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: CustomUserDataType | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+        Insert: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: CustomUserDataType | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+        Update: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: CustomUserDataType | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -521,6 +450,18 @@ export type Database = {
       }
     }
     Functions: {
+      cornercase: {
+        Args: {
+          id: number
+        }
+        Returns: number
+      }
+      custom_access_token_hook: {
+        Args: {
+          event: Json
+        }
+        Returns: Json
+      }
       function_with_array_param: {
         Args: {
           param: string[]
@@ -553,6 +494,10 @@ export type Database = {
           name_param: string
         }
         Returns: Database['public']['Enums']['user_status']
+      }
+      test_access_token: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       void_func: {
         Args: Record<PropertyKey, never>
@@ -640,4 +585,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
   ? PublicSchema['Enums'][PublicEnumNameOrOptions]
+  : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema['CompositeTypes']
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never = never
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema['CompositeTypes']
+  ? PublicSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
   : never
