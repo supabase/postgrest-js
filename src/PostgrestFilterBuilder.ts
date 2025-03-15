@@ -292,22 +292,19 @@ export default class PostgrestFilterBuilder<
     values: ReadonlyArray<
       ResolveFilterValue<Schema, Row, ColumnName> extends never
         ? unknown
-        : // We want to infer the type before wrapping it into a `NonNullable` to avoid too deep
-        // type resolution error
-        ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue
+        : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue
         ? ResolvedFilterValue
-        : // We should never enter this case as all the branches are covered above
-          never
+        : never
     >
   ): this {
-    const cleanedValues = Array.from(new Set(values))
-      .map((s) => {
-        // handle postgrest reserved characters
-        // https://postgrest.org/en/v7.0.0/api.html#reserved-characters
-        if (typeof s === 'string' && new RegExp('[,()]').test(s)) return `"${s}"`
-        else return `${s}`
-      })
+    if (!Array.isArray(values) || values.length === 0) {
+      throw new Error("Values for 'in' filter must be a non-empty array.")
+    }
+
+    const cleanedValues = Array.from(new Set(values)) // Ensure uniqueness
+      .map((s) => (typeof s === 'string' && /[,(]/.test(s) ? `"${s}"` : s)) // Handle reserved characters
       .join(',')
+
     this.url.searchParams.append(column, `in.(${cleanedValues})`)
     return this
   }
