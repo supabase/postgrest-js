@@ -1,6 +1,5 @@
 # docker-compose.yml
 
-version: '3'
 services:
   rest:
     image: postgrest/postgrest:v12.2.0

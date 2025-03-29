@@ -60,9 +60,14 @@ export type GenericNonUpdatableView = {
 
 export type GenericView = GenericUpdatableView | GenericNonUpdatableView
 
+export type GenericSetofOption = {
+  isOneToOne?: boolean
+}
+
 export type GenericFunction = {
   Args: Record<string, unknown>
   Returns: unknown
+  SetofOptions?: GenericSetofOption
 }
 
 export type GenericSchema = {

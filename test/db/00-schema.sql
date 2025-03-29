@@ -163,3 +163,20 @@ create table public.cornercase (
   "column whitespace" text,
   array_column text[]
 );
+
+-- Function that returns a single user profile for a user
+CREATE OR REPLACE FUNCTION public.get_user_profile(user_row users)
+RETURNS SETOF user_profiles
+LANGUAGE SQL STABLE
+ROWS 1
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_messages(chan_id bigint)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+  SELECT * FROM public.messages WHERE channel_id = chan_id;
+$$;
+

@@ -491,11 +491,36 @@ export type Database = {
         }
         Returns: string
       }
+      get_messages: {
+        Args: {
+          chan_id: number
+        }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {}
+      }
       get_status: {
         Args: {
           name_param: string
         }
         Returns: Database['public']['Enums']['user_status']
+      }
+      get_user_profile: {
+        Args: {
+          user_row: Database['public']['Tables']['users']['Row']
+        }
+        Returns: {
+          id: number
+          username: string | null
+        }[]
+        SetofOptions: {
+          isOneToOne: true
+        }
       }
       get_username_and_status: {
         Args: {
