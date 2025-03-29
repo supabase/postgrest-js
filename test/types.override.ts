@@ -43,6 +43,19 @@ export type Database = MergeDeep<
           }
         }
       }
+      Functions: {
+        get_messages: {
+          SetofOptions: {
+            referencedRelation: 'messages'
+          }
+        }
+        get_user_profile: {
+          SetofOptions: {
+            referencedRelation: 'user_profiles'
+            isOneToOne: true
+          }
+        }
+      }
     }
   }
 >
