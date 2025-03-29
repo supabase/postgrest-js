@@ -493,7 +493,7 @@ export type Database = {
       }
       get_messages: {
         Args: {
-          chan_id: number
+          channel_row: Database['public']['Tables']['channels']['Row']
         }
         Returns: {
           channel_id: number
@@ -502,7 +502,6 @@ export type Database = {
           message: string | null
           username: string
         }[]
-        SetofOptions: {}
       }
       get_status: {
         Args: {
@@ -518,9 +517,6 @@ export type Database = {
           id: number
           username: string | null
         }[]
-        SetofOptions: {
-          isOneToOne: true
-        }
       }
       get_username_and_status: {
         Args: {

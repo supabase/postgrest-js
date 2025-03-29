@@ -173,10 +173,10 @@ AS $$
   SELECT * FROM public.user_profiles WHERE username = user_row.username;
 $$;
 
-CREATE OR REPLACE FUNCTION public.get_messages(chan_id bigint)
+CREATE OR REPLACE FUNCTION public.get_messages(channel_row channels)
 RETURNS SETOF messages
 LANGUAGE SQL STABLE
 AS $$
-  SELECT * FROM public.messages WHERE channel_id = chan_id;
+  SELECT * FROM public.messages WHERE channel_id = channel_row.id;
 $$;
 
