@@ -469,7 +469,12 @@ export type ResolveForwardRelationship<
                   : false
                 referencedColumns: []
                 referencedRelation: FoundEmbededFunctionJoinTableRelation['to']
-              } & { match: 'func' }
+              } & {
+                match: 'func'
+                isNotNullable: FoundEmbededFunctionJoinTableRelation['isNotNullable'] extends true
+                  ? true
+                  : false
+              }
               direction: 'forward'
               from: CurrentTableOrView
               type: 'found-by-embeded-function'

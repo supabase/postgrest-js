@@ -22,6 +22,10 @@ export const selectParams = {
     from: 'users',
     select: 'username, user_called_profile:get_user_profile(*)',
   },
+  embeded_setof_row_one_function_not_nullable: {
+    from: 'users',
+    select: 'username, user_called_profile_not_null:get_user_profile_non_nullable(*)',
+  },
   embeded_setof_row_one_function_with_fields_selection: {
     from: 'users',
     select: 'username, user_called_profile:get_user_profile(username)',
@@ -48,6 +52,9 @@ export const selectQueries = {
   embeded_setof_row_one_function: postgrest
     .from(selectParams.embeded_setof_row_one_function.from)
     .select(selectParams.embeded_setof_row_one_function.select),
+  embeded_setof_row_one_function_not_nullable: postgrest
+    .from(selectParams.embeded_setof_row_one_function_not_nullable.from)
+    .select(selectParams.embeded_setof_row_one_function_not_nullable.select),
   embeded_setof_row_one_function_with_fields_selection: postgrest
     .from(selectParams.embeded_setof_row_one_function_with_fields_selection.from)
     .select(selectParams.embeded_setof_row_one_function_with_fields_selection.select),

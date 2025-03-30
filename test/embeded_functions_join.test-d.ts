@@ -54,6 +54,15 @@ type Schema = Database['public']
   }>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
+{
+  const { data } = await selectQueries.embeded_setof_row_one_function_not_nullable
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string
+    user_called_profile_not_null: Schema['Tables']['user_profiles']['Row']
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
 
 {
   const { data } = await selectQueries.embeded_setof_row_one_function_with_fields_selection
@@ -99,6 +108,6 @@ type Schema = Database['public']
 {
   const { data } = await rpcQueries['function returning a single row embeded table']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['user_profiles']['Row']>
+  let expected: Schema['Tables']['user_profiles']['Row']
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }

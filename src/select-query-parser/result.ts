@@ -328,7 +328,10 @@ type ProcessEmbeddedResourceResult<
   Schema extends GenericSchema,
   Resolved extends {
     referencedTable: Pick<GenericTable, 'Row' | 'Relationships'>
-    relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' | 'func' }
+    relation: GenericRelationship & {
+      match: 'refrel' | 'col' | 'fkname' | 'func'
+      isNotNullable?: boolean
+    }
     direction: string
   },
   Field extends Ast.FieldNode,
@@ -351,7 +354,11 @@ type ProcessEmbeddedResourceResult<
             ? ProcessedChildren
             : ProcessedChildren[]
           : Resolved['relation']['isOneToOne'] extends true
-          ? ProcessedChildren | null
+          ? Resolved['relation']['match'] extends 'func'
+            ? Resolved['relation']['isNotNullable'] extends true
+              ? ProcessedChildren
+              : ProcessedChildren | null
+            : ProcessedChildren | null
           : ProcessedChildren[]
         : // If the relation is a self-reference it'll always be considered as reverse relationship
         Resolved['relation']['referencedRelation'] extends CurrentTableOrView

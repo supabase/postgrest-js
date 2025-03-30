@@ -173,6 +173,16 @@ AS $$
   SELECT * FROM public.user_profiles WHERE username = user_row.username;
 $$;
 
+-- Same definition, but will be used with a type override to pretend this can't ever return null
+CREATE OR REPLACE FUNCTION public.get_user_profile_non_nullable(user_row users)
+RETURNS SETOF user_profiles
+LANGUAGE SQL STABLE
+ROWS 1
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username;
+$$;
+
+
 CREATE OR REPLACE FUNCTION public.get_messages(channel_row channels)
 RETURNS SETOF messages
 LANGUAGE SQL STABLE

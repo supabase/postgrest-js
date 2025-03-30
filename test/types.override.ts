@@ -44,17 +44,9 @@ export type Database = MergeDeep<
         }
       }
       Functions: {
-        get_messages: {
+        get_user_profile_non_nullable: {
           SetofOptions: {
-            to: 'messages'
-            from: 'channels' | 'users'
-          }
-        }
-        get_user_profile: {
-          SetofOptions: {
-            to: 'user_profiles'
-            from: 'users'
-            isOneToOne: true
+            isNotNullable: true
           }
         }
       }

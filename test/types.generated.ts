@@ -30,9 +30,7 @@ export type Database = {
     }
     Functions: {
       get_status: {
-        Args: {
-          name_param: string
-        }
+        Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
     }
@@ -480,25 +478,17 @@ export type Database = {
     }
     Functions: {
       function_with_array_param: {
-        Args: {
-          param: string[]
-        }
+        Args: { param: string[] }
         Returns: undefined
       }
       function_with_optional_param: {
-        Args: {
-          param?: string
-        }
+        Args: { param?: string }
         Returns: string
       }
       get_messages: {
         Args:
-          | {
-              channel_row: Database['public']['Tables']['channels']['Row']
-            }
-          | {
-              user_row: Database['public']['Tables']['users']['Row']
-            }
+          | { channel_row: Database['public']['Tables']['channels']['Row'] }
+          | { user_row: Database['public']['Tables']['users']['Row'] }
         Returns: {
           channel_id: number
           data: Json | null
@@ -506,35 +496,49 @@ export type Database = {
           message: string | null
           username: string
         }[]
+        SetofOptions: {
+          from: 'channels' | 'users'
+          to: 'messages'
+          isOneToOne: false
+        }
       }
       get_status: {
-        Args: {
-          name_param: string
-        }
+        Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
       get_user_profile: {
-        Args: {
-          user_row: Database['public']['Tables']['users']['Row']
-        }
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
         Returns: {
           id: number
           username: string | null
-        }[]
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+        }
+      }
+      get_user_profile_non_nullable: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+        }
       }
       get_username_and_status: {
-        Args: {
-          name_param: string
-        }
+        Args: { name_param: string }
         Returns: {
           username: string
           status: Database['public']['Enums']['user_status']
         }[]
       }
       offline_user: {
-        Args: {
-          name_param: string
-        }
+        Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
       void_func: {
