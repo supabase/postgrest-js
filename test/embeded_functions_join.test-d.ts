@@ -66,6 +66,23 @@ type Schema = Database['public']
 }
 
 {
+  const { data } = await selectQueries.embeded_setof_function_with_fields_selection_with_sub_linking
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    id: number
+    all_channels_messages: Array<{
+      id: number
+      message: string | null
+      channels: {
+        id: number
+        slug: string | null
+      }
+    }>
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
   const { data } = await rpcQueries['function returning a setof embeded table']
   let result: Exclude<typeof data, null>
   let expected: Array<Schema['Tables']['messages']['Row']>

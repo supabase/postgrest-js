@@ -26,6 +26,10 @@ export const selectParams = {
     from: 'users',
     select: 'username, user_called_profile:get_user_profile(username)',
   },
+  embeded_setof_function_with_fields_selection_with_sub_linking: {
+    from: 'channels',
+    select: 'id, all_channels_messages:get_messages(id,message,channels(id,slug))',
+  },
 } as const
 
 export const selectQueries = {
@@ -47,6 +51,9 @@ export const selectQueries = {
   embeded_setof_row_one_function_with_fields_selection: postgrest
     .from(selectParams.embeded_setof_row_one_function_with_fields_selection.from)
     .select(selectParams.embeded_setof_row_one_function_with_fields_selection.select),
+  embeded_setof_function_with_fields_selection_with_sub_linking: postgrest
+    .from(selectParams.embeded_setof_function_with_fields_selection_with_sub_linking.from)
+    .select(selectParams.embeded_setof_function_with_fields_selection_with_sub_linking.select),
 } as const
 
 describe('select', () => {
@@ -315,6 +322,59 @@ describe('select', () => {
             "statusText": "OK",
           }
       `)
+  })
+
+  test('function embedded table with fields selection and sub linking', async () => {
+    const res = await selectQueries.embeded_setof_function_with_fields_selection_with_sub_linking
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "all_channels_messages": Array [
+              Object {
+                "channels": Object {
+                  "id": 1,
+                  "slug": "public",
+                },
+                "id": 1,
+                "message": "Hello World 👋",
+              },
+            ],
+            "id": 1,
+          },
+          Object {
+            "all_channels_messages": Array [
+              Object {
+                "channels": Object {
+                  "id": 2,
+                  "slug": "random",
+                },
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+              },
+            ],
+            "id": 2,
+          },
+          Object {
+            "all_channels_messages": Array [
+              Object {
+                "channels": Object {
+                  "id": 3,
+                  "slug": "other",
+                },
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+              },
+            ],
+            "id": 3,
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
   })
 })
 
