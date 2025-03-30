@@ -46,12 +46,14 @@ export type Database = MergeDeep<
       Functions: {
         get_messages: {
           SetofOptions: {
-            referencedRelation: 'messages'
+            to: 'messages'
+            from: 'channels' | 'users'
           }
         }
         get_user_profile: {
           SetofOptions: {
-            referencedRelation: 'user_profiles'
+            to: 'user_profiles'
+            from: 'users'
             isOneToOne: true
           }
         }

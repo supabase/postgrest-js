@@ -310,7 +310,7 @@ export type ProcessEmbeddedResource<
 > = ResolveRelationship<Schema, Relationships, Field, CurrentTableOrView> extends infer Resolved
   ? Resolved extends {
       referencedTable: Pick<GenericTable, 'Row' | 'Relationships'>
-      relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' }
+      relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' | 'func' }
       direction: string
     }
     ? ProcessEmbeddedResourceResult<Schema, Resolved, Field, CurrentTableOrView>
@@ -328,7 +328,7 @@ type ProcessEmbeddedResourceResult<
   Schema extends GenericSchema,
   Resolved extends {
     referencedTable: Pick<GenericTable, 'Row' | 'Relationships'>
-    relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' }
+    relation: GenericRelationship & { match: 'refrel' | 'col' | 'fkname' | 'func' }
     direction: string
   },
   Field extends Ast.FieldNode,

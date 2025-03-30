@@ -180,3 +180,9 @@ AS $$
   SELECT * FROM public.messages WHERE channel_id = channel_row.id;
 $$;
 
+CREATE OR REPLACE FUNCTION public.get_messages(user_row users)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+  SELECT * FROM public.messages WHERE username = user_row.username;
+$$;

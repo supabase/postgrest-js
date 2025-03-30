@@ -1,3 +1,4 @@
+import { GenericFunction, GenericSetofOption } from '../types'
 import { Ast } from './parser'
 import {
   AggregateFunctions,
@@ -452,6 +453,28 @@ export type ResolveForwardRelationship<
             from: CurrentTableOrView
             type: 'found-by-join-table'
           }
+        : ResolveEmbededFunctionJoinTableRelationship<
+            Schema,
+            CurrentTableOrView,
+            Field['name']
+          > extends infer FoundEmbededFunctionJoinTableRelation
+        ? FoundEmbededFunctionJoinTableRelation extends GenericSetofOption
+          ? {
+              referencedTable: TablesAndViews<Schema>[FoundEmbededFunctionJoinTableRelation['to']]
+              relation: {
+                foreignKeyName: `${Field['name']}_${CurrentTableOrView}_${FoundEmbededFunctionJoinTableRelation['to']}_forward`
+                columns: []
+                isOneToOne: FoundEmbededFunctionJoinTableRelation['isOneToOne'] extends true
+                  ? true
+                  : false
+                referencedColumns: []
+                referencedRelation: FoundEmbededFunctionJoinTableRelation['to']
+              } & { match: 'func' }
+              direction: 'forward'
+              from: CurrentTableOrView
+              type: 'found-by-embeded-function'
+            }
+          : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
         : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
       : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
     : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
@@ -494,6 +517,18 @@ type ResolveJoinTableRelationship<
       : never
     : never
 }[keyof TablesAndViews<Schema>]
+
+type ResolveEmbededFunctionJoinTableRelationship<
+  Schema extends GenericSchema,
+  CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
+  FieldName extends string
+> = Schema['Functions'][FieldName] extends GenericFunction
+  ? Schema['Functions'][FieldName]['SetofOptions'] extends GenericSetofOption
+    ? CurrentTableOrView extends Schema['Functions'][FieldName]['SetofOptions']['from']
+      ? Schema['Functions'][FieldName]['SetofOptions']
+      : false
+    : false
+  : false
 
 export type FindJoinTableRelationship<
   Schema extends GenericSchema,

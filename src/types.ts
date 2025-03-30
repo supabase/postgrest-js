@@ -61,8 +61,9 @@ export type GenericNonUpdatableView = {
 export type GenericView = GenericUpdatableView | GenericNonUpdatableView
 
 export type GenericSetofOption = {
-  isOneToOne?: boolean
-  referencedRelation: string
+  isOneToOne?: boolean | undefined
+  to: string
+  from: string
 }
 
 export type GenericFunction = {

@@ -492,9 +492,13 @@ export type Database = {
         Returns: string
       }
       get_messages: {
-        Args: {
-          channel_row: Database['public']['Tables']['channels']['Row']
-        }
+        Args:
+          | {
+              channel_row: Database['public']['Tables']['channels']['Row']
+            }
+          | {
+              user_row: Database['public']['Tables']['users']['Row']
+            }
         Returns: {
           channel_id: number
           data: Json | null
