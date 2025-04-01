@@ -67,6 +67,13 @@ export type Database = {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -88,6 +95,13 @@ export type Database = {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -103,6 +117,13 @@ export type Database = {
             columns: ['second_user']
             isOneToOne: false
             referencedRelation: 'users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
+            isOneToOne: false
+            referencedRelation: 'active_users'
             referencedColumns: ['username']
           },
           {
@@ -303,6 +324,13 @@ export type Database = {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -409,6 +437,13 @@ export type Database = {
             foreignKeyName: 'user_profiles_username_fkey'
             columns: ['username']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -454,11 +489,81 @@ export type Database = {
       }
     }
     Views: {
+      active_users: {
+        Row: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string | null
+        }
+        Insert: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: Json | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username?: string | null
+        }
+        Update: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: Json | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       non_updatable_view: {
         Row: {
           username: string | null
         }
         Relationships: []
+      }
+      recent_messages: {
+        Row: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_channel_id_fkey'
+            columns: ['channel_id']
+            isOneToOne: false
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
+        ]
       }
       updatable_view: {
         Row: {
@@ -485,6 +590,23 @@ export type Database = {
         Args: { param?: string }
         Returns: string
       }
+      get_active_user_messages: {
+        Args: {
+          active_user_row: Database['public']['Views']['active_users']['Row']
+        }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: 'active_users'
+          to: 'messages'
+          isOneToOne: false
+        }
+      }
       get_messages: {
         Args:
           | { channel_row: Database['public']['Tables']['channels']['Row'] }
@@ -502,9 +624,44 @@ export type Database = {
           isOneToOne: false
         }
       }
+      get_messages_by_username: {
+        Args: { search_username: string }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+      }
+      get_recent_messages_by_username: {
+        Args: { search_username: string }
+        Returns: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }[]
+      }
       get_status: {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
+      }
+      get_user_messages: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: 'users'
+          to: 'messages'
+          isOneToOne: false
+        }
       }
       get_user_profile: {
         Args: { user_row: Database['public']['Tables']['users']['Row'] }
@@ -528,6 +685,25 @@ export type Database = {
           from: 'users'
           to: 'user_profiles'
           isOneToOne: true
+        }
+      }
+      get_user_recent_messages: {
+        Args:
+          | { user_row: Database['public']['Tables']['users']['Row'] }
+          | {
+              active_user_row: Database['public']['Views']['active_users']['Row']
+            }
+        Returns: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }[]
+        SetofOptions: {
+          from: 'users' | 'active_users'
+          to: 'recent_messages'
+          isOneToOne: false
         }
       }
       get_username_and_status: {

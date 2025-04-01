@@ -111,3 +111,78 @@ type Schema = Database['public']
   let expected: Schema['Tables']['user_profiles']['Row']
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
+
+{
+  const { data } = await selectQueries.embeded_function_with_table_row_input
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string
+    user_messages: Array<Schema['Tables']['messages']['Row']>
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await selectQueries.embeded_function_with_view_row_input
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string | null
+    active_user_messages: Array<Schema['Tables']['messages']['Row']>
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await selectQueries.embeded_function_returning_view
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string
+    recent_messages: Array<Schema['Views']['recent_messages']['Row']>
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await selectQueries.embeded_function_with_view_input_returning_view
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string | null
+    recent_messages: Array<Schema['Views']['recent_messages']['Row']>
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with scalar input']
+  let result: Exclude<typeof data, null>
+  let expected: Array<Schema['Tables']['messages']['Row']>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with table row input']
+  let result: Exclude<typeof data, null>
+  let expected: Array<Schema['Tables']['messages']['Row']>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with view row input']
+  let result: Exclude<typeof data, null>
+  let expected: Array<Schema['Tables']['messages']['Row']>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function returning view']
+  let result: Exclude<typeof data, null>
+  let expected: Array<Schema['Views']['recent_messages']['Row']>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with scalar input returning view']
+  let result: Exclude<typeof data, null>
+  let expected: Array<Schema['Views']['recent_messages']['Row']>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}

@@ -34,6 +34,22 @@ export const selectParams = {
     from: 'channels',
     select: 'id, all_channels_messages:get_messages(id,message,channels(id,slug))',
   },
+  embeded_function_with_table_row_input: {
+    from: 'users',
+    select: 'username, user_messages:get_user_messages(*)',
+  },
+  embeded_function_with_view_row_input: {
+    from: 'active_users',
+    select: 'username, active_user_messages:get_active_user_messages(*)',
+  },
+  embeded_function_returning_view: {
+    from: 'users',
+    select: 'username, recent_messages:get_user_recent_messages(*)',
+  },
+  embeded_function_with_view_input_returning_view: {
+    from: 'active_users',
+    select: 'username, recent_messages:get_user_recent_messages(*)',
+  },
 } as const
 
 export const selectQueries = {
@@ -61,6 +77,18 @@ export const selectQueries = {
   embeded_setof_function_with_fields_selection_with_sub_linking: postgrest
     .from(selectParams.embeded_setof_function_with_fields_selection_with_sub_linking.from)
     .select(selectParams.embeded_setof_function_with_fields_selection_with_sub_linking.select),
+  embeded_function_with_table_row_input: postgrest
+    .from(selectParams.embeded_function_with_table_row_input.from)
+    .select(selectParams.embeded_function_with_table_row_input.select),
+  embeded_function_with_view_row_input: postgrest
+    .from(selectParams.embeded_function_with_view_row_input.from)
+    .select(selectParams.embeded_function_with_view_row_input.select),
+  embeded_function_returning_view: postgrest
+    .from(selectParams.embeded_function_returning_view.from)
+    .select(selectParams.embeded_function_returning_view.select),
+  embeded_function_with_view_input_returning_view: postgrest
+    .from(selectParams.embeded_function_with_view_input_returning_view.from)
+    .select(selectParams.embeded_function_with_view_input_returning_view.select),
 } as const
 
 describe('select', () => {
@@ -383,6 +411,222 @@ describe('select', () => {
       }
     `)
   })
+
+  test('function with table row input', async () => {
+    const res = await selectQueries.embeded_function_with_table_row_input
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "user_messages": Array [
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 3,
+                "data": null,
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+                "username": "supabot",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "kiwicopple",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with view row input', async () => {
+    const res = await selectQueries.embeded_function_with_view_row_input
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "active_user_messages": Array [
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 3,
+                "data": null,
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+                "username": "supabot",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "active_user_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "active_user_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "active_user_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function returning view', async () => {
+    const res = await selectQueries.embeded_function_returning_view
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "recent_messages": Array [
+              Object {
+                "channel_id": 3,
+                "data": null,
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "kiwicopple",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with view input returning view', async () => {
+    const res = await selectQueries.embeded_function_with_view_input_returning_view
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "recent_messages": Array [
+              Object {
+                "channel_id": 3,
+                "data": null,
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 1,
+                "message": "Hello World 👋",
+                "username": "supabot",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "recent_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
 })
 
 export const rpcQueries = {
@@ -397,6 +641,24 @@ export const rpcQueries = {
   'function returning a single row embeded table': postgrest.rpc('get_user_profile', {
     //@ts-expect-error will complain about missing the rest of the params
     user_row: { username: 'supabot' },
+  }),
+  'function with scalar input': postgrest.rpc('get_messages_by_username', {
+    search_username: 'supabot',
+  }),
+  'function with table row input': postgrest.rpc('get_user_messages', {
+    //@ts-expect-error will complain about missing the rest of the params
+    user_row: { username: 'supabot' },
+  }),
+  'function with view row input': postgrest.rpc('get_active_user_messages', {
+    //@ts-expect-error will complain about missing the rest of the params
+    active_user_row: { username: 'supabot', status: 'ONLINE' },
+  }),
+  'function returning view': postgrest.rpc('get_user_recent_messages', {
+    //@ts-expect-error will complain about missing the rest of the params
+    user_row: { username: 'supabot' },
+  }),
+  'function with scalar input returning view': postgrest.rpc('get_recent_messages_by_username', {
+    search_username: 'supabot',
   }),
 }
 
@@ -421,6 +683,7 @@ describe('rpc', () => {
       }
     `)
   })
+
   test('function double definition returning a setof embeded table', async () => {
     const res = await rpcQueries['function double definition returning a setof embeded table']
     expect(res).toMatchInlineSnapshot(`
@@ -455,6 +718,7 @@ describe('rpc', () => {
       }
     `)
   })
+
   test('function returning a single row embeded table', async () => {
     const res = await rpcQueries['function returning a single row embeded table']
     expect(res).toMatchInlineSnapshot(`
@@ -463,6 +727,181 @@ describe('rpc', () => {
         "data": Array [
           Object {
             "id": 1,
+            "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with scalar input', async () => {
+    const res = await rpcQueries['function with scalar input']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 1,
+            "message": "Hello World 👋",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with table row input', async () => {
+    const res = await rpcQueries['function with table row input']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 1,
+            "message": "Hello World 👋",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with view row input', async () => {
+    const res = await rpcQueries['function with view row input']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 1,
+            "message": "Hello World 👋",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function returning view', async () => {
+    const res = await rpcQueries['function returning view']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 1,
+            "message": "Hello World 👋",
+            "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with scalar input returning view', async () => {
+    const res = await rpcQueries['function with scalar input returning view']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 4,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 1,
+            "message": "Hello World 👋",
             "username": "supabot",
           },
         ],
