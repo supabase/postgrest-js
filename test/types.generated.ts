@@ -633,6 +633,11 @@ export type Database = {
           message: string | null
           username: string
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'messages'
+          isOneToOne: false
+        }
       }
       get_recent_messages_by_username: {
         Args: { search_username: string }
@@ -643,6 +648,11 @@ export type Database = {
           message: string | null
           username: string | null
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'recent_messages'
+          isOneToOne: false
+        }
       }
       get_status: {
         Args: { name_param: string }
@@ -701,7 +711,7 @@ export type Database = {
           username: string | null
         }[]
         SetofOptions: {
-          from: 'users' | 'active_users'
+          from: 'active_users' | 'users'
           to: 'recent_messages'
           isOneToOne: false
         }

@@ -196,7 +196,7 @@ type Schema = Database['public']
     users: {
       catchphrase: unknown
       username: string
-    }
+    } | null
   }>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }

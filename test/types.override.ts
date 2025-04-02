@@ -49,13 +49,6 @@ export type Database = MergeDeep<
             isNotNullable: true
           }
         }
-        get_recent_messages_by_username: {
-          SetofOptions: {
-            from: '*'
-            to: 'messages'
-            isOneToOne: false
-          }
-        }
       }
     }
   }
