@@ -961,21 +961,37 @@ describe('rpc', () => {
     `)
   })
 
-  test('function with row input with followup select', async () => {
-    const res = await rpcQueries['function with row input with followup select']
+  test('should be able to filter before and after select rpc', async () => {
+    const res = await postgrest
+      .rpc('get_user_profile', {
+        //@ts-expect-error will complain about missing the rest of the params
+        user_row: { username: 'supabot' },
+      })
+      .select('id, username, users(username, catchphrase)')
+      .eq('username', 'nope')
+
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [
-          Object {
-            "id": 1,
-            "username": "supabot",
-            "users": Object {
-              "catchphrase": "'cat' 'fat'",
-              "username": "supabot",
-            },
-          },
-        ],
+        "data": Array [],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+    const res2 = await postgrest
+      .rpc('get_user_profile', {
+        //@ts-expect-error will complain about missing the rest of the params
+        user_row: { username: 'supabot' },
+      })
+      // should also be able to fitler before the select
+      .eq('username', 'nope')
+      .select('id, username, users(username, catchphrase)')
+
+    expect(res2).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [],
         "error": null,
         "status": 200,
         "statusText": "OK",
