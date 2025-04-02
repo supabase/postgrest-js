@@ -3,6 +3,7 @@ import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import PostgrestBuilder from './PostgrestBuilder'
 import { DEFAULT_HEADERS } from './constants'
 import { Fetch, GenericSchema, GenericSetofOption } from './types'
+import { IsAny } from './select-query-parser/utils'
 
 /**
  * PostgREST client.
@@ -133,23 +134,39 @@ export default class PostgrestClient<
       get?: boolean
       count?: 'exact' | 'planned' | 'estimated'
     } = {}
-  ): PostgrestFilterBuilder<
-    Schema,
-    Fn['Returns'] extends any[]
-      ? Fn['Returns'][number] extends Record<string, unknown>
-        ? Fn['Returns'][number]
-        : never
-      : Fn['Returns'] extends Record<string, unknown>
-      ? Fn['Returns']
-      : never,
-    Fn['Returns'],
-    Fn['SetofOptions'] extends GenericSetofOption ? Fn['SetofOptions']['to'] : FnName,
-    Fn['SetofOptions'] extends GenericSetofOption
-      ? Fn['SetofOptions']['to'] extends keyof Schema['Tables']
-        ? Schema['Tables'][Fn['SetofOptions']['to']]['Relationships']
-        : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
-      : null
-  > {
+    // if rpc is called with a typeless client, default to infering everything as any
+  ): IsAny<Fn> extends true
+    ? PostgrestFilterBuilder<
+        Schema,
+        Fn['Returns'] extends any[]
+          ? Fn['Returns'][number] extends Record<string, unknown>
+            ? Fn['Returns'][number]
+            : never
+          : Fn['Returns'] extends Record<string, unknown>
+          ? Fn['Returns']
+          : never,
+        Fn['Returns'],
+        FnName,
+        null
+      >
+    : PostgrestFilterBuilder<
+        // otherwise, provide the right params for typed .select chaining
+        Schema,
+        Fn['Returns'] extends any[]
+          ? Fn['Returns'][number] extends Record<string, unknown>
+            ? Fn['Returns'][number]
+            : never
+          : Fn['Returns'] extends Record<string, unknown>
+          ? Fn['Returns']
+          : never,
+        Fn['Returns'],
+        Fn['SetofOptions'] extends GenericSetofOption ? Fn['SetofOptions']['to'] : FnName,
+        Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['to'] extends keyof Schema['Tables']
+            ? Schema['Tables'][Fn['SetofOptions']['to']]['Relationships']
+            : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
+          : null
+      > {
     let method: 'HEAD' | 'GET' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)
     let body: unknown | undefined
