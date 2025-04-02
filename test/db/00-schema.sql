@@ -163,3 +163,91 @@ create table public.cornercase (
   "column whitespace" text,
   array_column text[]
 );
+
+-- Function that returns a single user profile for a user
+CREATE OR REPLACE FUNCTION public.get_user_profile(user_row users)
+RETURNS SETOF user_profiles
+LANGUAGE SQL STABLE
+ROWS 1
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username;
+$$;
+
+-- Same definition, but will be used with a type override to pretend this can't ever return null
+CREATE OR REPLACE FUNCTION public.get_user_profile_non_nullable(user_row users)
+RETURNS SETOF user_profiles
+LANGUAGE SQL STABLE
+ROWS 1
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username;
+$$;
+
+
+CREATE OR REPLACE FUNCTION public.get_messages(channel_row channels)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+  SELECT * FROM public.messages WHERE channel_id = channel_row.id;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_messages(user_row users)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+  SELECT * FROM public.messages WHERE username = user_row.username;
+$$;
+
+
+-- Create a view based on users table
+CREATE VIEW public.active_users AS
+    SELECT * FROM public.users WHERE status = 'ONLINE'::public.user_status;
+
+-- Create a view based on messages table
+CREATE VIEW public.recent_messages AS
+    SELECT * FROM public.messages ORDER BY id DESC LIMIT 100;
+
+-- Function returning messages using scalar as input (username)
+CREATE OR REPLACE FUNCTION public.get_messages_by_username(search_username text)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.messages WHERE username = search_username;
+$$;
+
+-- Function returning messages using table row as input
+CREATE OR REPLACE FUNCTION public.get_user_messages(user_row users)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.messages WHERE username = user_row.username;
+$$;
+
+-- Function returning messages using view row as input
+CREATE OR REPLACE FUNCTION public.get_active_user_messages(active_user_row active_users)
+RETURNS SETOF messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.messages WHERE username = active_user_row.username;
+$$;
+
+-- Function returning view using scalar as input
+CREATE OR REPLACE FUNCTION public.get_recent_messages_by_username(search_username text)
+RETURNS SETOF recent_messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.recent_messages WHERE username = search_username;
+$$;
+
+-- Function returning view using table row as input
+CREATE OR REPLACE FUNCTION public.get_user_recent_messages(user_row users)
+RETURNS SETOF recent_messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.recent_messages WHERE username = user_row.username;
+$$;
+CREATE OR REPLACE FUNCTION public.get_user_recent_messages(active_user_row active_users)
+RETURNS SETOF recent_messages
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.recent_messages WHERE username = active_user_row.username;
+$$;
