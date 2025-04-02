@@ -2,7 +2,7 @@ import PostgrestQueryBuilder from './PostgrestQueryBuilder'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import PostgrestBuilder from './PostgrestBuilder'
 import { DEFAULT_HEADERS } from './constants'
-import { Fetch, GenericSchema } from './types'
+import { Fetch, GenericSchema, GenericSetofOption } from './types'
 
 /**
  * PostgREST client.
@@ -139,10 +139,16 @@ export default class PostgrestClient<
       ? Fn['Returns'][number] extends Record<string, unknown>
         ? Fn['Returns'][number]
         : never
+      : Fn['Returns'] extends Record<string, unknown>
+      ? Fn['Returns']
       : never,
     Fn['Returns'],
-    FnName,
-    null
+    Fn['SetofOptions'] extends GenericSetofOption ? Fn['SetofOptions']['to'] : FnName,
+    Fn['SetofOptions'] extends GenericSetofOption
+      ? Fn['SetofOptions']['to'] extends keyof Schema['Tables']
+        ? Schema['Tables'][Fn['SetofOptions']['to']]['Relationships']
+        : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
+      : null
   > {
     let method: 'HEAD' | 'GET' | 'POST'
     const url = new URL(`${this.url}/rpc/${fn}`)

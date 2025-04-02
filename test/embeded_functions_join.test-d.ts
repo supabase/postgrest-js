@@ -186,3 +186,31 @@ type Schema = Database['public']
   let expected: Array<Schema['Views']['recent_messages']['Row']>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
+
+{
+  const { data } = await rpcQueries['function with scalar input with followup select']
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    channel_id: number | null
+    message: string | null
+    users: {
+      catchphrase: unknown
+      username: string
+    }
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with row input with followup select']
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    id: number
+    username: string | null
+    users: {
+      catchphrase: unknown
+      username: string
+    } | null
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}

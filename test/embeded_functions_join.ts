@@ -660,6 +660,17 @@ export const rpcQueries = {
   'function with scalar input returning view': postgrest.rpc('get_recent_messages_by_username', {
     search_username: 'supabot',
   }),
+  'function with scalar input with followup select': postgrest
+    .rpc('get_recent_messages_by_username', {
+      search_username: 'supabot',
+    })
+    .select('channel_id, message, users(username, catchphrase)'),
+  'function with row input with followup select': postgrest
+    .rpc('get_user_profile', {
+      //@ts-expect-error will complain about missing the rest of the params
+      user_row: { username: 'supabot' },
+    })
+    .select('id, username, users(username, catchphrase)'),
 }
 
 describe('rpc', () => {
@@ -903,6 +914,66 @@ describe('rpc', () => {
             "id": 1,
             "message": "Hello World 👋",
             "username": "supabot",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with scalar input with followup select', async () => {
+    const res = await rpcQueries['function with scalar input with followup select']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "channel_id": 3,
+            "message": "Some message on channel wihtout details",
+            "users": Object {
+              "catchphrase": "'cat' 'fat'",
+              "username": "supabot",
+            },
+          },
+          Object {
+            "channel_id": 2,
+            "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "users": Object {
+              "catchphrase": "'cat' 'fat'",
+              "username": "supabot",
+            },
+          },
+          Object {
+            "channel_id": 1,
+            "message": "Hello World 👋",
+            "users": Object {
+              "catchphrase": "'cat' 'fat'",
+              "username": "supabot",
+            },
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with row input with followup select', async () => {
+    const res = await rpcQueries['function with row input with followup select']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "id": 1,
+            "username": "supabot",
+            "users": Object {
+              "catchphrase": "'cat' 'fat'",
+              "username": "supabot",
+            },
           },
         ],
         "error": null,
