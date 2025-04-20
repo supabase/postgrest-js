@@ -527,11 +527,12 @@ type ResolveEmbededFunctionJoinTableRelationship<
   Schema extends GenericSchema,
   CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
   FieldName extends string
-> = Schema['Functions'][FieldName] extends GenericFunction
-  ? Schema['Functions'][FieldName]['SetofOptions'] extends GenericSetofOption
-    ? CurrentTableOrView extends Schema['Functions'][FieldName]['SetofOptions']['from']
-      ? Schema['Functions'][FieldName]['SetofOptions']
-      : false
+> = FindMatchingFunctionBySetofFrom<
+  Schema['Functions'][FieldName],
+  CurrentTableOrView
+> extends infer Fn
+  ? Fn extends GenericFunction
+    ? Fn['SetofOptions']
     : false
   : false
 
@@ -618,3 +619,47 @@ export type IsStringUnion<T> = string extends T
     ? false
     : true
   : false
+
+// Functions matching utils
+export type IsMatchingArgs<
+  FnArgs extends GenericFunction['Args'],
+  PassedArgs extends GenericFunction['Args']
+> = [FnArgs] extends [Record<PropertyKey, never>]
+  ? PassedArgs extends Record<PropertyKey, never>
+    ? true
+    : false
+  : keyof PassedArgs extends keyof FnArgs
+  ? PassedArgs extends FnArgs
+    ? true
+    : false
+  : false
+
+export type MatchingFunctionArgs<
+  Fn extends GenericFunction,
+  Args extends GenericFunction['Args']
+> = Fn extends { Args: infer A extends GenericFunction['Args'] }
+  ? IsMatchingArgs<A, Args> extends true
+    ? Fn
+    : never
+  : never
+
+export type FindMatchingFunctionByArgs<
+  FnUnion,
+  Args extends GenericFunction['Args']
+> = FnUnion extends infer Fn extends GenericFunction ? MatchingFunctionArgs<Fn, Args> : never
+
+type MatchingFunctionBySetofFrom<
+  Fn extends GenericFunction,
+  TableName extends string
+> = Fn['SetofOptions'] extends GenericSetofOption
+  ? TableName extends Fn['SetofOptions']['from']
+    ? Fn
+    : never
+  : never
+
+type FindMatchingFunctionBySetofFrom<
+  FnUnion,
+  TableName extends string
+> = FnUnion extends infer Fn extends GenericFunction
+  ? MatchingFunctionBySetofFrom<Fn, TableName>
+  : never

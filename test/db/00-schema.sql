@@ -251,3 +251,46 @@ LANGUAGE SQL STABLE
 AS $$
     SELECT * FROM public.recent_messages WHERE username = active_user_row.username;
 $$;
+CREATE OR REPLACE FUNCTION public.get_user_first_message(active_user_row active_users)
+RETURNS SETOF recent_messages ROWS 1
+LANGUAGE SQL STABLE
+AS $$
+    SELECT * FROM public.recent_messages WHERE username = active_user_row.username ORDER BY id ASC LIMIT 1;
+$$;
+
+
+-- Valid postgresql function override but that produce an unresolvable postgrest function call
+create function postgrest_unresolvable_function() returns void language sql as '';
+create function postgrest_unresolvable_function(a text) returns int language sql as 'select 1';
+create function postgrest_unresolvable_function(a int) returns text language sql as $$ 
+    SELECT 'toto' 
+$$;
+-- Valid postgresql function override with differents returns types depending of different arguments
+create function postgrest_resolvable_with_override_function() returns void language sql as '';
+create function postgrest_resolvable_with_override_function(a text) returns int language sql as 'select 1';
+create function postgrest_resolvable_with_override_function(b int) returns text language sql as $$ 
+    SELECT 'toto' 
+$$;
+-- Function overrides returning setof tables
+create function postgrest_resolvable_with_override_function(profile_id bigint) returns setof user_profiles language sql stable as $$
+    SELECT * FROM user_profiles WHERE id = profile_id;
+$$;
+create function postgrest_resolvable_with_override_function(cid bigint, search text default '') returns setof messages language sql stable as $$
+    SELECT * FROM messages WHERE channel_id = cid AND message = search;
+$$;
+-- Function override taking a table as argument and returning a setof
+create function postgrest_resolvable_with_override_function(user_row users) returns setof messages language sql stable as $$
+    SELECT * FROM messages WHERE messages.username = user_row.username;
+$$;
+
+create or replace function public.polymorphic_function_with_different_return(bool) returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_different_return(text) returns void language sql as '';
+
+create or replace function public.polymorphic_function_with_no_params_or_unnamed() returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_no_params_or_unnamed(bool) returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_no_params_or_unnamed(text) returns void language sql as '';
+-- Function with a single unnamed params that isn't a json/jsonb/text should never appears in the type gen as it won't be in postgrest schema
+create or replace function public.polymorphic_function_with_unnamed_integer(int) returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_unnamed_json(json) returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_unnamed_jsonb(jsonb) returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_unnamed_text(text) returns int language sql as 'SELECT 1';

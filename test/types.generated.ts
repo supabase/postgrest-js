@@ -1,4 +1,4 @@
-export type Json = unknown
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   personal: {
@@ -607,23 +607,39 @@ export type Database = {
           isOneToOne: false
         }
       }
-      get_messages: {
-        Args:
-          | { channel_row: Database['public']['Tables']['channels']['Row'] }
-          | { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          channel_id: number
-          data: Json | null
-          id: number
-          message: string | null
-          username: string
-        }[]
-        SetofOptions: {
-          from: 'channels' | 'users'
-          to: 'messages'
-          isOneToOne: false
-        }
-      }
+      get_messages:
+        | {
+            Args: {
+              channel_row: Database['public']['Tables']['channels']['Row']
+            }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'channels'
+              to: 'messages'
+              isOneToOne: false
+            }
+          }
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'messages'
+              isOneToOne: false
+            }
+          }
       get_messages_by_username: {
         Args: { search_username: string }
         Returns: {
@@ -657,6 +673,23 @@ export type Database = {
       get_status: {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
+      }
+      get_user_first_message: {
+        Args: {
+          active_user_row: Database['public']['Views']['active_users']['Row']
+        }
+        Returns: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'active_users'
+          to: 'recent_messages'
+          isOneToOne: true
+        }
       }
       get_user_messages: {
         Args: { user_row: Database['public']['Tables']['users']['Row'] }
@@ -697,36 +730,140 @@ export type Database = {
           isOneToOne: true
         }
       }
-      get_user_recent_messages: {
-        Args:
-          | { user_row: Database['public']['Tables']['users']['Row'] }
-          | {
+      get_user_recent_messages:
+        | {
+            Args: {
               active_user_row: Database['public']['Views']['active_users']['Row']
             }
-        Returns: {
-          channel_id: number | null
-          data: Json | null
-          id: number | null
-          message: string | null
-          username: string | null
-        }[]
-        SetofOptions: {
-          from: 'active_users' | 'users'
-          to: 'recent_messages'
-          isOneToOne: false
-        }
-      }
+            Returns: {
+              channel_id: number | null
+              data: Json | null
+              id: number | null
+              message: string | null
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: 'active_users'
+              to: 'recent_messages'
+              isOneToOne: false
+            }
+          }
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number | null
+              data: Json | null
+              id: number | null
+              message: string | null
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'recent_messages'
+              isOneToOne: false
+            }
+          }
       get_username_and_status: {
         Args: { name_param: string }
         Returns: {
-          username: string
           status: Database['public']['Enums']['user_status']
+          username: string
         }[]
       }
       offline_user: {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
+      polymorphic_function_with_different_return: {
+        Args: { '': string }
+        Returns: undefined
+      }
+      polymorphic_function_with_no_params_or_unnamed: {
+        Args: { '': boolean }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_integer: {
+        Args: { '': number }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_json: {
+        Args: { '': Json }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_jsonb: {
+        Args: { '': Json }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_text: {
+        Args: { '': string }
+        Returns: number
+      }
+      postgrest_resolvable_with_override_function:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: undefined
+          }
+        | {
+            Args: { a: string }
+            Returns: number
+          }
+        | {
+            Args: { b: number }
+            Returns: string
+          }
+        | {
+            Args: { cid: number; search?: string }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'messages'
+              isOneToOne: false
+            }
+          }
+        | {
+            Args: { profile_id: number }
+            Returns: {
+              id: number
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'user_profiles'
+              isOneToOne: false
+            }
+          }
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'messages'
+              isOneToOne: false
+            }
+          }
+      postgrest_unresolvable_function:
+        | {
+            Args: { a: unknown }
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: undefined
+          }
       void_func: {
         Args: Record<PropertyKey, never>
         Returns: undefined
