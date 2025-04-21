@@ -9,14 +9,14 @@ type Schema = Database['public']
 {
   const { data } = await rpcQueries['function returning a setof embeded table']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
 {
   const { data } = await rpcQueries['function double definition returning a setof embeded table']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
@@ -30,21 +30,21 @@ type Schema = Database['public']
 {
   const { data } = await rpcQueries['function with scalar input']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
 {
   const { data } = await rpcQueries['function with table row input']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
 {
   const { data } = await rpcQueries['function with view row input']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
@@ -146,14 +146,14 @@ type Schema = Database['public']
 {
   const { data } = await rpcQueries['resolvable function with channel_id and search params']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
 {
   const { data } = await rpcQueries['resolvable function with user_row param']
   let result: Exclude<typeof data, null>
-  let expected: Array<Schema['Tables']['messages']['Row']>
+  let expected: Array<Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
 
@@ -285,5 +285,38 @@ type Schema = Database['public']
   let expected:
     | string
     | SelectQueryError<'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function with blurb_message']
+  let result: Exclude<typeof data, null>
+  let expected: never
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function returning row']
+  let result: Exclude<typeof data, null>
+  let expected: {
+    age_range: unknown
+    catchphrase: unknown
+    data: unknown
+    status: 'ONLINE' | 'OFFLINE' | null
+    username: string
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await rpcQueries['function returning set of rows']
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    age_range: unknown
+    catchphrase: unknown
+    data: unknown
+    status: 'ONLINE' | 'OFFLINE' | null
+    username: string
+  }>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }

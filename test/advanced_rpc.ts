@@ -214,6 +214,17 @@ export const rpcQueries = {
       '': true,
     }
   ),
+  // @ts-expect-error the function types doesn't exist and should fail to be retrieved by cache
+  // for direct rpc call
+  'function with blurb_message': postgrest.rpc('blurb_messages', {
+    channel_id: 1,
+    data: null,
+    id: 1,
+    message: 'Hello World 👋',
+    username: 'supabot',
+  }),
+  'function returning row': postgrest.rpc('function_returning_row'),
+  'function returning set of rows': postgrest.rpc('function_returning_set_of_rows'),
 } as const
 
 describe('rpc', () => {
@@ -919,5 +930,98 @@ describe('rpc', () => {
           "statusText": "OK",
         }
       `)
+  })
+
+  test('function with blurb_message', async () => {
+    const res = await rpcQueries['function with blurb_message']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": null,
+        "error": Object {
+          "code": "PGRST202",
+          "details": "Searched for the function public.blurb_messages with parameters channel_id, data, id, message, username or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.",
+          "hint": "Perhaps you meant to call the function public.get_messages",
+          "message": "Could not find the function public.blurb_messages(channel_id, data, id, message, username) in the schema cache",
+        },
+        "status": 404,
+        "statusText": "Not Found",
+      }
+    `)
+  })
+
+  test('function returning row', async () => {
+    const res = await rpcQueries['function returning row']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
+        },
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function returning set of rows', async () => {
+    const res = await rpcQueries['function returning set of rows']
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "age_range": "[1,2)",
+            "catchphrase": "'cat' 'fat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "supabot",
+          },
+          Object {
+            "age_range": "[25,35)",
+            "catchphrase": "'bat' 'cat'",
+            "data": null,
+            "status": "OFFLINE",
+            "username": "kiwicopple",
+          },
+          Object {
+            "age_range": "[25,35)",
+            "catchphrase": "'bat' 'rat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "awailas",
+          },
+          Object {
+            "age_range": "[20,30)",
+            "catchphrase": "'json' 'test'",
+            "data": Object {
+              "foo": Object {
+                "bar": Object {
+                  "nested": "value",
+                },
+                "baz": "string value",
+              },
+            },
+            "status": "ONLINE",
+            "username": "jsonuser",
+          },
+          Object {
+            "age_range": "[20,30)",
+            "catchphrase": "'fat' 'rat'",
+            "data": null,
+            "status": "ONLINE",
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
   })
 })

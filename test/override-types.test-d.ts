@@ -421,6 +421,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
           data: string
           id: number
           message: string | null
+          blurb_message: string | null
           username: string
           created_at: Date
         }[]
@@ -476,6 +477,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
           data: Json
           id: number
           message: string | null
+          blurb_message: string | null
           username: string
         }[]
         test: { created_at: Date; data: string }[]
@@ -518,6 +520,7 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
           data: Json
           channel_id: number
           message: string | null
+          blurb_message: string | null
         }[]
       }[]
     >

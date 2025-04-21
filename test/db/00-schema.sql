@@ -307,3 +307,24 @@ create or replace function public.polymorphic_function_with_unnamed_default_over
 create or replace function public.polymorphic_function_with_unnamed_default_overload(text default 'default') returns text language sql as $$ SELECT 'foo' $$;
 create or replace function public.polymorphic_function_with_unnamed_default_overload(bool default true) returns int language sql as 'SELECT 3';
 
+create function public.blurb_message(public.messages) returns character varying as
+$$
+select substring($1.message, 1, 3);
+$$ language sql stable;
+
+
+create or replace function public.function_returning_row()
+returns public.users
+language sql
+stable
+as $$
+  select * from public.users limit 1;
+$$;
+
+create or replace function public.function_returning_set_of_rows()
+returns setof public.users
+language sql
+stable
+as $$
+  select * from public.users;
+$$;

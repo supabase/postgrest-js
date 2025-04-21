@@ -1,4 +1,4 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json = unknown
 
 export type Database = {
   personal: {
@@ -297,6 +297,7 @@ export type Database = {
           id: number
           message: string | null
           username: string
+          blurb_message: string | null
         }
         Insert: {
           channel_id: number
@@ -582,6 +583,26 @@ export type Database = {
       }
     }
     Functions: {
+      function_returning_row: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+      }
+      function_returning_set_of_rows: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }[]
+      }
       function_with_array_param: {
         Args: { param: string[] }
         Returns: undefined

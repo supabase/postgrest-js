@@ -50,6 +50,18 @@ export const selectParams = {
     from: 'active_users',
     select: 'username, recent_messages:get_user_recent_messages(*)',
   },
+  embeded_function_with_blurb_message: {
+    from: 'users',
+    select: 'username, user_messages:get_user_messages(id,message,blurb_message)',
+  },
+  embeded_function_returning_row: {
+    from: 'channels',
+    select: 'id, user:function_returning_row(*)',
+  },
+  embeded_function_returning_set_of_rows: {
+    from: 'channels',
+    select: 'id, users:function_returning_set_of_rows(*)',
+  },
 } as const
 
 export const selectQueries = {
@@ -89,6 +101,15 @@ export const selectQueries = {
   embeded_function_with_view_input_returning_view: postgrest
     .from(selectParams.embeded_function_with_view_input_returning_view.from)
     .select(selectParams.embeded_function_with_view_input_returning_view.select),
+  embeded_function_with_blurb_message: postgrest
+    .from(selectParams.embeded_function_with_blurb_message.from)
+    .select(selectParams.embeded_function_with_blurb_message.select),
+  embeded_function_returning_row: postgrest
+    .from(selectParams.embeded_function_returning_row.from)
+    .select(selectParams.embeded_function_returning_row.select),
+  embeded_function_returning_set_of_rows: postgrest
+    .from(selectParams.embeded_function_returning_set_of_rows.from)
+    .select(selectParams.embeded_function_returning_set_of_rows.select),
 } as const
 
 describe('select', () => {
@@ -624,6 +645,92 @@ describe('select', () => {
         "error": null,
         "status": 200,
         "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function with blurb_message', async () => {
+    const res = await selectQueries.embeded_function_with_blurb_message
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "user_messages": Array [
+              Object {
+                "blurb_message": "Hel",
+                "id": 1,
+                "message": "Hello World 👋",
+              },
+              Object {
+                "blurb_message": "Per",
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+              },
+              Object {
+                "blurb_message": "Som",
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "kiwicopple",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "user_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+  })
+
+  test('function returning row', async () => {
+    const res = await selectQueries.embeded_function_returning_row
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": null,
+        "error": Object {
+          "code": "PGRST200",
+          "details": "Searched for a foreign key relationship between 'channels' and 'function_returning_row' in the schema 'public', but no matches were found.",
+          "hint": null,
+          "message": "Could not find a relationship between 'channels' and 'function_returning_row' in the schema cache",
+        },
+        "status": 400,
+        "statusText": "Bad Request",
+      }
+    `)
+  })
+
+  test('function returning set of rows', async () => {
+    const res = await selectQueries.embeded_function_returning_set_of_rows
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": null,
+        "error": Object {
+          "code": "PGRST200",
+          "details": "Searched for a foreign key relationship between 'channels' and 'function_returning_set_of_rows' in the schema 'public', but no matches were found.",
+          "hint": null,
+          "message": "Could not find a relationship between 'channels' and 'function_returning_set_of_rows' in the schema cache",
+        },
+        "status": 400,
+        "statusText": "Bad Request",
       }
     `)
   })

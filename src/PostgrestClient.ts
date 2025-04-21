@@ -55,10 +55,10 @@ export type GetRpcFunctionFilterBuilderByArgs<
           : null
       }
     : // If we failed to find the function by argument, we still pass with any but also add an overridable
-    Fn extends never
+    Fn extends false
     ? {
         Row: any
-        Result: { error: true } & "Couldn't find function"
+        Result: { error: true } & "Couldn't infer function definition matching provided arguments"
         RelationName: FnName
         Relationships: null
       }

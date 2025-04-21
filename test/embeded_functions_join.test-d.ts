@@ -130,3 +130,30 @@ type Schema = Database['public']
   }>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
+
+{
+  const { data } = await selectQueries.embeded_function_with_blurb_message
+  let result: Exclude<typeof data, null>
+  let expected: Array<{
+    username: string
+    user_messages: Array<
+      Pick<Schema['Tables']['messages']['Row'], 'id' | 'message' | 'blurb_message'>
+    >
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+// Cannot embed an function that is not a setofOptions one
+{
+  const { data } = await selectQueries.embeded_function_returning_row
+  let result: Exclude<typeof data, null>
+  let expected: never[]
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
+
+{
+  const { data } = await selectQueries.embeded_function_returning_set_of_rows
+  let result: Exclude<typeof data, null>
+  let expected: never[]
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}

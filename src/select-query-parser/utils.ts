@@ -662,4 +662,4 @@ type FindMatchingFunctionBySetofFrom<
   TableName extends string
 > = FnUnion extends infer Fn extends GenericFunction
   ? MatchingFunctionBySetofFrom<Fn, TableName>
-  : never
+  : false
