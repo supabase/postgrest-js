@@ -263,13 +263,13 @@ $$;
 create function postgrest_unresolvable_function() returns void language sql as '';
 create function postgrest_unresolvable_function(a text) returns int language sql as 'select 1';
 create function postgrest_unresolvable_function(a int) returns text language sql as $$ 
-    SELECT 'toto' 
+    SELECT 'foo' 
 $$;
 -- Valid postgresql function override with differents returns types depending of different arguments
 create function postgrest_resolvable_with_override_function() returns void language sql as '';
 create function postgrest_resolvable_with_override_function(a text) returns int language sql as 'select 1';
 create function postgrest_resolvable_with_override_function(b int) returns text language sql as $$ 
-    SELECT 'toto' 
+    SELECT 'foo' 
 $$;
 -- Function overrides returning setof tables
 create function postgrest_resolvable_with_override_function(profile_id bigint) returns setof user_profiles language sql stable as $$
@@ -284,13 +284,26 @@ create function postgrest_resolvable_with_override_function(user_row users) retu
 $$;
 
 create or replace function public.polymorphic_function_with_different_return(bool) returns int language sql as 'SELECT 1';
-create or replace function public.polymorphic_function_with_different_return(text) returns void language sql as '';
+create or replace function public.polymorphic_function_with_different_return(int) returns int language sql as 'SELECT 2';
+create or replace function public.polymorphic_function_with_different_return(text) returns text language sql as $$ SELECT 'foo' $$;
 
 create or replace function public.polymorphic_function_with_no_params_or_unnamed() returns int language sql as 'SELECT 1';
-create or replace function public.polymorphic_function_with_no_params_or_unnamed(bool) returns int language sql as 'SELECT 1';
-create or replace function public.polymorphic_function_with_no_params_or_unnamed(text) returns void language sql as '';
+create or replace function public.polymorphic_function_with_no_params_or_unnamed(bool) returns int language sql as 'SELECT 2';
+create or replace function public.polymorphic_function_with_no_params_or_unnamed(text) returns text language sql as $$ SELECT 'foo' $$;
 -- Function with a single unnamed params that isn't a json/jsonb/text should never appears in the type gen as it won't be in postgrest schema
 create or replace function public.polymorphic_function_with_unnamed_integer(int) returns int language sql as 'SELECT 1';
 create or replace function public.polymorphic_function_with_unnamed_json(json) returns int language sql as 'SELECT 1';
 create or replace function public.polymorphic_function_with_unnamed_jsonb(jsonb) returns int language sql as 'SELECT 1';
 create or replace function public.polymorphic_function_with_unnamed_text(text) returns int language sql as 'SELECT 1';
+
+-- Functions with unnamed parameters that have default values
+create or replace function public.polymorphic_function_with_unnamed_default() returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_unnamed_default(int default 42) returns int language sql as 'SELECT 2';
+create or replace function public.polymorphic_function_with_unnamed_default(text default 'default') returns text language sql as $$ SELECT 'foo' $$;
+
+-- Functions with unnamed parameters that have default values and multiple overloads
+create or replace function public.polymorphic_function_with_unnamed_default_overload() returns int language sql as 'SELECT 1';
+create or replace function public.polymorphic_function_with_unnamed_default_overload(int default 42) returns int language sql as 'SELECT 2';
+create or replace function public.polymorphic_function_with_unnamed_default_overload(text default 'default') returns text language sql as $$ SELECT 'foo' $$;
+create or replace function public.polymorphic_function_with_unnamed_default_overload(bool default true) returns int language sql as 'SELECT 3';
+

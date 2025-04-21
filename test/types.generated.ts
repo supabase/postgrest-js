@@ -776,16 +776,39 @@ export type Database = {
       }
       polymorphic_function_with_different_return: {
         Args: { '': string }
-        Returns: undefined
+        Returns: string
       }
-      polymorphic_function_with_no_params_or_unnamed: {
-        Args: { '': boolean }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_integer: {
-        Args: { '': number }
-        Returns: number
-      }
+      polymorphic_function_with_no_params_or_unnamed:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: number
+          }
+        | {
+            Args: { '': string }
+            Returns: string
+          }
+      polymorphic_function_with_unnamed_default:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default( => int4), polymorphic_function_with_unnamed_default(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: { '': string }
+            Returns: string
+          }
+      polymorphic_function_with_unnamed_default_overload:
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: { '': string }
+            Returns: string
+          }
       polymorphic_function_with_unnamed_json: {
         Args: { '': Json }
         Returns: number
@@ -855,14 +878,14 @@ export type Database = {
           }
       postgrest_unresolvable_function:
         | {
+            Args: Record<PropertyKey, never>
+            Returns: undefined
+          }
+        | {
             Args: { a: unknown }
             Returns: {
               error: true
             } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
-          }
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: undefined
           }
       void_func: {
         Args: Record<PropertyKey, never>

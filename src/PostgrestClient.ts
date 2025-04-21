@@ -25,13 +25,17 @@ export type GetRpcFunctionFilterBuilderByArgs<
   // args function definition if there is one in such case
   1: [keyof Args] extends [never]
     ? ExtractExactFunction<Schema['Functions'][FnName], Args>
-    : Args extends GenericFunction['Args']
+    : // Otherwise, we attempt to match with one of the function definition in the union based
+    // on the function arguments provided
+    Args extends GenericFunction['Args']
     ? FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>
     : any
 }[1] extends infer Fn
-  ? IsAny<Fn> extends true
+  ? // If we are dealing with an non-typed client everything is any
+    IsAny<Fn> extends true
     ? { Row: any; Result: any; RelationName: FnName; Relationships: null }
-    : Fn extends GenericFunction
+    : // Otherwise, we use the arguments based function definition narrowing to get the rigt value
+    Fn extends GenericFunction
     ? {
         Row: Fn['Returns'] extends any[]
           ? Fn['Returns'][number] extends Record<string, unknown>
@@ -50,30 +54,14 @@ export type GetRpcFunctionFilterBuilderByArgs<
             : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
           : null
       }
-    : Fn extends never
+    : // If we failed to find the function by argument, we still pass with any but also add an overridable
+    Fn extends never
     ? {
         Row: any
         Result: { error: true } & "Couldn't find function"
         RelationName: FnName
         Relationships: null
       }
-    : never
-  : never
-
-export type RpcRowType<
-  Schema extends GenericSchema,
-  FnName extends string & keyof Schema['Functions'],
-  Args
-> = {
-  0: Schema['Functions'][FnName]
-  1: Args extends GenericFunction['Args']
-    ? FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>
-    : any
-}[1] extends infer Fn
-  ? IsAny<Fn> extends true
-    ? any
-    : Fn extends GenericFunction
-    ? Fn['Returns']
     : never
   : never
 
