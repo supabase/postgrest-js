@@ -1,6 +1,5 @@
 # docker-compose.yml
 
-version: '3'
 services:
   rest:
     image: postgrest/postgrest:v12.2.0
@@ -29,7 +28,7 @@ services:
       POSTGRES_HOST: /var/run/postgresql
       POSTGRES_PORT: 5432
   pgmeta:
-    image: supabase/postgres-meta:v0.87.1
+    image: local-pg-meta
     ports:
       - '8080:8080'
     environment:

@@ -1,4 +1,4 @@
-import { postgrest, selectParams, RPC_NAME } from '../rpc'
+import { postgrest, selectParams, RPC_NAME } from '../get_username_and_status_rpc'
 import { Database } from '../types.override'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'

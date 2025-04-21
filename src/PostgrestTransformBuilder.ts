@@ -1,4 +1,5 @@
 import PostgrestBuilder from './PostgrestBuilder'
+import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import { GetResult } from './select-query-parser/result'
 import { GenericSchema, CheckMatchingArrayTypes } from './types'
 
@@ -23,7 +24,7 @@ export default class PostgrestTransformBuilder<
     NewResultOne = GetResult<Schema, Row, RelationName, Relationships, Query>
   >(
     columns?: Query
-  ): PostgrestTransformBuilder<Schema, Row, NewResultOne[], RelationName, Relationships> {
+  ): PostgrestFilterBuilder<Schema, Row, NewResultOne[], RelationName, Relationships> {
     // Remove whitespaces except when quoted
     let quoted = false
     const cleanedColumns = (columns ?? '*')
@@ -43,7 +44,7 @@ export default class PostgrestTransformBuilder<
       this.headers['Prefer'] += ','
     }
     this.headers['Prefer'] += 'return=representation'
-    return this as unknown as PostgrestTransformBuilder<
+    return this as unknown as PostgrestFilterBuilder<
       Schema,
       Row,
       NewResultOne[],
