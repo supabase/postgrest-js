@@ -1957,3 +1957,19 @@ test('nested query with selective fields and inner join should error on non exis
     }
   `)
 })
+
+test('test mre', async () => {
+  const res = await postgrest
+    .from('recipes')
+    .select('title, recipe_ingredients(ingredient(title))')
+    .eq('id', 20)
+    .maybeSingle()
+  if (res.data) {
+    const dataType = res.data.recipe_ingredients.map(
+      (recipe_ingredient) => recipe_ingredient.ingredient.title
+    )
+    if (typeof dataType[0] === 'string') {
+      // is a string as expected !
+    }
+  }
+})

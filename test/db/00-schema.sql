@@ -163,3 +163,19 @@ create table public.cornercase (
   "column whitespace" text,
   array_column text[]
 );
+
+create table public.recipes (
+  id bigint primary key generated always as identity,
+  title text not null
+);
+
+create table public.ingredients (
+  id bigint primary key generated always as identity,
+  title text not null
+);
+
+create table public.recipe_ingredients (
+  recipe bigint not null references recipes on update cascade on delete cascade,
+  ingredient bigint not null references ingredients on update cascade,
+  constraint recipe_ingredients_pkey primary key (recipe, ingredient)
+);
