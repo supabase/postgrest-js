@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   personal: {
@@ -13,19 +7,19 @@ export type Database = {
         Row: {
           age_range: unknown | null
           data: Json | null
-          status: Database["public"]["Enums"]["user_status"] | null
+          status: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Insert: {
           age_range?: unknown | null
           data?: Json | null
-          status?: Database["public"]["Enums"]["user_status"] | null
+          status?: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Update: {
           age_range?: unknown | null
           data?: Json | null
-          status?: Database["public"]["Enums"]["user_status"] | null
+          status?: Database['public']['Enums']['user_status'] | null
           username?: string
         }
         Relationships: []
@@ -39,11 +33,11 @@ export type Database = {
         Args: {
           name_param: string
         }
-        Returns: Database["public"]["Enums"]["user_status"]
+        Returns: Database['public']['Enums']['user_status']
       }
     }
     Enums: {
-      user_status: "ONLINE" | "OFFLINE"
+      user_status: 'ONLINE' | 'OFFLINE'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -72,68 +66,68 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "best_friends_first_user_fkey"
-            columns: ["first_user"]
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
             isOneToOne: false
-            referencedRelation: "non_updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_first_user_fkey"
-            columns: ["first_user"]
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
             isOneToOne: false
-            referencedRelation: "updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_first_user_fkey"
-            columns: ["first_user"]
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["username"]
+            referencedRelation: 'users'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_second_user_fkey"
-            columns: ["second_user"]
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
             isOneToOne: false
-            referencedRelation: "non_updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_second_user_fkey"
-            columns: ["second_user"]
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
             isOneToOne: false
-            referencedRelation: "updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_second_user_fkey"
-            columns: ["second_user"]
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["username"]
+            referencedRelation: 'users'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_third_wheel_fkey"
-            columns: ["third_wheel"]
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
             isOneToOne: false
-            referencedRelation: "non_updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_third_wheel_fkey"
-            columns: ["third_wheel"]
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
             isOneToOne: false
-            referencedRelation: "updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "best_friends_third_wheel_fkey"
-            columns: ["third_wheel"]
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          },
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
         ]
       }
       booking: {
@@ -151,12 +145,12 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "booking_hotel_id_fkey"
-            columns: ["hotel_id"]
+            foreignKeyName: 'booking_hotel_id_fkey'
+            columns: ['hotel_id']
             isOneToOne: false
-            referencedRelation: "hotel"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'hotel'
+            referencedColumns: ['id']
+          }
         ]
       }
       categories: {
@@ -192,12 +186,12 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "channel_details_id_fkey"
-            columns: ["id"]
+            foreignKeyName: 'channel_details_id_fkey'
+            columns: ['id']
             isOneToOne: true
-            referencedRelation: "channels"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          }
         ]
       }
       channels: {
@@ -236,28 +230,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "collections_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: 'collections_parent_id_fkey'
+            columns: ['parent_id']
             isOneToOne: false
-            referencedRelation: "collections"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'collections'
+            referencedColumns: ['id']
+          }
         ]
       }
       cornercase: {
         Row: {
           array_column: string[] | null
-          "column whitespace": string | null
+          'column whitespace': string | null
           id: number
         }
         Insert: {
           array_column?: string[] | null
-          "column whitespace"?: string | null
+          'column whitespace'?: string | null
           id: number
         }
         Update: {
           array_column?: string[] | null
-          "column whitespace"?: string | null
+          'column whitespace'?: string | null
           id?: number
         }
         Relationships: []
@@ -316,33 +310,33 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "messages_channel_id_fkey"
-            columns: ["channel_id"]
+            foreignKeyName: 'messages_channel_id_fkey'
+            columns: ['channel_id']
             isOneToOne: false
-            referencedRelation: "channels"
-            referencedColumns: ["id"]
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "messages_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "non_updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "messages_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "messages_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          },
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
         ]
       }
       product_categories: {
@@ -360,19 +354,19 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "product_categories_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: 'product_categories_category_id_fkey'
+            columns: ['category_id']
             isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "product_categories_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: 'product_categories_product_id_fkey'
+            columns: ['product_id']
             isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          }
         ]
       }
       products: {
@@ -411,19 +405,19 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "recipe_ingredients_ingredient_fkey"
-            columns: ["ingredient"]
+            foreignKeyName: 'recipe_ingredients_ingredient_fkey'
+            columns: ['ingredient']
             isOneToOne: false
-            referencedRelation: "ingredients"
-            referencedColumns: ["id"]
+            referencedRelation: 'ingredients'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "recipe_ingredients_recipe_fkey"
-            columns: ["recipe"]
+            foreignKeyName: 'recipe_ingredients_recipe_fkey'
+            columns: ['recipe']
             isOneToOne: false
-            referencedRelation: "recipes"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'recipes'
+            referencedColumns: ['id']
+          }
         ]
       }
       recipes: {
@@ -474,26 +468,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_profiles_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "non_updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "user_profiles_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "updatable_view"
-            referencedColumns: ["username"]
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
           },
           {
-            foreignKeyName: "user_profiles_username_fkey"
-            columns: ["username"]
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          },
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
         ]
       }
       users: {
@@ -501,21 +495,21 @@ export type Database = {
           age_range: unknown | null
           catchphrase: unknown | null
           data: Json | null
-          status: Database["public"]["Enums"]["user_status"] | null
+          status: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Insert: {
           age_range?: unknown | null
           catchphrase?: unknown | null
           data?: Json | null
-          status?: Database["public"]["Enums"]["user_status"] | null
+          status?: Database['public']['Enums']['user_status'] | null
           username: string
         }
         Update: {
           age_range?: unknown | null
           catchphrase?: unknown | null
           data?: Json | null
-          status?: Database["public"]["Enums"]["user_status"] | null
+          status?: Database['public']['Enums']['user_status'] | null
           username?: string
         }
         Relationships: []
@@ -561,7 +555,7 @@ export type Database = {
         Args: {
           name_param: string
         }
-        Returns: Database["public"]["Enums"]["user_status"]
+        Returns: Database['public']['Enums']['user_status']
       }
       get_username_and_status: {
         Args: {
@@ -569,14 +563,14 @@ export type Database = {
         }
         Returns: {
           username: string
-          status: Database["public"]["Enums"]["user_status"]
+          status: Database['public']['Enums']['user_status']
         }[]
       }
       offline_user: {
         Args: {
           name_param: string
         }
-        Returns: Database["public"]["Enums"]["user_status"]
+        Returns: Database['public']['Enums']['user_status']
       }
       void_func: {
         Args: Record<PropertyKey, never>
@@ -584,7 +578,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_status: "ONLINE" | "OFFLINE"
+      user_status: 'ONLINE' | 'OFFLINE'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -592,120 +586,116 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, 'public'>]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    ? keyof (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      Database[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+  ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
     : never
+  : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
     : never
+  : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    ? keyof Database[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+  ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
     : never
+  : never
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+  DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums'] | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    ? keyof Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    : never = never
 > = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  ? Database[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+  ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never = never
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+  ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  : never
 
 export const Constants = {
   personal: {
     Enums: {
-      user_status: ["ONLINE", "OFFLINE"],
+      user_status: ['ONLINE', 'OFFLINE'],
     },
   },
   public: {
     Enums: {
-      user_status: ["ONLINE", "OFFLINE"],
+      user_status: ['ONLINE', 'OFFLINE'],
     },
   },
 } as const
