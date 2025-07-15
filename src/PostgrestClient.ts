@@ -1,6 +1,74 @@
 import PostgrestQueryBuilder from './PostgrestQueryBuilder'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import { Fetch, GenericSchema, ClientServerOptions, GetGenericDatabaseWithOptions } from './types'
+import {
+  Fetch,
+  GenericSchema,
+  ClientServerOptions,
+  GetGenericDatabaseWithOptions,
+  GenericFunction,
+  GenericSetofOption,
+} from './types'
+import { FindMatchingFunctionByArgs, IsAny } from './select-query-parser/utils'
+
+type ExactMatch<T, S> = [T] extends [S] ? ([S] extends [T] ? true : false) : false
+
+type ExtractExactFunction<Fns, Args> = Fns extends infer F
+  ? F extends GenericFunction
+    ? ExactMatch<F['Args'], Args> extends true
+      ? F
+      : never
+    : never
+  : never
+
+export type GetRpcFunctionFilterBuilderByArgs<
+  Schema extends GenericSchema,
+  FnName extends string & keyof Schema['Functions'],
+  Args
+> = {
+  0: Schema['Functions'][FnName]
+  // This is here to handle the case where the args is exactly {} and fallback to the empty
+  // args function definition if there is one in such case
+  1: [keyof Args] extends [never]
+    ? ExtractExactFunction<Schema['Functions'][FnName], Args>
+    : // Otherwise, we attempt to match with one of the function definition in the union based
+    // on the function arguments provided
+    Args extends GenericFunction['Args']
+    ? FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>
+    : any
+}[1] extends infer Fn
+  ? // If we are dealing with an non-typed client everything is any
+    IsAny<Fn> extends true
+    ? { Row: any; Result: any; RelationName: FnName; Relationships: null }
+    : // Otherwise, we use the arguments based function definition narrowing to get the rigt value
+    Fn extends GenericFunction
+    ? {
+        Row: Fn['Returns'] extends any[]
+          ? Fn['Returns'][number] extends Record<string, unknown>
+            ? Fn['Returns'][number]
+            : never
+          : Fn['Returns'] extends Record<string, unknown>
+          ? Fn['Returns']
+          : never
+        Result: Fn['Returns']
+        RelationName: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['to']
+          : FnName
+        Relationships: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['to'] extends keyof Schema['Tables']
+            ? Schema['Tables'][Fn['SetofOptions']['to']]['Relationships']
+            : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
+          : null
+      }
+    : // If we failed to find the function by argument, we still pass with any but also add an overridable
+    Fn extends false
+    ? {
+        Row: any
+        Result: { error: true } & "Couldn't infer function definition matching provided arguments"
+        RelationName: FnName
+        Relationships: null
+      }
+    : never
+  : never
 
 /**
  * PostgREST client.

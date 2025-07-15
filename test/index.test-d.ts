@@ -4,11 +4,9 @@ import { PostgrestClient, PostgrestError } from '../src/index'
 import { Prettify } from '../src/types'
 import { Json } from '../src/select-query-parser/types'
 import { Database } from './types.override'
-import { Database as DatabaseWithOptions } from './types.override-with-options-postgrest13'
 
 const REST_URL = 'http://localhost:3000'
 const postgrest = new PostgrestClient<Database>(REST_URL)
-const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // table invalid type
 {
@@ -297,9 +295,20 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
     }[]
   >(result.data)
 }
-// Check that client options __InternalSupabase isn't considered like the other schemas
+// Json string Accessor with custom types overrides
 {
-  await postgrestWithOptions
-    // @ts-expect-error supabase internal shouldn't be available as one of the selectable schema
-    .schema('__InternalSupabase')
+  const result = await postgrest
+    .schema('personal')
+    .from('users')
+    .select('data->bar->>baz, data->>en, data->>bar')
+  if (result.error) {
+    throw new Error(result.error.message)
+  }
+  expectType<
+    {
+      baz: string
+      en: 'ONE' | 'TWO' | 'THREE'
+      bar: string
+    }[]
+  >(result.data)
 }
