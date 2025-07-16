@@ -522,6 +522,7 @@ describe('rpc', () => {
         user_row: { username: 'supabot' },
       })
       .select('id, username, users(username, catchphrase)')
+      //@ts-expect-error will complain about missing the rest of the params
       .eq('username', 'nope')
 
     expect(res).toMatchInlineSnapshot(`
@@ -551,6 +552,32 @@ describe('rpc', () => {
           "statusText": "OK",
         }
       `)
+    const res3 = await postgrest
+      .rpc('get_user_profile', {
+        //@ts-expect-error will complain about missing the rest of the params
+        user_row: { username: 'supabot' },
+      })
+      // should also be able to fitler before the select
+      .eq('username', 'supabot')
+      .select('username, users(username, catchphrase)')
+
+    expect(res3).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "username": "supabot",
+            "users": Object {
+              "catchphrase": "'cat' 'fat'",
+              "username": "supabot",
+            },
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
   })
 
   test('unresolvable function with text param', async () => {

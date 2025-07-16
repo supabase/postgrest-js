@@ -484,19 +484,6 @@ export type ResolveForwardRelationship<
     : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
   : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
 
-type ResolveEmbededFunctionJoinTableRelationship<
-  Schema extends GenericSchema,
-  CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
-  FieldName extends string
-> = FindMatchingFunctionBySetofFrom<
-  Schema['Functions'][FieldName],
-  CurrentTableOrView
-> extends infer Fn
-  ? Fn extends GenericFunction
-    ? Fn['SetofOptions']
-    : false
-  : false
-
 /**
  * Given a CurrentTableOrView, finds all join tables to this relation.
  * For example, if products and categories are linked via product_categories table:
@@ -534,6 +521,19 @@ type ResolveJoinTableRelationship<
       : never
     : never
 }[keyof TablesAndViews<Schema>]
+
+type ResolveEmbededFunctionJoinTableRelationship<
+  Schema extends GenericSchema,
+  CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
+  FieldName extends string
+> = FindMatchingFunctionBySetofFrom<
+  Schema['Functions'][FieldName],
+  CurrentTableOrView
+> extends infer Fn
+  ? Fn extends GenericFunction
+    ? Fn['SetofOptions']
+    : false
+  : false
 
 export type FindJoinTableRelationship<
   Schema extends GenericSchema,

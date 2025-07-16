@@ -210,8 +210,8 @@ export default class PostgrestClient<
     Fn['Returns'] extends any[]
       ? Fn['Returns'][number] extends Record<string, unknown>
         ? Fn['Returns'][number]
-        : never
-      : never,
+        : {}
+      : {},
     Fn['Returns'],
     FnName,
     null,
