@@ -1,8 +1,0 @@
-import './basic'
-import './relationships.test'
-import './filters'
-import './resource-embedding.test'
-import './transforms'
-import './rpc.test'
-import './max-affected.test'
-import './version-and-constants.test'

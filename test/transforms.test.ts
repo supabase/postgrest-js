@@ -74,6 +74,13 @@ test('order on multiple columns', async () => {
         Object {
           "channel_id": 3,
           "data": null,
+          "id": 3,
+          "message": "Some message on channel wihtout details",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 3,
+          "data": null,
           "id": 4,
           "message": "Some message on channel wihtout details",
           "username": "supabot",
@@ -143,17 +150,10 @@ test('range', async () => {
         },
         Object {
           "age_range": "[20,30)",
-          "catchphrase": "'json' 'test'",
-          "data": Object {
-            "foo": Object {
-              "bar": Object {
-                "nested": "value",
-              },
-              "baz": "string value",
-            },
-          },
+          "catchphrase": "'fat' 'rat'",
+          "data": null,
           "status": "ONLINE",
-          "username": "jsonuser",
+          "username": "dragarcia",
         },
       ],
       "error": null,
@@ -285,8 +285,8 @@ test('csv', async () => {
     supabot,,\\"[1,2)\\",ONLINE,\\"'cat' 'fat'\\"
     kiwicopple,,\\"[25,35)\\",OFFLINE,\\"'bat' 'cat'\\"
     awailas,,\\"[25,35)\\",ONLINE,\\"'bat' 'rat'\\"
-    jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"
-    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"",
+    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"
+    jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"",
       "error": null,
       "status": 200,
       "statusText": "OK",
@@ -353,11 +353,6 @@ test('abort signal', async () => {
   `
   )
 })
-
-// test('geojson', async () => {
-//   const res = await postgrest.from('shops').select().geojson()
-//   expect(res).toMatchInlineSnapshot()
-// })
 
 test('explain with json/text format', async () => {
   const res1 = await postgrest.from('users').select().explain({ format: 'json' })

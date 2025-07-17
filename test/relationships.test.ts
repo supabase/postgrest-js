@@ -35,6 +35,10 @@ test('nested query with selective fields', async () => {
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
           },
           Object {
+            "id": 3,
+            "message": "Some message on channel wihtout details",
+          },
+          Object {
             "id": 4,
             "message": "Some message on channel wihtout details",
           },
@@ -89,6 +93,14 @@ test('nested query with multiple levels and selective fields', async () => {
               "id": 3,
               "slug": "other",
             },
+            "id": 3,
+            "message": "Some message on channel wihtout details",
+          },
+          Object {
+            "channels": Object {
+              "id": 3,
+              "slug": "other",
+            },
             "id": 4,
             "message": "Some message on channel wihtout details",
           },
@@ -131,6 +143,9 @@ test('query with multiple one-to-many relationships', async () => {
           },
           Object {
             "id": 2,
+          },
+          Object {
+            "id": 3,
           },
           Object {
             "id": 4,
@@ -302,6 +317,13 @@ test('one-to-many relationship', async () => {
           Object {
             "channel_id": 3,
             "data": null,
+            "id": 3,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
             "id": 4,
             "message": "Some message on channel wihtout details",
             "username": "supabot",
@@ -327,6 +349,9 @@ test('one-to-many relationship with selective columns', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "data": null,
+          },
           Object {
             "data": null,
           },
@@ -416,6 +441,13 @@ test('!left oneToMany', async () => {
             "data": null,
             "id": 2,
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
+            "id": 3,
+            "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
           Object {
@@ -1084,7 +1116,11 @@ test('!left join on zero to one empty relation', async () => {
     .eq('username', 'dragarcia')
     .limit(1)
     .single()
-  expect(res.data).toBeNull()
+  expect(res.data).toMatchInlineSnapshot(`
+    Object {
+      "user_profiles": Array [],
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   let expected: {
     user_profiles: Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>
@@ -1288,7 +1324,7 @@ test('select with aggregate count function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "count": 3,
+            "count": 4,
           },
         ],
         "username": "supabot",
@@ -1320,7 +1356,7 @@ test('select with aggregate count on a column function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "count": 3,
+            "count": 4,
           },
         ],
         "username": "supabot",
@@ -1376,7 +1412,7 @@ test('select with aggregate count function and alias', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "message_count": 3,
+            "message_count": 4,
           },
         ],
         "username": "supabot",
@@ -1407,6 +1443,11 @@ test('select with aggregate nested count function', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
           Object {
             "channels": Object {
               "count": 1,
@@ -1453,6 +1494,11 @@ test('select with aggregate nested count function and alias', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
           Object {
             "channels": Object {
               "channel_count": 1,
@@ -1517,6 +1563,12 @@ test('select with aggregate count and spread', async () => {
               "details": null,
             },
           },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": null,
+            },
+          },
         ],
         "username": "supabot",
       },
@@ -1546,7 +1598,7 @@ test('select with aggregate sum function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "sum": 7,
+            "sum": 10,
           },
         ],
         "username": "supabot",
@@ -1578,7 +1630,7 @@ test('select with aggregate aliased sum function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "sum_id": 7,
+            "sum_id": 10,
           },
         ],
         "username": "supabot",
@@ -1617,6 +1669,11 @@ test('select with aggregate sum function on nested relation', async () => {
           Object {
             "channels": Object {
               "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 3,
             },
           },
           Object {
@@ -1665,6 +1722,12 @@ test('select with aggregate sum and spread', async () => {
             "channels": Object {
               "details": "Details for random channel",
               "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": null,
+              "sum": 3,
             },
           },
           Object {
@@ -1728,6 +1791,13 @@ test('select with aggregate sum and spread on nested relation', async () => {
               "sum": 3,
             },
           },
+          Object {
+            "channels": Object {
+              "details": null,
+              "details_sum": null,
+              "sum": 3,
+            },
+          },
         ],
         "username": "supabot",
       },
@@ -1759,32 +1829,14 @@ test('select with spread on nested relation', async () => {
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
-      "data": Array [
-        Object {
-          "channels": Object {
-            "details": "Details for public channel",
-            "details_id": 1,
-            "id": 1,
-          },
+      "data": Object {
+        "channels": Object {
+          "details": "Details for public channel",
+          "details_id": 1,
           "id": 1,
         },
-        Object {
-          "channels": Object {
-            "details": "Details for random channel",
-            "details_id": 2,
-            "id": 2,
-          },
-          "id": 2,
-        },
-        Object {
-          "channels": Object {
-            "details": null,
-            "details_id": null,
-            "id": 3,
-          },
-          "id": 4,
-        },
-      ],
+        "id": 1,
+      },
       "error": null,
       "status": 200,
       "statusText": "OK",
