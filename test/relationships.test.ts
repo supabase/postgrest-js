@@ -1,6 +1,11 @@
 import { PostgrestClient } from '../src/index'
-import { Database } from './types.override'
+import { Database, CustomUserDataType } from './types.override'
 import { Database as DatabaseWithOptions13 } from './types.override-with-options-postgrest13'
+import { expectType } from 'tsd'
+import { TypeEqual } from 'ts-expect'
+import { Json } from '../src/select-query-parser/types'
+import { SelectQueryError } from '../src/select-query-parser/utils'
+import { Prettify } from '../src/types'
 
 const REST_URL = 'http://localhost:3000'
 export const postgrest = new PostgrestClient<Database>(REST_URL)
@@ -11,9 +16,6 @@ const postgrest13FromDatabaseTypes = new PostgrestClient<DatabaseWithOptions13>(
 const userColumn: 'catchphrase' | 'username' = 'username'
 
 export const selectParams = {
-  manyToOne: { from: 'messages', select: 'user:users(*)' },
-  inner: { from: 'messages', select: 'channels!inner(*, channel_details!inner(*))' },
-  oneToMany: { from: 'users', select: 'messages(*)' },
   oneToManySelective: { from: 'users', select: 'messages(data)' },
   oneToOne: { from: 'channels', select: 'channel_details(*)' },
   leftOneToOne: { from: 'channel_details', select: 'channels!left(*)' },
@@ -94,15 +96,7 @@ export const selectParams = {
   },
   typeCastingQuery: { from: 'best_friends', select: 'id::text' },
   joinSelectViaViewNameRelationship: { from: 'user_profiles', select: 'updatable_view(*)' },
-  queryWithMultipleOneToManySelectives: {
-    from: 'users',
-    select: 'username, messages(id), user_profiles(id)',
-  },
-  nestedQueryWithMultipleLevelsAndSelectiveFields: {
-    from: 'users',
-    select: 'username, messages(id, message, channels(id, slug))',
-  },
-  nestedQueryWithSelectiveFields: { from: 'users', select: 'username, messages(id, message)' },
+
   selectionWithStringTemplating: { from: 'users', select: `status, ${userColumn}` },
   selectWithAggregateCountFunction: { from: 'users', select: 'username, messages(count)' },
   selectWithAggregateCountOnAColumnFunction: {
@@ -194,16 +188,9 @@ export const selectParams = {
     select:
       'msgs:messages(id, ...message_details(created_at, channel!inner(id, slug, owner:users(*))))',
   },
-  innerJoinOnNullableRelationship: {
-    from: 'booking',
-    select: 'id, hotel!inner(id, name)',
-  },
 } as const
 
 export const selectQueries = {
-  manyToOne: postgrest.from(selectParams.manyToOne.from).select(selectParams.manyToOne.select),
-  inner: postgrest.from(selectParams.inner.from).select(selectParams.inner.select),
-  oneToMany: postgrest.from(selectParams.oneToMany.from).select(selectParams.oneToMany.select),
   oneToManySelective: postgrest
     .from(selectParams.oneToManySelective.from)
     .select(selectParams.oneToManySelective.select),
@@ -295,15 +282,6 @@ export const selectQueries = {
   joinSelectViaViewNameRelationship: postgrest
     .from(selectParams.joinSelectViaViewNameRelationship.from)
     .select(selectParams.joinSelectViaViewNameRelationship.select),
-  queryWithMultipleOneToManySelectives: postgrest
-    .from(selectParams.queryWithMultipleOneToManySelectives.from)
-    .select(selectParams.queryWithMultipleOneToManySelectives.select),
-  nestedQueryWithMultipleLevelsAndSelectiveFields: postgrest
-    .from(selectParams.nestedQueryWithMultipleLevelsAndSelectiveFields.from)
-    .select(selectParams.nestedQueryWithMultipleLevelsAndSelectiveFields.select),
-  nestedQueryWithSelectiveFields: postgrest
-    .from(selectParams.nestedQueryWithSelectiveFields.from)
-    .select(selectParams.nestedQueryWithSelectiveFields.select),
   selectionWithStringTemplating: postgrest
     .from(selectParams.selectionWithStringTemplating.from)
     .select(selectParams.selectionWithStringTemplating.select),
@@ -385,13 +363,14 @@ export const selectQueries = {
   nestedQueryWithSelectiveFieldsAndInnerJoin: postgrest
     .from(selectParams.nestedQueryWithSelectiveFieldsAndInnerJoin.from)
     .select(selectParams.nestedQueryWithSelectiveFieldsAndInnerJoin.select),
-  innerJoinOnNullableRelationship: postgrest
-    .from(selectParams.innerJoinOnNullableRelationship.from)
-    .select(selectParams.innerJoinOnNullableRelationship.select),
 } as const
 
 test('nested query with selective fields', async () => {
-  const res = await selectQueries.nestedQueryWithSelectiveFields.limit(1).single()
+  const res = await postgrest
+    .from('users')
+    .select('username, messages(id, message)')
+    .limit(1)
+    .single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -417,10 +396,23 @@ test('nested query with selective fields', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: {
+      id: number
+      message: string | null
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('nested query with multiple levels and selective fields', async () => {
-  const res = await selectQueries.nestedQueryWithMultipleLevelsAndSelectiveFields.limit(1).single()
+  const res = await postgrest
+    .from('users')
+    .select('username, messages(id, message, channels(id, slug))')
+    .limit(1)
+    .single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -458,10 +450,27 @@ test('nested query with multiple levels and selective fields', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: Array<{
+      id: number
+      message: string | null
+      channels: {
+        id: number
+        slug: string | null
+      }
+    }>
+    username: string
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('query with multiple one-to-many relationships', async () => {
-  const res = await selectQueries.queryWithMultipleOneToManySelectives.limit(1).single()
+  const res = await postgrest
+    .from('users')
+    .select('username, messages(id), user_profiles(id)')
+    .limit(1)
+    .single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -492,7 +501,7 @@ test('query with multiple one-to-many relationships', async () => {
 })
 
 test('many-to-one relationship', async () => {
-  const res = await selectQueries.manyToOne.limit(1).single()
+  const res = await postgrest.from('messages').select('user:users(*)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -510,10 +519,19 @@ test('many-to-one relationship', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    user: Database['public']['Tables']['users']['Row']
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!inner relationship', async () => {
-  const res = await selectQueries.inner.limit(1).single()
+  const res = await postgrest
+    .from('messages')
+    .select('channels!inner(*, channel_details!inner(*))')
+    .limit(1)
+    .single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -533,10 +551,20 @@ test('!inner relationship', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  type ExpectedType = Prettify<
+    Database['public']['Tables']['channels']['Row'] & {
+      channel_details: Database['public']['Tables']['channel_details']['Row']
+    }
+  >
+  let expected: {
+    channels: ExpectedType
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!inner relationship on nullable relation', async () => {
-  const res = await selectQueries.innerJoinOnNullableRelationship
+  const res = await postgrest.from('booking').select('id, hotel!inner(id, name)')
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -589,10 +617,19 @@ test('!inner relationship on nullable relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: Array<{
+    id: number
+    hotel: {
+      id: number
+      name: string | null
+    }
+  }>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('one-to-many relationship', async () => {
-  const res = await selectQueries.oneToMany.limit(1).single()
+  const res = await postgrest.from('users').select('messages(*)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -626,6 +663,11 @@ test('one-to-many relationship', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: Database['public']['Tables']['messages']['Row'][]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('one-to-many relationship with selective columns', async () => {
@@ -651,6 +693,11 @@ test('one-to-many relationship with selective columns', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: Array<Pick<Database['public']['Tables']['messages']['Row'], 'data'>>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('one-to-one relationship', async () => {
@@ -669,6 +716,11 @@ test('one-to-one relationship', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channel_details: Database['public']['Tables']['channel_details']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left oneToOne', async () => {
@@ -688,6 +740,11 @@ test('!left oneToOne', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channels: Database['public']['Tables']['channels']['Row']
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left oneToMany', async () => {
@@ -725,6 +782,11 @@ test('!left oneToMany', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: Array<Database['public']['Tables']['messages']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left zeroToOne', async () => {
@@ -746,6 +808,11 @@ test('!left zeroToOne', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    users: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-1 relation with both nullables and non-nullables fields using foreign key name for hinting', async () => {
@@ -781,6 +848,13 @@ test('join over a 1-1 relation with both nullables and non-nullables fields usin
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_user: Database['public']['Tables']['users']['Row']
+    second_user: Database['public']['Tables']['users']['Row']
+    third_wheel: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-M relation with both nullables and non-nullables fields using foreign key name for hinting', async () => {
@@ -811,6 +885,13 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join on 1-M relation', async () => {
@@ -844,6 +925,13 @@ test('join on 1-M relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join on 1-1 relation with nullables', async () => {
@@ -879,6 +967,13 @@ test('join on 1-1 relation with nullables', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_user: Database['public']['Tables']['users']['Row']
+    second_user: Database['public']['Tables']['users']['Row']
+    third_wheel: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-1 relation with both nullables and non-nullables fields with no hinting', async () => {
@@ -913,6 +1008,13 @@ test('join over a 1-1 relation with both nullables and non-nullables fields with
       "statusText": "Multiple Choices",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_user: SelectQueryError<"Could not embed because more than one relationship was found for 'users' and 'best_friends' you need to hint the column with users!<columnName> ?">
+    second_user: SelectQueryError<"Could not embed because more than one relationship was found for 'users' and 'best_friends' you need to hint the column with users!<columnName> ?">
+    third_wheel: SelectQueryError<"Could not embed because more than one relationship was found for 'users' and 'best_friends' you need to hint the column with users!<columnName> ?">
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-1 relation with both nullablesand non-nullables fields with column name hinting', async () => {
@@ -948,6 +1050,13 @@ test('join over a 1-1 relation with both nullablesand non-nullables fields with 
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_user: Database['public']['Tables']['users']['Row']
+    second_user: Database['public']['Tables']['users']['Row']
+    third_wheel: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-M relation with both nullables and non-nullables fields with no hinting', async () => {
@@ -982,6 +1091,13 @@ test('join over a 1-M relation with both nullables and non-nullables fields with
       "statusText": "Multiple Choices",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: SelectQueryError<"Could not embed because more than one relationship was found for 'best_friends' and 'users' you need to hint the column with best_friends!<columnName> ?">
+    second_friend_of: SelectQueryError<"Could not embed because more than one relationship was found for 'best_friends' and 'users' you need to hint the column with best_friends!<columnName> ?">
+    third_wheel_of: SelectQueryError<"Could not embed because more than one relationship was found for 'best_friends' and 'users' you need to hint the column with best_friends!<columnName> ?">
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-M relation with both nullables and non-nullables fields using column name for hinting', async () => {
@@ -1012,6 +1128,13 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-M relation with both nullables and non-nullables fields using column name hinting on nested relation', async () => {
@@ -1056,6 +1179,18 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  type ExpectedType = Prettify<
+    Database['public']['Tables']['best_friends']['Row'] & {
+      first_user: string & Database['public']['Tables']['users']['Row']
+    }
+  >
+  let expected: {
+    first_friend_of: ExpectedType[]
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join over a 1-M relation with both nullables and non-nullables fields using no hinting on nested relation', async () => {
@@ -1090,6 +1225,18 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
       "statusText": "Multiple Choices",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: Array<{
+      id: number
+      second_user: string
+      third_wheel: string | null
+      first_user: SelectQueryError<"Could not embed because more than one relationship was found for 'users' and 'best_friends' you need to hint the column with users!<columnName> ?">
+    }>
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left join on one to 0-1 non-empty relation', async () => {
@@ -1111,6 +1258,11 @@ test('!left join on one to 0-1 non-empty relation', async () => {
           "statusText": "OK",
         }
       `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    user_profiles: Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join on one to 0-1 non-empty relation via column name', async () => {
@@ -1136,6 +1288,11 @@ test('join on one to 0-1 non-empty relation via column name', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    user_profiles: Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left join on zero to one with null relation', async () => {
@@ -1156,6 +1313,13 @@ test('!left join on zero to one with null relation', async () => {
           "statusText": "OK",
         }
       `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    username: string | null
+    users: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left join on zero to one with valid relation', async () => {
@@ -1182,11 +1346,23 @@ test('!left join on zero to one with valid relation', async () => {
           "statusText": "OK",
         }
       `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    username: string | null
+    users: Pick<Database['public']['Tables']['users']['Row'], 'status'> | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('!left join on zero to one empty relation', async () => {
   const res = await selectQueries.leftOneToOneUsers.eq('username', 'dragarcia').limit(1).single()
   expect(res.data).toBeNull()
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    user_profiles: Array<Pick<Database['public']['Tables']['user_profiles']['Row'], 'username'>>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join on 1-M relation with selective fk hinting', async () => {
@@ -1214,6 +1390,13 @@ test('join on 1-M relation with selective fk hinting', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    first_friend_of: Array<Pick<Database['public']['Tables']['best_friends']['Row'], 'id'>>
+    second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
+    third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join select via column', async () => {
@@ -1235,6 +1418,11 @@ test('join select via column', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join select via column selective', async () => {
@@ -1252,6 +1440,13 @@ test('join select via column selective', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: {
+      status: Database['public']['Enums']['user_status'] | null
+    } | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join select via column and alias', async () => {
@@ -1273,6 +1468,11 @@ test('join select via column and alias', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    user: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join select via unique table relationship', async () => {
@@ -1294,6 +1494,11 @@ test('join select via unique table relationship', async () => {
         "statusText": "OK",
       }
     `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    users: Database['public']['Tables']['users']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 test('join select via view name relationship', async () => {
   const res = await selectQueries.joinSelectViaViewNameRelationship.limit(1).single()
@@ -1311,6 +1516,11 @@ test('join select via view name relationship', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    updatable_view: Database['public']['Views']['updatable_view']['Row'] | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join select via column with string templating', async () => {
@@ -1327,6 +1537,12 @@ test('join select via column with string templating', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    status: Database['public']['Enums']['user_status'] | null
+    username: string
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate count function', async () => {
@@ -1347,6 +1563,14 @@ test('select with aggregate count function', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      count: number
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate count on a column function', async () => {
@@ -1367,6 +1591,14 @@ test('select with aggregate count on a column function', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      count: number
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate sum function without column should error', async () => {
@@ -1385,6 +1617,12 @@ test('select with aggregate sum function without column should error', async () 
       "statusText": "Bad Request",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: SelectQueryError<"column 'sum' does not exist on 'messages'.">[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate count function and alias', async () => {
@@ -1405,6 +1643,14 @@ test('select with aggregate count function and alias', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      message_count: number
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate nested count function', async () => {
@@ -1437,6 +1683,16 @@ test('select with aggregate nested count function', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        count: number
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate nested count function and alias', async () => {
@@ -1469,6 +1725,16 @@ test('select with aggregate nested count function and alias', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        channel_count: number
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate count and spread', async () => {
@@ -1504,6 +1770,17 @@ test('select with aggregate count and spread', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        count: number
+        details: string | null
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate sum function', async () => {
@@ -1524,6 +1801,14 @@ test('select with aggregate sum function', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      sum: number
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate aliased sum function', async () => {
@@ -1544,6 +1829,14 @@ test('select with aggregate aliased sum function', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      sum_id: number
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate sum function on nested relation', async () => {
@@ -1576,6 +1869,16 @@ test('select with aggregate sum function on nested relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        sum: number
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate sum and spread', async () => {
@@ -1611,6 +1914,17 @@ test('select with aggregate sum and spread', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        sum: number
+        details: string | null
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with aggregate sum and spread on nested relation', async () => {
@@ -1649,10 +1963,22 @@ test('select with aggregate sum and spread on nested relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    username: string
+    messages: Array<{
+      channels: {
+        sum: number
+        details_sum: number | null
+        details: string | null
+      }
+    }>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with spread on nested relation', async () => {
-  const res = await selectQueries.selectWithSpreadOnNestedRelation
+  const res = await selectQueries.selectWithSpreadOnNestedRelation.limit(1).single()
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
@@ -1687,6 +2013,16 @@ test('select with spread on nested relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    channels: {
+      id: number
+      details_id: number | null
+      details: string | null
+    }
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select with type casting query', async () => {
@@ -1703,6 +2039,11 @@ test('select with type casting query', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: string
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join with column hinting', async () => {
@@ -1724,6 +2065,17 @@ test('join with column hinting', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    users: {
+      age_range: unknown | null
+      catchphrase: unknown | null
+      data: CustomUserDataType | null
+      status: Database['public']['Enums']['user_status'] | null
+      username: string
+    }
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('join with same dest twice column hinting', async () => {
@@ -1742,6 +2094,11 @@ test('join with same dest twice column hinting', async () => {
       "statusText": "Bad Request",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    users: SelectQueryError<'table "best_friends" specified more than once use hinting for desambiguation'>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select spread on many relation', async () => {
@@ -1760,6 +2117,12 @@ test('select spread on many relation', async () => {
       "statusText": "Bad Request",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channel_id: number
+    messages: SelectQueryError<'"channels" and "messages" do not form a many-to-one or one-to-one relationship spread not possible'>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select spread on many relation postgrest13', async () => {
@@ -1781,6 +2144,13 @@ test('select spread on many relation postgrest13', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channel_id: number
+    id: Array<number>
+    message: Array<string | null>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select spread on many relation postgrest13FromDatabaseTypes', async () => {
@@ -1802,6 +2172,13 @@ test('select spread on many relation postgrest13FromDatabaseTypes', async () => 
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channel_id: number
+    id: Array<number>
+    message: Array<string | null>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('multiple times the same column in selection', async () => {
@@ -1817,6 +2194,11 @@ test('multiple times the same column in selection', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('embed resource with no fields', async () => {
@@ -1832,6 +2214,11 @@ test('embed resource with no fields', async () => {
       "statusText": "OK",
     }
 `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    message: string | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('select JSON accessor', async () => {
@@ -1853,6 +2240,12 @@ test('select JSON accessor', async () => {
       "statusText": "OK",
     }
 `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    bar: Json
+    baz: string
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('typecasting and aggregate', async () => {
@@ -1871,6 +2264,9 @@ test('typecasting and aggregate', async () => {
       "statusText": "Bad Request",
     }
 `)
+  let result: Exclude<typeof res.data, null>
+  let expected: SelectQueryError<`column 'users' does not exist on 'messages'.`>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('inner join on many relation', async () => {
@@ -1892,6 +2288,15 @@ test('inner join on many relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    messages: {
+      id: number
+      username: string
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('self reference relation', async () => {
@@ -1921,6 +2326,18 @@ test('self reference relation', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    description: string | null
+    parent_id: number | null
+    collections: {
+      id: number
+      description: string | null
+      parent_id: number | null
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('self reference relation via column', async () => {
@@ -1942,6 +2359,19 @@ test('self reference relation via column', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    description: string | null
+    id: number
+    parent_id:
+      | (number & {
+          description: string | null
+          id: number
+          parent_id: number | null
+        })
+      | null
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('aggregate on missing column with alias', async () => {
@@ -1960,6 +2390,9 @@ test('aggregate on missing column with alias', async () => {
       "statusText": "Bad Request",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: SelectQueryError<`column 'missing_column' does not exist on 'users'.`>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('many-to-many with join table', async () => {
@@ -1990,6 +2423,19 @@ test('many-to-many with join table', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    id: number
+    name: string
+    description: string | null
+    price: number
+    categories: {
+      id: number
+      name: string
+      description: string | null
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 test('nested query with selective fields and inner join should error on non existing relation', async () => {
@@ -2008,4 +2454,12 @@ test('nested query with selective fields and inner join should error on non exis
       "statusText": "Bad Request",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    msgs: {
+      id: number
+      message_details: SelectQueryError<'could not find the relation between messages and message_details'>
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
