@@ -1,5 +1,7 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
+import { expectType } from 'tsd'
+import { TypeEqual } from 'ts-expect'
 
 const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
@@ -32,7 +34,82 @@ test('embedded select', async () => {
               "message": "Some message on channel wihtout details",
               "username": "supabot",
             },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 11,
+              "message": "foo",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 2,
+              "data": null,
+              "id": 3,
+              "message": "foo",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 12,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 13,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 14,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 15,
+              "message": "updated",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 16,
+              "message": "test3",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 17,
+              "message": "test3",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 18,
+              "message": "test3",
+              "username": "supabot",
+            },
           ],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
         },
         Object {
           "messages": Array [],
@@ -52,6 +129,17 @@ test('embedded select', async () => {
       "statusText": "OK",
     }
   `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: {
+      channel_id: number
+      data: unknown
+      id: number
+      message: string | null
+      username: string
+    }[]
+  }[]
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 describe('embedded filters', () => {
@@ -74,7 +162,75 @@ describe('embedded filters', () => {
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -94,6 +250,17 @@ describe('embedded filters', () => {
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
   test('embedded or', async () => {
     const res = await postgrest
@@ -120,7 +287,26 @@ describe('embedded filters', () => {
                 "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -140,6 +326,17 @@ describe('embedded filters', () => {
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
   test('embedded or with and', async () => {
     const res = await postgrest
@@ -168,7 +365,26 @@ describe('embedded filters', () => {
                 "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -188,6 +404,17 @@ describe('embedded filters', () => {
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
 })
 
@@ -218,13 +445,88 @@ describe('embedded transforms', () => {
                 "username": "supabot",
               },
               Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
                 "channel_id": 1,
                 "data": null,
                 "id": 1,
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -244,6 +546,17 @@ describe('embedded transforms', () => {
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
 
   test('embedded order on multiple columns', async () => {
@@ -273,13 +586,88 @@ describe('embedded transforms', () => {
                 "username": "supabot",
               },
               Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
                 "channel_id": 1,
                 "data": null,
                 "id": 1,
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -299,6 +687,17 @@ describe('embedded transforms', () => {
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
 
   test('embedded limit', async () => {
@@ -333,12 +732,35 @@ describe('embedded transforms', () => {
           Object {
             "messages": Array [],
           },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
         ],
         "error": null,
         "status": 200,
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
 
   test('embedded range', async () => {
@@ -373,11 +795,34 @@ describe('embedded transforms', () => {
           Object {
             "messages": Array [],
           },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
         ],
         "error": null,
         "status": 200,
         "statusText": "OK",
       }
     `)
+    let result: Exclude<typeof res.data, null>
+    let expected: {
+      messages: {
+        channel_id: number
+        data: unknown
+        id: number
+        message: string | null
+        username: string
+      }[]
+    }[]
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
   })
 })

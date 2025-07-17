@@ -12,6 +12,34 @@ test('order', async () => {
       "count": null,
       "data": Array [
         Object {
+          "age_range": null,
+          "catchphrase": null,
+          "data": null,
+          "status": "ONLINE",
+          "username": "testuser3",
+        },
+        Object {
+          "age_range": null,
+          "catchphrase": null,
+          "data": null,
+          "status": "ONLINE",
+          "username": "testuser2",
+        },
+        Object {
+          "age_range": null,
+          "catchphrase": null,
+          "data": null,
+          "status": "ONLINE",
+          "username": "testuser1",
+        },
+        Object {
+          "age_range": null,
+          "catchphrase": null,
+          "data": null,
+          "status": "OFFLINE",
+          "username": "testuser",
+        },
+        Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
           "data": null,
@@ -86,10 +114,73 @@ test('order on multiple columns', async () => {
           "username": "supabot",
         },
         Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 3,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 13,
+          "message": "test1",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 14,
+          "message": "test1",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 15,
+          "message": "updated",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 16,
+          "message": "test3",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 17,
+          "message": "test3",
+          "username": "supabot",
+        },
+        Object {
           "channel_id": 1,
           "data": null,
           "id": 1,
           "message": "Hello World 👋",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 18,
+          "message": "test3",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 11,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 12,
+          "message": "test1",
           "username": "supabot",
         },
       ],
@@ -286,7 +377,11 @@ test('csv', async () => {
     kiwicopple,,\\"[25,35)\\",OFFLINE,\\"'bat' 'cat'\\"
     awailas,,\\"[25,35)\\",ONLINE,\\"'bat' 'rat'\\"
     jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"
-    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"",
+    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"
+    testuser,,,OFFLINE,
+    testuser1,,,ONLINE,
+    testuser2,,,ONLINE,
+    testuser3,,,ONLINE,",
       "error": null,
       "status": 200,
       "statusText": "OK",
@@ -353,11 +448,6 @@ test('abort signal', async () => {
   `
   )
 })
-
-// test('geojson', async () => {
-//   const res = await postgrest.from('shops').select().geojson()
-//   expect(res).toMatchInlineSnapshot()
-// })
 
 test('explain with json/text format', async () => {
   const res1 = await postgrest.from('users').select().explain({ format: 'json' })
