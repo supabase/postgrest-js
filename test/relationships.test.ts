@@ -35,12 +35,44 @@ test('nested query with selective fields', async () => {
             "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
           },
           Object {
-            "id": 3,
+            "id": 4,
             "message": "Some message on channel wihtout details",
           },
           Object {
-            "id": 4,
-            "message": "Some message on channel wihtout details",
+            "id": 11,
+            "message": "foo",
+          },
+          Object {
+            "id": 3,
+            "message": "foo",
+          },
+          Object {
+            "id": 12,
+            "message": "test1",
+          },
+          Object {
+            "id": 13,
+            "message": "test1",
+          },
+          Object {
+            "id": 14,
+            "message": "test1",
+          },
+          Object {
+            "id": 15,
+            "message": "updated",
+          },
+          Object {
+            "id": 16,
+            "message": "test3",
+          },
+          Object {
+            "id": 17,
+            "message": "test3",
+          },
+          Object {
+            "id": 18,
+            "message": "test3",
           },
         ],
         "username": "supabot",
@@ -93,16 +125,80 @@ test('nested query with multiple levels and selective fields', async () => {
               "id": 3,
               "slug": "other",
             },
-            "id": 3,
+            "id": 4,
             "message": "Some message on channel wihtout details",
           },
           Object {
             "channels": Object {
-              "id": 3,
-              "slug": "other",
+              "id": 1,
+              "slug": "public",
             },
-            "id": 4,
-            "message": "Some message on channel wihtout details",
+            "id": 11,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 3,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 12,
+            "message": "test1",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 13,
+            "message": "test1",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 14,
+            "message": "test1",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 15,
+            "message": "updated",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 16,
+            "message": "test3",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 17,
+            "message": "test3",
+          },
+          Object {
+            "channels": Object {
+              "id": 1,
+              "slug": "public",
+            },
+            "id": 18,
+            "message": "test3",
           },
         ],
         "username": "supabot",
@@ -145,10 +241,34 @@ test('query with multiple one-to-many relationships', async () => {
             "id": 2,
           },
           Object {
+            "id": 4,
+          },
+          Object {
+            "id": 11,
+          },
+          Object {
             "id": 3,
           },
           Object {
-            "id": 4,
+            "id": 12,
+          },
+          Object {
+            "id": 13,
+          },
+          Object {
+            "id": 14,
+          },
+          Object {
+            "id": 15,
+          },
+          Object {
+            "id": 16,
+          },
+          Object {
+            "id": 17,
+          },
+          Object {
+            "id": 18,
           },
         ],
         "user_profiles": Array [
@@ -317,15 +437,71 @@ test('one-to-many relationship', async () => {
           Object {
             "channel_id": 3,
             "data": null,
-            "id": 3,
+            "id": 4,
             "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
           Object {
-            "channel_id": 3,
+            "channel_id": 1,
             "data": null,
-            "id": 4,
-            "message": "Some message on channel wihtout details",
+            "id": 11,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 3,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 12,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 13,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 14,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 15,
+            "message": "updated",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 16,
+            "message": "test3",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 17,
+            "message": "test3",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 18,
+            "message": "test3",
             "username": "supabot",
           },
         ],
@@ -349,6 +525,30 @@ test('one-to-many relationship with selective columns', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
           Object {
             "data": null,
           },
@@ -446,15 +646,71 @@ test('!left oneToMany', async () => {
           Object {
             "channel_id": 3,
             "data": null,
-            "id": 3,
+            "id": 4,
             "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
           Object {
-            "channel_id": 3,
+            "channel_id": 1,
             "data": null,
-            "id": 4,
-            "message": "Some message on channel wihtout details",
+            "id": 11,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 3,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 12,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 13,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 14,
+            "message": "test1",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 15,
+            "message": "updated",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 16,
+            "message": "test3",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 17,
+            "message": "test3",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 18,
+            "message": "test3",
             "username": "supabot",
           },
         ],
@@ -1324,7 +1580,7 @@ test('select with aggregate count function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "count": 4,
+            "count": 12,
           },
         ],
         "username": "supabot",
@@ -1356,7 +1612,7 @@ test('select with aggregate count on a column function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "count": 4,
+            "count": 12,
           },
         ],
         "username": "supabot",
@@ -1412,7 +1668,7 @@ test('select with aggregate count function and alias', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "message_count": 4,
+            "message_count": 12,
           },
         ],
         "username": "supabot",
@@ -1443,6 +1699,46 @@ test('select with aggregate nested count function', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+            },
+          },
           Object {
             "channels": Object {
               "count": 1,
@@ -1494,6 +1790,46 @@ test('select with aggregate nested count function and alias', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
+            },
+          },
           Object {
             "channels": Object {
               "channel_count": 1,
@@ -1566,7 +1902,55 @@ test('select with aggregate count and spread', async () => {
           Object {
             "channels": Object {
               "count": 1,
-              "details": null,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
             },
           },
         ],
@@ -1597,6 +1981,89 @@ test('spread resource with single column in select query', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": null,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
   `)
 })
 
@@ -1607,6 +2074,89 @@ test(' spread resource with all columns in select query', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": null,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
   `)
 })
 
@@ -1618,7 +2168,7 @@ test('select with aggregate sum function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "sum": 10,
+            "sum": 126,
           },
         ],
         "username": "supabot",
@@ -1650,7 +2200,7 @@ test('select with aggregate aliased sum function', async () => {
       "data": Object {
         "messages": Array [
           Object {
-            "sum_id": 10,
+            "sum_id": 126,
           },
         ],
         "username": "supabot",
@@ -1698,7 +2248,47 @@ test('select with aggregate sum function on nested relation', async () => {
           },
           Object {
             "channels": Object {
-              "sum": 3,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "sum": 1,
             },
           },
         ],
@@ -1752,8 +2342,56 @@ test('select with aggregate sum and spread', async () => {
           },
           Object {
             "channels": Object {
-              "details": null,
-              "sum": 3,
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
             },
           },
         ],
@@ -1813,9 +2451,65 @@ test('select with aggregate sum and spread on nested relation', async () => {
           },
           Object {
             "channels": Object {
-              "details": null,
-              "details_sum": null,
-              "sum": 3,
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
             },
           },
         ],
@@ -1995,9 +2689,25 @@ test('select spread on many relation postgrest13', async () => {
         "channel_id": 1,
         "id": Array [
           1,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
         ],
         "message": Array [
           "Hello World 👋",
+          "foo",
+          "test1",
+          "test1",
+          "test1",
+          "updated",
+          "test3",
+          "test3",
+          "test3",
         ],
       },
       "error": null,
@@ -2027,9 +2737,25 @@ test('select spread on many relation postgrest13FromDatabaseTypes', async () => 
         "channel_id": 1,
         "id": Array [
           1,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
         ],
         "message": Array [
           "Hello World 👋",
+          "foo",
+          "test1",
+          "test1",
+          "test1",
+          "updated",
+          "test3",
+          "test3",
+          "test3",
         ],
       },
       "error": null,
@@ -2156,6 +2882,38 @@ test('inner join on many relation', async () => {
         "messages": Array [
           Object {
             "id": 1,
+            "username": "supabot",
+          },
+          Object {
+            "id": 11,
+            "username": "supabot",
+          },
+          Object {
+            "id": 12,
+            "username": "supabot",
+          },
+          Object {
+            "id": 13,
+            "username": "supabot",
+          },
+          Object {
+            "id": 14,
+            "username": "supabot",
+          },
+          Object {
+            "id": 15,
+            "username": "supabot",
+          },
+          Object {
+            "id": 16,
+            "username": "supabot",
+          },
+          Object {
+            "id": 17,
+            "username": "supabot",
+          },
+          Object {
+            "id": 18,
             "username": "supabot",
           },
         ],

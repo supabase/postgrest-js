@@ -21,15 +21,6 @@ test('not', async () => {
         Object {
           "status": "ONLINE",
         },
-        Object {
-          "status": "ONLINE",
-        },
-        Object {
-          "status": "ONLINE",
-        },
-        Object {
-          "status": "ONLINE",
-        },
       ],
       "error": null,
       "status": 200,
@@ -54,10 +45,6 @@ test('or', async () => {
         Object {
           "status": "OFFLINE",
           "username": "kiwicopple",
-        },
-        Object {
-          "status": "OFFLINE",
-          "username": "testuser",
         },
       ],
       "error": null,
@@ -102,18 +89,6 @@ test('neq', async () => {
         Object {
           "username": "dragarcia",
         },
-        Object {
-          "username": "testuser",
-        },
-        Object {
-          "username": "testuser1",
-        },
-        Object {
-          "username": "testuser2",
-        },
-        Object {
-          "username": "testuser3",
-        },
       ],
       "error": null,
       "status": 200,
@@ -133,33 +108,6 @@ test('gt', async () => {
         },
         Object {
           "id": 4,
-        },
-        Object {
-          "id": 11,
-        },
-        Object {
-          "id": 3,
-        },
-        Object {
-          "id": 12,
-        },
-        Object {
-          "id": 13,
-        },
-        Object {
-          "id": 14,
-        },
-        Object {
-          "id": 15,
-        },
-        Object {
-          "id": 16,
-        },
-        Object {
-          "id": 17,
-        },
-        Object {
-          "id": 18,
         },
       ],
       "error": null,
@@ -183,33 +131,6 @@ test('gte', async () => {
         },
         Object {
           "id": 4,
-        },
-        Object {
-          "id": 11,
-        },
-        Object {
-          "id": 3,
-        },
-        Object {
-          "id": 12,
-        },
-        Object {
-          "id": 13,
-        },
-        Object {
-          "id": 14,
-        },
-        Object {
-          "id": 15,
-        },
-        Object {
-          "id": 16,
-        },
-        Object {
-          "id": 17,
-        },
-        Object {
-          "id": 18,
         },
       ],
       "error": null,
@@ -394,18 +315,6 @@ test('is', async () => {
         Object {
           "data": null,
         },
-        Object {
-          "data": null,
-        },
-        Object {
-          "data": null,
-        },
-        Object {
-          "data": null,
-        },
-        Object {
-          "data": null,
-        },
       ],
       "error": null,
       "status": 200,
@@ -421,18 +330,6 @@ test('in', async () => {
     Object {
       "count": null,
       "data": Array [
-        Object {
-          "status": "ONLINE",
-        },
-        Object {
-          "status": "OFFLINE",
-        },
-        Object {
-          "status": "ONLINE",
-        },
-        Object {
-          "status": "ONLINE",
-        },
         Object {
           "status": "ONLINE",
         },

@@ -1,18 +1,19 @@
+import { PostgrestClient } from '../../src/index'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
-import { PostgrestClient } from '../../src/index'
 
 const REST_URL = 'http://localhost:3000'
-const untypedPostgrest = new PostgrestClient(REST_URL)
 
+// Check for PostgrestClient without types provided to the client
 {
-  const { data } = await untypedPostgrest.from('user_profile').select()
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest.from('user_profile').select()
   expectType<TypeEqual<typeof data, any[] | null>>(true)
 }
-
 // basic embeding
 {
-  const { data } = await untypedPostgrest
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest
     .from('user_profile')
     .select(
       'user_id, some_embed(*), another_embed(first_field, second_field, renamed:field), aninnerembed!inner(id, name)'
@@ -34,10 +35,26 @@ const untypedPostgrest = new PostgrestClient(REST_URL)
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
-
+// embeding renaming
+{
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest
+    .from('projects')
+    .select('status,service:services(service_api_keys(*))')
+    .single()
+  let result: Exclude<typeof data, null>
+  let expected: {
+    status: any
+    service: {
+      service_api_keys: any[]
+    }[]
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+}
 // spread operator with stars should return any
 {
-  const { data } = await untypedPostgrest
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest
     .from('user_profile')
     .select('user_id, some_embed(*), ...spreadstars(*)')
     .single()
@@ -45,10 +62,10 @@ const untypedPostgrest = new PostgrestClient(REST_URL)
   let expected: any
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
-
 // nested spread operator with stars should return any
 {
-  const { data } = await untypedPostgrest
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest
     .from('user_profile')
     .select('user_id, some_embed(*), some_other(id, ...spreadstars(*))')
     .single()
@@ -60,13 +77,10 @@ const untypedPostgrest = new PostgrestClient(REST_URL)
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
-
-// rpc without types should return any
+// rpc without types should raise similar results
 {
-  const { data } = await untypedPostgrest
-    .rpc('user_profile')
-    .select('user_id, some_embed(*)')
-    .single()
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest.rpc('user_profile').select('user_id, some_embed(*)').single()
   let result: Exclude<typeof data, null>
   let expected: {
     user_id: any
@@ -74,10 +88,10 @@ const untypedPostgrest = new PostgrestClient(REST_URL)
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
-
 // check for nested operators
 {
-  const { data } = await untypedPostgrest
+  const postgrest = new PostgrestClient(REST_URL)
+  const { data } = await postgrest
     .from('user_profile')
     .select(
       'user_id, some_embed(*), another_embed(first_field, second_field, renamed:field), aninnerembed!inner(id, name), ...spreadwithfields(field_spread, another)'
@@ -98,22 +112,6 @@ const untypedPostgrest = new PostgrestClient(REST_URL)
     }[]
     field_spread: any
     another: any
-  }
-  expectType<TypeEqual<typeof result, typeof expected>>(true)
-}
-
-// embedding renaming
-{
-  const { data } = await untypedPostgrest
-    .from('projects')
-    .select('status,service:services(service_api_keys(*))')
-    .single()
-  let result: Exclude<typeof data, null>
-  let expected: {
-    status: any
-    service: {
-      service_api_keys: any[]
-    }[]
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 }
