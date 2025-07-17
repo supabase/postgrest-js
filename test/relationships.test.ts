@@ -1590,6 +1590,26 @@ test('select with aggregate count and spread', async () => {
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
+test('spread resource with single column in select query', async () => {
+  const res = await postgrest
+    .from('users')
+    .select('username, messages(channels(count(), ...channel_details(details)))')
+    .limit(1)
+    .single()
+  expect(res).toMatchInlineSnapshot(`
+  `)
+})
+
+test(' spread resource with all columns in select query', async () => {
+  const res = await postgrest
+    .from('users')
+    .select('username, messages(channels(count(), ...channel_details(details)))')
+    .limit(1)
+    .single()
+  expect(res).toMatchInlineSnapshot(`
+  `)
+})
+
 test('select with aggregate sum function', async () => {
   const res = await postgrest.from('users').select('username, messages(id.sum())').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
