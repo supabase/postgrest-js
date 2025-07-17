@@ -1,4 +1,4 @@
-import { expectError, expectType } from 'tsd'
+import { expectType } from 'tsd'
 import { PostgrestClient } from '../../src/index'
 import { Database } from '../types.override'
 
@@ -9,11 +9,11 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 {
   postgrest.from('users').select().eq('username', 'foo')
   // @ts-expect-error
-  expectError(postgrest.from('users').select().eq('username', null))
+  postgrest.from('users').select().eq('username', null)
 
   const nullableVar = 'foo' as string | null
   // @ts-expect-error
-  expectError(postgrest.from('users').select().eq('username', nullableVar))
+  postgrest.from('users').select().eq('username', nullableVar)
 }
 
 // Basic query operations with valid enum values

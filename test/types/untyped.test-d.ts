@@ -5,6 +5,7 @@ import { PostgrestClient } from '../../src/index'
 const REST_URL = 'http://localhost:3000'
 const untypedPostgrest = new PostgrestClient(REST_URL)
 
+// Default client without types provided should work with any
 {
   const { data } = await untypedPostgrest.from('user_profile').select()
   expectType<TypeEqual<typeof data, any[] | null>>(true)

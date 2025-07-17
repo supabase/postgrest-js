@@ -1,4 +1,4 @@
-import { expectError, expectType } from 'tsd'
+import { expectType } from 'tsd'
 import { PostgrestClient } from '../../src/index'
 import { Database } from '../types.override'
 import { Database as DatabaseWithOptions } from '../types.override-with-options-postgrest13'
@@ -9,10 +9,10 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // table invalid type
 {
-  // @ts-expect-error
-  expectError(postgrest.from(42))
-  // @ts-expect-error
-  expectError(postgrest.from('nonexistent_table'))
+  // @ts-expect-error not a string
+  postgrest.from(42)
+  // @ts-expect-error invalid table
+  postgrest.from('nonexistent_table')
 }
 
 // PostgrestBuilder's children retains class when using inherited methods
@@ -26,14 +26,14 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // cannot update non-updatable views
 {
-  // @ts-expect-error
-  expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
+  // @ts-expect-error non_updatable_view
+  postgrest.from('non_updatable_view').update({ non_updatable_column: 0 })
 }
 
 // cannot update non-updatable columns
 {
-  // @ts-expect-error
-  expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
+  // @ts-expect-error non_updatable_column
+  postgrest.from('updatable_view').update({ non_updatable_column: 0 })
 }
 
 // Check that client options __InternalSupabase isn't considered like the other schemas
@@ -41,11 +41,4 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
   await postgrestWithOptions
     // @ts-expect-error supabase internal shouldn't be available as one of the selectable schema
     .schema('__InternalSupabase')
-}
-
-// Default client without types provided should work with any
-{
-  const untypedPostgrest = new PostgrestClient(REST_URL)
-  const { data } = await untypedPostgrest.from('user_profile').select()
-  expectType<any[] | null>(data)
 }
