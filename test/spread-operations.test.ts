@@ -50,6 +50,42 @@ test('select with aggregate count and spread', async () => {
           Object {
             "channels": Object {
               "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for public channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
               "details": "Details for random channel",
             },
           },
@@ -124,7 +160,7 @@ test('spread resource with single column in select query', async () => {
       "data": null,
       "error": Object {
         "code": "PGRST116",
-        "details": "The result contains 12 rows",
+        "details": "The result contains 18 rows",
         "hint": null,
         "message": "JSON object requested, multiple (or no) rows returned",
       },
@@ -148,7 +184,7 @@ test(' spread resource with all columns in select query', async () => {
       "data": null,
       "error": Object {
         "code": "PGRST116",
-        "details": "The result contains 12 rows",
+        "details": "The result contains 18 rows",
         "hint": null,
         "message": "JSON object requested, multiple (or no) rows returned",
       },
@@ -188,6 +224,42 @@ test('select with aggregate sum and spread', async () => {
             "channels": Object {
               "details": null,
               "sum": 3,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "sum": 1,
             },
           },
           Object {
@@ -297,6 +369,48 @@ test('select with aggregate sum and spread on nested relation', async () => {
               "details": null,
               "details_sum": null,
               "sum": 3,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for public channel",
+              "details_sum": 1,
+              "sum": 1,
             },
           },
           Object {
@@ -459,6 +573,12 @@ test('select spread on many relation postgrest13', async () => {
         "channel_id": 1,
         "id": Array [
           1,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
           11,
           12,
           13,
@@ -470,6 +590,12 @@ test('select spread on many relation postgrest13', async () => {
         ],
         "message": Array [
           "Hello World 👋",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
           "foo",
           "test1",
           "test1",
@@ -507,6 +633,12 @@ test('select spread on many relation postgrest13FromDatabaseTypes', async () => 
         "channel_id": 1,
         "id": Array [
           1,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
           11,
           12,
           13,
@@ -518,6 +650,12 @@ test('select spread on many relation postgrest13FromDatabaseTypes', async () => 
         ],
         "message": Array [
           "Hello World 👋",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
+          "foo",
           "foo",
           "test1",
           "test1",

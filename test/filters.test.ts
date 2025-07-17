@@ -84,10 +84,10 @@ test('neq', async () => {
           "username": "awailas",
         },
         Object {
-          "username": "jsonuser",
+          "username": "dragarcia",
         },
         Object {
-          "username": "dragarcia",
+          "username": "jsonuser",
         },
       ],
       "error": null,
@@ -105,6 +105,9 @@ test('gt', async () => {
       "data": Array [
         Object {
           "id": 2,
+        },
+        Object {
+          "id": 3,
         },
         Object {
           "id": 4,
@@ -128,6 +131,9 @@ test('gte', async () => {
         },
         Object {
           "id": 2,
+        },
+        Object {
+          "id": 3,
         },
         Object {
           "id": 4,

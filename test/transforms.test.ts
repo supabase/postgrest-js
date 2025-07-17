@@ -123,6 +123,48 @@ test('order on multiple columns', async () => {
         Object {
           "channel_id": 1,
           "data": null,
+          "id": 7,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 8,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 9,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 10,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 11,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
+          "id": 12,
+          "message": "test1",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 1,
+          "data": null,
           "id": 13,
           "message": "test1",
           "username": "supabot",
@@ -172,15 +214,15 @@ test('order on multiple columns', async () => {
         Object {
           "channel_id": 1,
           "data": null,
-          "id": 11,
+          "id": 5,
           "message": "foo",
           "username": "supabot",
         },
         Object {
           "channel_id": 1,
           "data": null,
-          "id": 12,
-          "message": "test1",
+          "id": 6,
+          "message": "foo",
           "username": "supabot",
         },
       ],
@@ -234,17 +276,10 @@ test('range', async () => {
         },
         Object {
           "age_range": "[20,30)",
-          "catchphrase": "'json' 'test'",
-          "data": Object {
-            "foo": Object {
-              "bar": Object {
-                "nested": "value",
-              },
-              "baz": "string value",
-            },
-          },
+          "catchphrase": "'fat' 'rat'",
+          "data": null,
           "status": "ONLINE",
-          "username": "jsonuser",
+          "username": "dragarcia",
         },
       ],
       "error": null,
@@ -376,8 +411,8 @@ test('csv', async () => {
     supabot,,\\"[1,2)\\",ONLINE,\\"'cat' 'fat'\\"
     kiwicopple,,\\"[25,35)\\",OFFLINE,\\"'bat' 'cat'\\"
     awailas,,\\"[25,35)\\",ONLINE,\\"'bat' 'rat'\\"
-    jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"
     dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"
+    jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"
     testuser,,,OFFLINE,
     testuser1,,,ONLINE,
     testuser2,,,ONLINE,

@@ -8,6 +8,113 @@ export const postgrest = new PostgrestClient<Database>(REST_URL)
 
 export const RPC_NAME = 'get_username_and_status'
 
+test('rpc', async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc returns void', async () => {
+  const res = await postgrest.rpc('void_func')
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 204,
+      "statusText": "No Content",
+    }
+  `)
+})
+
+test("rpc with count: 'exact'", async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, { count: 'exact' })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with head:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { head: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": null,
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { get: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, optional param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_optional_param',
+    { param: undefined },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+})
+
+test('rpc with get:true, array param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_array_param',
+    { param: ['00000000-0000-0000-0000-000000000000'] },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 204,
+      "statusText": "No Content",
+    }
+  `)
+})
+
 test('RPC call with no params', async () => {
   const res = await postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select()
   expect(res).toMatchInlineSnapshot(`

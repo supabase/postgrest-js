@@ -157,8 +157,57 @@ test('!left oneToMany', async () => {
           Object {
             "channel_id": 3,
             "data": null,
+            "id": 3,
+            "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 3,
+            "data": null,
             "id": 4,
             "message": "Some message on channel wihtout details",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 6,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 7,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 8,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 9,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 1,
+            "data": null,
+            "id": 10,
+            "message": "foo",
             "username": "supabot",
           },
         ],
@@ -516,6 +565,30 @@ test('inner join on many relation', async () => {
         "messages": Array [
           Object {
             "id": 1,
+            "username": "supabot",
+          },
+          Object {
+            "id": 5,
+            "username": "supabot",
+          },
+          Object {
+            "id": 6,
+            "username": "supabot",
+          },
+          Object {
+            "id": 7,
+            "username": "supabot",
+          },
+          Object {
+            "id": 8,
+            "username": "supabot",
+          },
+          Object {
+            "id": 9,
+            "username": "supabot",
+          },
+          Object {
+            "id": 10,
             "username": "supabot",
           },
         ],
