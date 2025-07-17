@@ -1,5 +1,5 @@
 import { expectType } from 'tsd'
-import { PostgrestClient } from '../src/index'
+import { PostgrestClient } from '../../src/index'
 import type { MergeDeep } from 'type-fest'
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]

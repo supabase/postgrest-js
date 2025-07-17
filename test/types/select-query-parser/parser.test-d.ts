@@ -1,5 +1,5 @@
 import { expectType } from 'tsd'
-import type { ParseQuery, ParserError } from '../../src/select-query-parser/parser'
+import type { ParseQuery, ParserError } from '../../../src/select-query-parser/parser'
 
 // This test file is here to ensure some of our perser behave as expected
 // it's useful to track down if the result type of a query is invalid becase of bad parsing

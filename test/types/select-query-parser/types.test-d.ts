@@ -1,6 +1,6 @@
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
-import { DeduplicateRelationships } from '../../src/select-query-parser/utils'
+import { DeduplicateRelationships } from '../../../src/select-query-parser/utils'
 // Deduplicate exact sames relationships
 {
   type rels = [
