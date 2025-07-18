@@ -162,6 +162,41 @@ test('!left oneToMany', async () => {
             "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 6,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 7,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 8,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 3,
+            "message": "foo",
+            "username": "supabot",
+          },
         ],
       },
       "error": null,
@@ -537,6 +572,32 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
     first_friend_of: ExpectedType[]
     second_friend_of: Array<Database['public']['Tables']['best_friends']['Row']>
     third_wheel_of: Array<Database['public']['Tables']['best_friends']['Row']>
+  }
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('!left join on one to one relation', async () => {
+  const res = await postgrest.from('channel_details').select('channels!left(id)').limit(1).single()
+  expect(Array.isArray(res.data?.channels)).toBe(false)
+  expect(res.data?.channels?.id).not.toBeNull()
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Object {
+        "channels": Object {
+          "id": 1,
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    channels: {
+      id: number
+    }
   }
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 })

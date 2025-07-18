@@ -160,3 +160,147 @@ test('RPC call with field aggregate', async () => {
   let expected: { count: number; status: 'ONLINE' | 'OFFLINE' }[]
   expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
+
+test('rpc', async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: 'ONLINE' | 'OFFLINE'
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc returns void', async () => {
+  const res = await postgrest.rpc('void_func')
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 204,
+      "statusText": "No Content",
+    }
+  `)
+  let result: typeof res.data
+  let expected: null | undefined
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test("rpc with count: 'exact'", async () => {
+  const res = await postgrest.rpc('get_status', { name_param: 'supabot' }, { count: 'exact' })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: 'ONLINE' | 'OFFLINE'
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc with head:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { head: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": null,
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: 'ONLINE' | 'OFFLINE'
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc with get:true, count:exact', async () => {
+  const res = await postgrest.rpc(
+    'get_status',
+    { name_param: 'supabot' },
+    { get: true, count: 'exact' }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": 1,
+      "data": "ONLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: 'ONLINE' | 'OFFLINE'
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc with get:true, optional param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_optional_param',
+    { param: undefined },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: string
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc with get:true, array param', async () => {
+  const res = await postgrest.rpc(
+    'function_with_array_param',
+    { param: ['00000000-0000-0000-0000-000000000000'] },
+    { get: true }
+  )
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": null,
+      "error": null,
+      "status": 204,
+      "statusText": "No Content",
+    }
+  `)
+  let result: typeof res.data
+  let expected: null | undefined
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
+
+test('rpc with dynamic schema', async () => {
+  const res = await postgrest.schema('personal').rpc('get_status', { name_param: 'kiwicopple' })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": "OFFLINE",
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  let result: Exclude<typeof res.data, null>
+  let expected: 'ONLINE' | 'OFFLINE'
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+})
