@@ -8,36 +8,7 @@ test('basic delete', async () => {
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
-      "data": Array [
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 5,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 3,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 6,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 7,
-          "message": "foo",
-          "username": "supabot",
-        },
-      ],
+      "data": Array [],
       "error": null,
       "status": 200,
       "statusText": "OK",
@@ -66,6 +37,13 @@ test('basic delete', async () => {
         Object {
           "channel_id": 3,
           "data": null,
+          "id": 3,
+          "message": "Some message on channel wihtout details",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 3,
+          "data": null,
           "id": 4,
           "message": "Some message on channel wihtout details",
           "username": "supabot",
@@ -85,37 +63,8 @@ test("basic delete count: 'exact'", async () => {
     .select()
   expect(res).toMatchInlineSnapshot(`
     Object {
-      "count": 4,
-      "data": Array [
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 8,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 3,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 9,
-          "message": "foo",
-          "username": "supabot",
-        },
-        Object {
-          "channel_id": 2,
-          "data": null,
-          "id": 10,
-          "message": "foo",
-          "username": "supabot",
-        },
-      ],
+      "count": 0,
+      "data": Array [],
       "error": null,
       "status": 200,
       "statusText": "OK",
@@ -139,6 +88,13 @@ test("basic delete count: 'exact'", async () => {
           "data": null,
           "id": 2,
           "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 3,
+          "data": null,
+          "id": 3,
+          "message": "Some message on channel wihtout details",
           "username": "supabot",
         },
         Object {

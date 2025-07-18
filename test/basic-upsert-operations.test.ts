@@ -94,9 +94,30 @@ test('upsert', async () => {
           "username": "supabot",
         },
         Object {
-          "channel_id": 1,
+          "channel_id": 2,
           "data": null,
           "id": 5,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 6,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 7,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 8,
           "message": "foo",
           "username": "supabot",
         },
@@ -133,8 +154,8 @@ test("upsert with count: 'exact'", async () => {
         },
       ],
       "error": null,
-      "status": 201,
-      "statusText": "Created",
+      "status": 200,
+      "statusText": "OK",
     }
   `)
 
@@ -165,7 +186,28 @@ test("upsert with count: 'exact'", async () => {
           "username": "supabot",
         },
         Object {
-          "channel_id": 1,
+          "channel_id": 2,
+          "data": null,
+          "id": 5,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 6,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
+          "data": null,
+          "id": 7,
+          "message": "foo",
+          "username": "supabot",
+        },
+        Object {
+          "channel_id": 2,
           "data": null,
           "id": 8,
           "message": "foo",
