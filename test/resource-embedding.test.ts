@@ -34,7 +34,82 @@ test('embedded select', async () => {
               "message": "Some message on channel wihtout details",
               "username": "supabot",
             },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 11,
+              "message": "foo",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 2,
+              "data": null,
+              "id": 3,
+              "message": "foo",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 12,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 13,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 14,
+              "message": "test1",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 15,
+              "message": "updated",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 16,
+              "message": "test3",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 17,
+              "message": "test3",
+              "username": "supabot",
+            },
+            Object {
+              "channel_id": 1,
+              "data": null,
+              "id": 18,
+              "message": "test3",
+              "username": "supabot",
+            },
           ],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
+        },
+        Object {
+          "messages": Array [],
         },
         Object {
           "messages": Array [],
@@ -87,7 +162,75 @@ describe('embedded filters', () => {
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -144,7 +287,26 @@ describe('embedded filters', () => {
                 "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -203,7 +365,26 @@ describe('embedded filters', () => {
                 "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -264,13 +445,88 @@ describe('embedded transforms', () => {
                 "username": "supabot",
               },
               Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
                 "channel_id": 1,
                 "data": null,
                 "id": 1,
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -330,13 +586,88 @@ describe('embedded transforms', () => {
                 "username": "supabot",
               },
               Object {
+                "channel_id": 2,
+                "data": null,
+                "id": 3,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 13,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 14,
+                "message": "test1",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 15,
+                "message": "updated",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 16,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 17,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
                 "channel_id": 1,
                 "data": null,
                 "id": 1,
                 "message": "Hello World 👋",
                 "username": "supabot",
               },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 18,
+                "message": "test3",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 11,
+                "message": "foo",
+                "username": "supabot",
+              },
+              Object {
+                "channel_id": 1,
+                "data": null,
+                "id": 12,
+                "message": "test1",
+                "username": "supabot",
+              },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
@@ -401,6 +732,18 @@ describe('embedded transforms', () => {
           Object {
             "messages": Array [],
           },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
         ],
         "error": null,
         "status": 200,
@@ -439,6 +782,18 @@ describe('embedded transforms', () => {
                 "username": "supabot",
               },
             ],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
+          },
+          Object {
+            "messages": Array [],
           },
           Object {
             "messages": Array [],
