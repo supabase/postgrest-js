@@ -39,6 +39,36 @@ test('select with aggregate count and spread', async () => {
               "details": null,
             },
           },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
         ],
         "username": "supabot",
       },
@@ -87,6 +117,36 @@ test('spread resource with single column in select query', async () => {
             "channels": Object {
               "count": 1,
               "details": null,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
             },
           },
         ],
@@ -142,6 +202,41 @@ test('spread resource with all columns in select query', async () => {
               "id": null,
             },
           },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+              "id": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+              "id": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+              "id": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+              "id": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
+              "details": "Details for random channel",
+              "id": 2,
+            },
+          },
         ],
         "username": "supabot",
       },
@@ -191,6 +286,36 @@ test('select with aggregate sum and spread', async () => {
             "channels": Object {
               "details": null,
               "sum": 3,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "sum": 2,
             },
           },
         ],
@@ -246,6 +371,41 @@ test('select with aggregate sum and spread on nested relation', async () => {
               "details": null,
               "details_sum": null,
               "sum": 3,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
+            },
+          },
+          Object {
+            "channels": Object {
+              "details": "Details for random channel",
+              "details_sum": 2,
+              "sum": 2,
             },
           },
         ],

@@ -109,6 +109,21 @@ test('gt', async () => {
         Object {
           "id": 4,
         },
+        Object {
+          "id": 5,
+        },
+        Object {
+          "id": 6,
+        },
+        Object {
+          "id": 7,
+        },
+        Object {
+          "id": 8,
+        },
+        Object {
+          "id": 3,
+        },
       ],
       "error": null,
       "status": 200,
@@ -131,6 +146,21 @@ test('gte', async () => {
         },
         Object {
           "id": 4,
+        },
+        Object {
+          "id": 5,
+        },
+        Object {
+          "id": 6,
+        },
+        Object {
+          "id": 7,
+        },
+        Object {
+          "id": 8,
+        },
+        Object {
+          "id": 3,
         },
       ],
       "error": null,

@@ -30,6 +30,26 @@ test('nested query with selective fields', async () => {
             "id": 4,
             "message": "Some message on channel wihtout details",
           },
+          Object {
+            "id": 5,
+            "message": "foo",
+          },
+          Object {
+            "id": 6,
+            "message": "foo",
+          },
+          Object {
+            "id": 7,
+            "message": "foo",
+          },
+          Object {
+            "id": 8,
+            "message": "foo",
+          },
+          Object {
+            "id": 3,
+            "message": "foo",
+          },
         ],
         "username": "supabot",
       },
@@ -84,6 +104,46 @@ test('nested query with multiple levels and selective fields', async () => {
             "id": 4,
             "message": "Some message on channel wihtout details",
           },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 5,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 6,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 7,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 8,
+            "message": "foo",
+          },
+          Object {
+            "channels": Object {
+              "id": 2,
+              "slug": "random",
+            },
+            "id": 3,
+            "message": "foo",
+          },
         ],
         "username": "supabot",
       },
@@ -126,6 +186,21 @@ test('query with multiple one-to-many relationships', async () => {
           },
           Object {
             "id": 4,
+          },
+          Object {
+            "id": 5,
+          },
+          Object {
+            "id": 6,
+          },
+          Object {
+            "id": 7,
+          },
+          Object {
+            "id": 8,
+          },
+          Object {
+            "id": 3,
           },
         ],
         "user_profiles": Array [
@@ -196,6 +271,41 @@ test('one-to-many relationship', async () => {
             "message": "Some message on channel wihtout details",
             "username": "supabot",
           },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 5,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 6,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 7,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 8,
+            "message": "foo",
+            "username": "supabot",
+          },
+          Object {
+            "channel_id": 2,
+            "data": null,
+            "id": 3,
+            "message": "foo",
+            "username": "supabot",
+          },
         ],
       },
       "error": null,
@@ -217,6 +327,21 @@ test('one-to-many relationship with selective columns', async () => {
       "count": null,
       "data": Object {
         "messages": Array [
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
+          Object {
+            "data": null,
+          },
           Object {
             "data": null,
           },
