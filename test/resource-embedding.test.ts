@@ -6,8 +6,7 @@ import { TypeEqual } from 'ts-expect'
 const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
 test('embedded select', async () => {
-  // TODO: If the function (computed field) isn't explictely mentioned
-  // it should be excluded from the "star" selection by default
+  // By default postgrest will omit computed field from "star" selector
   const res = await postgrest.from('users').select('messages(*)')
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -56,23 +55,21 @@ test('embedded select', async () => {
       "statusText": "OK",
     }
   `)
-  // // TODO: That should be the result type
-  // let result: Exclude<typeof res.data, null>
-  // let expected: {
-  //   messages: {
-  //     channel_id: number
-  //     data: unknown
-  //     id: number
-  //     message: string | null
-  //     username: string
-  //   }[]
-  // }[]
-  // expectType<TypeEqual<typeof result, typeof expected>>(true)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: {
+      channel_id: number
+      data: unknown
+      id: number
+      message: string | null
+      username: string
+    }[]
+  }[]
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
-test('embedded select with blurb_message', async () => {
-  // TODO: If the function is explicitely mentionned in the fields selection
-  // on top of the star call, then the field will be present
+test('embedded select with computed field explicit selection', async () => {
+  // If the computed field is explicitely requested on top of the star selector, it should be present in the result
   const res = await postgrest.from('users').select('messages(*, blurb_message)')
   expect(res).toMatchInlineSnapshot(`
     Object {
@@ -94,14 +91,6 @@ test('embedded select with blurb_message', async () => {
               "data": null,
               "id": 2,
               "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
-              "username": "supabot",
-            },
-            Object {
-              "blurb_message": "Som",
-              "channel_id": 3,
-              "data": null,
-              "id": 3,
-              "message": "Some message on channel wihtout details",
               "username": "supabot",
             },
             Object {
@@ -132,7 +121,18 @@ test('embedded select with blurb_message', async () => {
       "statusText": "OK",
     }
   `)
-  // expectType<TypeEqual<typeof result, typeof expected>>(true)
+  let result: Exclude<typeof res.data, null>
+  let expected: {
+    messages: {
+      channel_id: number
+      data: unknown
+      id: number
+      message: string | null
+      username: string
+      blurb_message: string | null
+    }[]
+  }[]
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
 })
 
 describe('embedded filters', () => {
