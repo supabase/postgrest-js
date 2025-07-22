@@ -12,46 +12,62 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // table invalid type
 {
+  //@ts-expect-error not a string
   expectError(postgrest.from(42))
+  //@ts-expect-error not an existing table
   expectError(postgrest.from('nonexistent_table'))
 }
 
 // `null` can't be used with `.eq()`
 {
   postgrest.from('users').select().eq('username', 'foo')
+  //@ts-expect-error not a valid value
   expectError(postgrest.from('users').select().eq('username', null))
 
   const nullableVar = 'foo' as string | null
+  //@ts-expect-error not a valid value
   expectError(postgrest.from('users').select().eq('username', nullableVar))
 }
 
 // `.eq()`, '.neq()' and `.in()` validate provided filter value when column is an enum.
 // Behaves the same for simple columns, as well as relationship filters.
 {
+  //@ts-expect-error not a valid value
+
   expectError(postgrest.from('users').select().eq('status', 'invalid'))
+  //@ts-expect-error not a valid value
+
   expectError(postgrest.from('users').select().neq('status', 'invalid'))
+  //@ts-expect-error not a valid value
+
   expectError(postgrest.from('users').select().in('status', ['invalid']))
 
   expectError(
+    //@ts-expect-error not a valid value
     postgrest.from('best_friends').select('users!first_user(status)').eq('users.status', 'invalid')
   )
   expectError(
+    //@ts-expect-error not a valid value
     postgrest.from('best_friends').select('users!first_user(status)').neq('users.status', 'invalid')
   )
   expectError(
     postgrest
       .from('best_friends')
       .select('users!first_user(status)')
+      //@ts-expect-error not a valid value
       .in('users.status', ['invalid'])
   )
   // Validate deeply nested embedded tables
   expectError(
+    //@ts-expect-error not a valid value
     postgrest.from('users').select('messages(channels(*))').eq('messages.channels.id', 'invalid')
   )
   expectError(
+    //@ts-expect-error not a valid value
     postgrest.from('users').select('messages(channels(*))').neq('messages.channels.id', 'invalid')
   )
   expectError(
+    //@ts-expect-error not a valid value
     postgrest.from('users').select('messages(channels(*))').in('messages.channels.id', ['invalid'])
   )
 
@@ -147,11 +163,13 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // cannot update non-updatable views
 {
-  expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
+  //@ts-expect-error not an updatable view
+  expectError(postgrest.from('non_updatable_view').update({ username: 'something' }))
 }
 
 // cannot update non-updatable columns
 {
+  //@ts-expect-error not a updatable column
   expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
 }
 
