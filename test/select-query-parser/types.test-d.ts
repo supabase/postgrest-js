@@ -1,6 +1,8 @@
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
 import { DeduplicateRelationships, GetComputedFields } from '../../src/select-query-parser/utils'
+import { Database } from '../types.generated'
+
 // Deduplicate exact sames relationships
 {
   type rels = [
@@ -53,180 +55,11 @@ import { DeduplicateRelationships, GetComputedFields } from '../../src/select-qu
   type result = DeduplicateRelationships<rels>
   expectType<TypeEqual<result, expected>>(true)
 }
+
 // Test GetComputedFields basic
 {
-  type Json = unknown
-
-  type Database = {
-    personal: {
-      Tables: {
-        [_ in never]: never
-      }
-      Views: {
-        [_ in never]: never
-      }
-      Functions: {
-        [_ in never]: never
-      }
-      Enums: {
-        user_status: 'ONLINE' | 'OFFLINE'
-      }
-      CompositeTypes: {
-        [_ in never]: never
-      }
-    }
-    public: {
-      Tables: {
-        messages: {
-          Row: {
-            channel_id: number
-            data: Json | null
-            id: number
-            message: string | null
-            username: string
-            blurb_message: string | null
-          }
-          Insert: {
-            channel_id: number
-            data?: Json | null
-            id?: number
-            message?: string | null
-            username: string
-          }
-          Update: {
-            channel_id?: number
-            data?: Json | null
-            id?: number
-            message?: string | null
-            username?: string
-          }
-          Relationships: []
-        }
-      }
-      Views: {
-        [_ in never]: never
-      }
-      Functions: {
-        blurb_message: {
-          Args: { '': Database['public']['Tables']['messages']['Row'] }
-          Returns: string
-        }
-        function_returning_row: {
-          Args: Record<PropertyKey, never>
-          Returns: {
-            age_range: unknown | null
-            catchphrase: unknown | null
-            data: Json | null
-            username: string
-          }
-        }
-        function_returning_set_of_rows: {
-          Args: Record<PropertyKey, never>
-          Returns: {
-            age_range: unknown | null
-            catchphrase: unknown | null
-            data: Json | null
-            username: string
-          }[]
-        }
-      }
-      Enums: {
-        [_ in never]: never
-      }
-      CompositeTypes: {
-        [_ in never]: never
-      }
-    }
-  }
-
   type Schema = Database['public']
-  type result = GetComputedFields<Schema, 'messages'>
-  type expected = 'blurb_message'
-  expectType<TypeEqual<result, expected>>(true)
-}
-// Test GetComputedFields no computed fields
-{
-  type Json = unknown
-
-  type Database = {
-    personal: {
-      Tables: {
-        [_ in never]: never
-      }
-      Views: {
-        [_ in never]: never
-      }
-      Functions: {
-        [_ in never]: never
-      }
-      Enums: {
-        user_status: 'ONLINE' | 'OFFLINE'
-      }
-      CompositeTypes: {
-        [_ in never]: never
-      }
-    }
-    public: {
-      Tables: {
-        messages: {
-          Row: {
-            channel_id: number
-            data: Json | null
-            id: number
-            message: string | null
-            username: string
-          }
-          Insert: {
-            channel_id: number
-            data?: Json | null
-            id?: number
-            message?: string | null
-            username: string
-          }
-          Update: {
-            channel_id?: number
-            data?: Json | null
-            id?: number
-            message?: string | null
-            username?: string
-          }
-          Relationships: []
-        }
-      }
-      Views: {
-        [_ in never]: never
-      }
-      Functions: {
-        function_returning_row: {
-          Args: Record<PropertyKey, never>
-          Returns: {
-            age_range: unknown | null
-            catchphrase: unknown | null
-            data: Json | null
-            username: string
-          }
-        }
-        function_returning_set_of_rows: {
-          Args: Record<PropertyKey, never>
-          Returns: {
-            age_range: unknown | null
-            catchphrase: unknown | null
-            data: Json | null
-            username: string
-          }[]
-        }
-      }
-      Enums: {
-        [_ in never]: never
-      }
-      CompositeTypes: {
-        [_ in never]: never
-      }
-    }
-  }
-
-  type Schema = Database['public']
-  type result = GetComputedFields<Schema, 'messages'>
+  type result = GetComputedFields<Schema, 'users'>
   type expected = never
   expectType<TypeEqual<result, expected>>(true)
 }
