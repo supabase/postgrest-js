@@ -34,6 +34,9 @@ export type GetRpcFunctionFilterBuilderByArgs<
     // on the function arguments provided
     Args extends GenericFunction['Args']
     ? FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>
+    : // If we can't find a matching function by args, we try to find one by function name
+    ExtractExactFunction<Schema['Functions'][FnName], Args> extends GenericFunction
+    ? ExtractExactFunction<Schema['Functions'][FnName], Args>
     : any
 }[1] extends infer Fn
   ? // If we are dealing with an non-typed client everything is any
@@ -192,9 +195,17 @@ export default class PostgrestClient<
    * `"estimated"`: Uses exact count for low numbers and planned count for high
    * numbers.
    */
-  rpc<FnName extends string & keyof Schema['Functions'], Fn extends Schema['Functions'][FnName]>(
+  rpc<
+    FnName extends string & keyof Schema['Functions'],
+    Args extends Schema['Functions'][FnName]['Args'] = {},
+    FilterBuilder extends GetRpcFunctionFilterBuilderByArgs<
+      Schema,
+      FnName,
+      Args
+    > = GetRpcFunctionFilterBuilderByArgs<Schema, FnName, Args>
+  >(
     fn: FnName,
-    args: Fn['Args'] = {},
+    args: Args = {} as Args,
     {
       head = false,
       get = false,
@@ -207,14 +218,10 @@ export default class PostgrestClient<
   ): PostgrestFilterBuilder<
     ClientOptions,
     Schema,
-    Fn['Returns'] extends any[]
-      ? Fn['Returns'][number] extends Record<string, unknown>
-        ? Fn['Returns'][number]
-        : {}
-      : {},
-    Fn['Returns'],
-    FnName,
-    null,
+    FilterBuilder['Row'],
+    FilterBuilder['Result'],
+    FilterBuilder['RelationName'],
+    FilterBuilder['Relationships'],
     'RPC'
   > {
     let method: 'HEAD' | 'GET' | 'POST'
