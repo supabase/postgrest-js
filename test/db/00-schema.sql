@@ -162,7 +162,6 @@ $$ language sql immutable;
 create function public.function_with_array_param(param uuid[])
 returns void as '' language sql immutable;
 
-
 create table public.cornercase (
   id        int primary key,
   "column whitespace" text,
@@ -311,6 +310,7 @@ create or replace function public.polymorphic_function_with_unnamed_default_over
 create or replace function public.polymorphic_function_with_unnamed_default_overload(text default 'default') returns text language sql as $$ SELECT 'foo' $$;
 create or replace function public.polymorphic_function_with_unnamed_default_overload(bool default true) returns int language sql as 'SELECT 3';
 
+-- Function creating a computed field
 create function public.blurb_message(public.messages) returns character varying as
 $$
 select substring($1.message, 1, 3);

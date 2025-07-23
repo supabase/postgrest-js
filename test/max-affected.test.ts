@@ -3,14 +3,14 @@ import { Database } from './types.override'
 import { Database as DatabasePostgrest13 } from './types.override-with-options-postgrest13'
 import { expectType } from 'tsd'
 import { InvalidMethodError } from '../src/PostgrestFilterBuilder'
+import { Json } from './types.generated'
 
 const REST_URL_13 = 'http://localhost:3001'
 const postgrest13 = new PostgrestClient<DatabasePostgrest13>(REST_URL_13)
 const postgrest12 = new PostgrestClient<Database>(REST_URL_13)
 
 describe('maxAffected', () => {
-  // Type checking tests
-  test('maxAffected should show type warning on postgrest 12 clients', async () => {
+  test('types: maxAffected should show type warning on postgrest 12 clients', async () => {
     const resUpdate = await postgrest12
       .from('messages')
       .update({ channel_id: 2 })
@@ -18,23 +18,23 @@ describe('maxAffected', () => {
       .maxAffected(1)
     expectType<InvalidMethodError<'maxAffected method only available on postgrest 13+'>>(resUpdate)
   })
-  test('maxAffected should show type warning on non update / delete', async () => {
-    const resSelect = await postgrest13.from('messages').select('*').maxAffected(10)
-    const resInsert = await postgrest13
+  test('types: maxAffected should show type warning on non update / delete', async () => {
+    const resSelect = postgrest13.from('messages').select('*').maxAffected(10)
+    const resInsert = postgrest13
       .from('messages')
       .insert({ message: 'foo', username: 'supabot', channel_id: 1 })
       .maxAffected(10)
-    const resUpsert = await postgrest13
+    const resUpsert = postgrest13
       .from('messages')
       .upsert({ id: 3, message: 'foo', username: 'supabot', channel_id: 2 })
       .maxAffected(10)
-    const resUpdate = await postgrest13
+    const resUpdate = postgrest13
       .from('messages')
       .update({ channel_id: 2 })
       .eq('message', 'foo')
       .maxAffected(1)
       .select()
-    const resDelete = await postgrest13
+    const resDelete = postgrest13
       .from('messages')
       .delete()
       .eq('message', 'foo')
@@ -59,7 +59,6 @@ describe('maxAffected', () => {
     )
   })
 
-  // Runtime behavior tests
   test('update should fail when maxAffected is exceeded', async () => {
     // First create multiple rows
     await postgrest13.from('messages').insert([
@@ -74,9 +73,13 @@ describe('maxAffected', () => {
       .update({ message: 'updated' })
       .eq('message', 'test1')
       .maxAffected(2)
+
     const { error } = result
     expect(error).toBeDefined()
     expect(error?.code).toBe('PGRST124')
+
+    // cleanup
+    await postgrest13.from('messages').delete().eq('message', 'test1')
   })
 
   test('update should succeed when within maxAffected limit', async () => {
@@ -92,10 +95,22 @@ describe('maxAffected', () => {
       .eq('message', 'test2')
       .maxAffected(2)
       .select()
-
+    expectType<
+      | {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+      | null
+    >(data)
     expect(error).toBeNull()
     expect(data).toHaveLength(1)
     expect(data?.[0].message).toBe('updated')
+
+    // cleanup
+    await postgrest13.from('messages').delete().eq('message', 'updated')
   })
 
   test('delete should fail when maxAffected is exceeded', async () => {
@@ -113,9 +128,11 @@ describe('maxAffected', () => {
       .eq('message', 'test3')
       .maxAffected(2)
       .select()
-
     expect(error).toBeDefined()
     expect(error?.code).toBe('PGRST124')
+
+    // cleanup
+    await postgrest13.from('messages').delete().eq('message', 'test3')
   })
 
   test('delete should succeed when within maxAffected limit', async () => {
@@ -157,6 +174,9 @@ describe('maxAffected', () => {
         catchphrase: null,
       },
     ])
+
+    // cleanup
+    await postgrest13.from('users').delete().eq('username', 'testuser')
   })
 
   test('should fail when rpc returns more results than maxAffected', async () => {
@@ -176,5 +196,8 @@ describe('maxAffected', () => {
     expect(error).toBeDefined()
     expect(error?.code).toBe('PGRST124')
     expect(data).toBeNull()
+
+    // cleanup
+    await postgrest13.from('users').delete().in('username', ['testuser1', 'testuser2', 'testuser3'])
   })
 })

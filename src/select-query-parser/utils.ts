@@ -663,3 +663,25 @@ type FindMatchingFunctionBySetofFrom<
 > = FnUnion extends infer Fn extends GenericFunction
   ? MatchingFunctionBySetofFrom<Fn, TableName>
   : false
+
+type ComputedField<
+  Schema extends GenericSchema,
+  RelationName extends keyof TablesAndViews<Schema>,
+  FieldName extends keyof TablesAndViews<Schema>[RelationName]['Row']
+> = FieldName extends keyof Schema['Functions']
+  ? Schema['Functions'][FieldName] extends {
+      Args: { '': TablesAndViews<Schema>[RelationName]['Row'] }
+      Returns: any
+    }
+    ? FieldName
+    : never
+  : never
+
+// Given a relation name (Table or View) extract all the "computed fields" based on the Row
+// object, and the schema functions definitions
+export type GetComputedFields<
+  Schema extends GenericSchema,
+  RelationName extends keyof TablesAndViews<Schema>
+> = {
+  [K in keyof TablesAndViews<Schema>[RelationName]['Row']]: ComputedField<Schema, RelationName, K>
+}[keyof TablesAndViews<Schema>[RelationName]['Row']]
