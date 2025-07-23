@@ -115,6 +115,11 @@ RETURNS user_status AS $$
   RETURNING status;
 $$ LANGUAGE SQL VOLATILE;
 
+CREATE FUNCTION public.set_users_offline(name_param text)
+RETURNS SETOF users AS $$
+  UPDATE users SET status = 'OFFLINE' WHERE username LIKE name_param RETURNING *;
+$$ LANGUAGE SQL;
+
 CREATE FUNCTION public.void_func()
 RETURNS void AS $$
 $$ LANGUAGE SQL;
@@ -196,7 +201,6 @@ LANGUAGE SQL STABLE
 AS $$
   SELECT * FROM public.messages WHERE username = user_row.username;
 $$;
-
 
 -- Create a view based on users table
 CREATE VIEW public.active_users AS

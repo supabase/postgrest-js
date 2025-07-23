@@ -1,4 +1,4 @@
-import { GenericSetofOption } from '../types'
+import { GenericFunction, GenericSetofOption } from '../types'
 import { Ast } from './parser'
 import {
   AggregateFunctions,
@@ -654,8 +654,8 @@ type MatchingFunctionBySetofFrom<
 > = Fn['SetofOptions'] extends GenericSetofOption
   ? TableName extends Fn['SetofOptions']['from']
     ? Fn
-    : false
-  : false
+    : never
+  : never
 
 type FindMatchingFunctionBySetofFrom<
   FnUnion,
