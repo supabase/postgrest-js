@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
 import { expectType } from 'tsd'

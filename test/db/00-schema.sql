@@ -325,6 +325,15 @@ as $$
   select * from public.users limit 1;
 $$;
 
+
+create or replace function public.function_returning_single_row(messages public.messages)
+returns public.users
+language sql
+stable
+as $$
+  select * from public.users limit 1;
+$$;
+
 create or replace function public.function_returning_set_of_rows()
 returns setof public.users
 language sql

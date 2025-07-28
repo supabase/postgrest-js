@@ -1,46 +1,6 @@
 export type Json = unknown
 
 export type Database = {
-  personal: {
-    Tables: {
-      users: {
-        Row: {
-          age_range: unknown | null
-          data: Json | null
-          status: Database['personal']['Enums']['user_status'] | null
-          username: string
-        }
-        Insert: {
-          age_range?: unknown | null
-          data?: Json | null
-          status?: Database['personal']['Enums']['user_status'] | null
-          username: string
-        }
-        Update: {
-          age_range?: unknown | null
-          data?: Json | null
-          status?: Database['personal']['Enums']['user_status'] | null
-          username?: string
-        }
-        Relationships: []
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      get_status: {
-        Args: { name_param: string }
-        Returns: Database['personal']['Enums']['user_status']
-      }
-    }
-    Enums: {
-      user_status: 'ONLINE' | 'OFFLINE'
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       best_friends: {
@@ -583,6 +543,10 @@ export type Database = {
       }
     }
     Functions: {
+      blurb_message: {
+        Args: { '': Database['public']['Tables']['messages']['Row'] }
+        Returns: string
+      }
       function_returning_row: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -602,6 +566,21 @@ export type Database = {
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }[]
+      }
+      function_returning_single_row: {
+        Args: { messages: Database['public']['Tables']['messages']['Row'] }
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+        SetofOptions: {
+          from: 'messages'
+          to: 'users'
+          isOneToOne: true
+        }
       }
       function_with_array_param: {
         Args: { param: string[] }
@@ -743,6 +722,21 @@ export type Database = {
       }
       get_user_recent_messages:
         | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number | null
+              data: Json | null
+              id: number | null
+              message: string | null
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'recent_messages'
+              isOneToOne: false
+            }
+          }
+        | {
             Args: {
               active_user_row: Database['public']['Views']['active_users']['Row']
             }
@@ -759,21 +753,6 @@ export type Database = {
               isOneToOne: false
             }
           }
-        | {
-            Args: { user_row: Database['public']['Tables']['users']['Row'] }
-            Returns: {
-              channel_id: number | null
-              data: Json | null
-              id: number | null
-              message: string | null
-              username: string | null
-            }[]
-            SetofOptions: {
-              from: 'users'
-              to: 'recent_messages'
-              isOneToOne: false
-            }
-          }
       get_username_and_status: {
         Args: { name_param: string }
         Returns: {
@@ -785,41 +764,27 @@ export type Database = {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
-      polymorphic_function_with_different_return: {
-        Args: { '': string }
-        Returns: string
-      }
+      polymorphic_function_with_different_return:
+        | { Args: { '': boolean }; Returns: number }
+        | { Args: { '': number }; Returns: number }
+        | { Args: { '': string }; Returns: string }
       polymorphic_function_with_no_params_or_unnamed:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: number
-          }
-        | {
-            Args: { '': string }
-            Returns: string
-          }
+        | { Args: Record<PropertyKey, never>; Returns: number }
+        | { Args: { '': boolean }; Returns: number }
+        | { Args: { '': string }; Returns: string }
       polymorphic_function_with_unnamed_default:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: {
-              error: true
-            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default( => int4), polymorphic_function_with_unnamed_default(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
-          }
-        | {
-            Args: { '': string }
-            Returns: string
-          }
+        | { Args: Record<PropertyKey, never>; Returns: number }
+        | { Args: { ''?: number }; Returns: number }
+        | { Args: { ''?: string }; Returns: string }
       polymorphic_function_with_unnamed_default_overload:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: {
-              error: true
-            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
-          }
-        | {
-            Args: { '': string }
-            Returns: string
-          }
+        | { Args: Record<PropertyKey, never>; Returns: number }
+        | { Args: { ''?: number }; Returns: number }
+        | { Args: { ''?: string }; Returns: string }
+        | { Args: { ''?: boolean }; Returns: number }
+      polymorphic_function_with_unnamed_integer: {
+        Args: { '': number }
+        Returns: number
+      }
       polymorphic_function_with_unnamed_json: {
         Args: { '': Json }
         Returns: number
@@ -833,17 +798,15 @@ export type Database = {
         Returns: number
       }
       postgrest_resolvable_with_override_function:
+        | { Args: Record<PropertyKey, never>; Returns: undefined }
+        | { Args: { a: string }; Returns: number }
+        | { Args: { b: number }; Returns: string }
         | {
-            Args: Record<PropertyKey, never>
-            Returns: undefined
-          }
-        | {
-            Args: { a: string }
-            Returns: number
-          }
-        | {
-            Args: { b: number }
-            Returns: string
+            Args: { profile_id: number }
+            Returns: {
+              id: number
+              username: string | null
+            }[]
           }
         | {
             Args: { cid: number; search?: string }
@@ -853,13 +816,6 @@ export type Database = {
               id: number
               message: string | null
               username: string
-            }[]
-          }
-        | {
-            Args: { profile_id: number }
-            Returns: {
-              id: number
-              username: string | null
             }[]
           }
         | {
@@ -878,16 +834,9 @@ export type Database = {
             }
           }
       postgrest_unresolvable_function:
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: undefined
-          }
-        | {
-            Args: { a: unknown }
-            Returns: {
-              error: true
-            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
-          }
+        | { Args: Record<PropertyKey, never>; Returns: undefined }
+        | { Args: { a: string }; Returns: number }
+        | { Args: { a: number }; Returns: string }
       set_users_offline: {
         Args: { name_param: string }
         Returns: {
@@ -898,167 +847,7 @@ export type Database = {
           username: string
         }[]
       }
-      function_with_array_param: {
-        Args: { param: string[] }
-        Returns: undefined
-      }
-      function_with_optional_param: {
-        Args: { param?: string }
-        Returns: string
-      }
-      get_active_user_messages: {
-        Args: { active_user_row: unknown }
-        Returns: {
-          channel_id: number
-          data: Json | null
-          id: number
-          message: string | null
-          username: string
-        }[]
-      }
-      get_messages: {
-        Args:
-          | { channel_row: Database['public']['Tables']['channels']['Row'] }
-          | { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          channel_id: number
-          data: Json | null
-          id: number
-          message: string | null
-          username: string
-        }[]
-      }
-      get_messages_by_username: {
-        Args: { search_username: string }
-        Returns: {
-          channel_id: number
-          data: Json | null
-          id: number
-          message: string | null
-          username: string
-        }[]
-      }
-      get_recent_messages_by_username: {
-        Args: { search_username: string }
-        Returns: {
-          channel_id: number | null
-          data: Json | null
-          id: number | null
-          message: string | null
-          username: string | null
-        }[]
-      }
-      get_status: {
-        Args: { name_param: string }
-        Returns: Database['public']['Enums']['user_status']
-      }
-      get_user_first_message: {
-        Args: { active_user_row: unknown }
-        Returns: {
-          channel_id: number | null
-          data: Json | null
-          id: number | null
-          message: string | null
-          username: string | null
-        }[]
-      }
-      get_user_messages: {
-        Args: { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          channel_id: number
-          data: Json | null
-          id: number
-          message: string | null
-          username: string
-        }[]
-      }
-      get_user_profile: {
-        Args: { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          id: number
-          username: string | null
-        }[]
-      }
-      get_user_profile_non_nullable: {
-        Args: { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          id: number
-          username: string | null
-        }[]
-      }
-      get_user_recent_messages: {
-        Args:
-          | { active_user_row: unknown }
-          | { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: {
-          channel_id: number | null
-          data: Json | null
-          id: number | null
-          message: string | null
-          username: string | null
-        }[]
-      }
-      get_username_and_status: {
-        Args: { name_param: string }
-        Returns: {
-          username: string
-          status: Database['public']['Enums']['user_status']
-        }[]
-      }
-      offline_user: {
-        Args: { name_param: string }
-        Returns: Database['public']['Enums']['user_status']
-      }
-      polymorphic_function_with_different_return: {
-        Args: { '': boolean } | { '': number } | { '': string }
-        Returns: string
-      }
-      polymorphic_function_with_no_params_or_unnamed: {
-        Args: Record<PropertyKey, never> | { '': boolean } | { '': string }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_default: {
-        Args: Record<PropertyKey, never> | { ''?: number } | { ''?: string }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_default_overload: {
-        Args: Record<PropertyKey, never> | { ''?: boolean } | { ''?: number } | { ''?: string }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_integer: {
-        Args: { '': number }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_json: {
-        Args: { '': Json }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_jsonb: {
-        Args: { '': Json }
-        Returns: number
-      }
-      polymorphic_function_with_unnamed_text: {
-        Args: { '': string }
-        Returns: number
-      }
-      postgrest_resolvable_with_override_function: {
-        Args:
-          | Record<PropertyKey, never>
-          | { a: string }
-          | { b: number }
-          | { cid: number; search?: string }
-          | { profile_id: number }
-          | { user_row: Database['public']['Tables']['users']['Row'] }
-        Returns: undefined
-      }
-      postgrest_unresolvable_function: {
-        Args: Record<PropertyKey, never> | { a: number } | { a: string }
-        Returns: undefined
-      }
-      void_func: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      void_func: { Args: Record<PropertyKey, never>; Returns: undefined }
     }
     Enums: {
       user_status: 'ONLINE' | 'OFFLINE'
@@ -1185,11 +974,6 @@ export type CompositeTypes<
   : never
 
 export const Constants = {
-  personal: {
-    Enums: {
-      user_status: ['ONLINE', 'OFFLINE'],
-    },
-  },
   public: {
     Enums: {
       user_status: ['ONLINE', 'OFFLINE'],
