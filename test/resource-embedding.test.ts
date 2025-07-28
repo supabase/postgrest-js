@@ -3,6 +3,7 @@ import { Database } from './types.override'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
 import { z } from 'zod'
+import { RequiredDeep } from 'type-fest'
 
 const postgrest = new PostgrestClient<Database>('http://localhost:3000')
 
@@ -70,8 +71,9 @@ test('embedded select', async () => {
       ),
     })
   )
-  type ExpectedType = z.infer<typeof ExpectedSchema>
-  let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+  // TODO: older versions of zod require this trick for non optional unknown data type
+  // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+  let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
   ExpectedSchema.parse(res.data)
 })
@@ -144,8 +146,9 @@ test('embedded select with computed field explicit selection', async () => {
       ),
     })
   )
-  type ExpectedType = z.infer<typeof ExpectedSchema>
-  let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+  // TODO: older versions of zod require this trick for non optional unknown data type
+  // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+  let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
   expectType<TypeEqual<typeof result, typeof expected>>(true)
   ExpectedSchema.parse(res.data)
 })
@@ -204,8 +207,9 @@ describe('embedded filters', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -268,8 +272,9 @@ describe('embedded filters', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -334,8 +339,9 @@ describe('embedded filters', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -408,8 +414,9 @@ describe('embedded transforms', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -481,8 +488,9 @@ describe('embedded transforms', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -539,8 +547,9 @@ describe('embedded transforms', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -597,8 +606,9 @@ describe('embedded transforms', () => {
         ),
       })
     )
-    type ExpectedType = z.infer<typeof ExpectedSchema>
-    let expected: Array<{ messages: Array<Required<ExpectedType[number]['messages'][number]>> }>
+    // TODO: older versions of zod require this trick for non optional unknown data type
+    // newer version of zod don't have this issue but require an upgrade of typescript minimal version
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
