@@ -6,4 +6,9 @@ module.exports = {
   maxWorkers: 1,
   // Ensure deterministic test order
   testSequencer: '<rootDir>/test/testSequencer.js',
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json'
+    }
+  }
 }
