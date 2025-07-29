@@ -273,6 +273,74 @@ describe('embeded functions select', () => {
     ExpectedSchema.parse(res.data)
   })
 
+  test('embeded_setof_function_double_definition_fields_selection - function double definition returning a setof embeded table with fields selection including computed fields', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('username, all_user_messages:get_messages(id,message, blurb_message)')
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "all_user_messages": Array [
+              Object {
+                "blurb_message": "Hel",
+                "id": 1,
+                "message": "Hello World 👋",
+              },
+              Object {
+                "blurb_message": "Per",
+                "id": 2,
+                "message": "Perfection is attained, not when there is nothing more to add, but when there is nothing left to take away.",
+              },
+              Object {
+                "blurb_message": "Som",
+                "id": 4,
+                "message": "Some message on channel wihtout details",
+              },
+            ],
+            "username": "supabot",
+          },
+          Object {
+            "all_user_messages": Array [],
+            "username": "kiwicopple",
+          },
+          Object {
+            "all_user_messages": Array [],
+            "username": "awailas",
+          },
+          Object {
+            "all_user_messages": Array [],
+            "username": "jsonuser",
+          },
+          Object {
+            "all_user_messages": Array [],
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+    let result: Exclude<typeof res.data, null>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        all_user_messages: z.array(
+          z.object({
+            id: z.number(),
+            message: z.string().nullable(),
+            blurb_message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
+  })
+
   test('embeded_setof_row_one_function - function returning a single row embeded table', async () => {
     const res = await postgrest
       .from('users')
