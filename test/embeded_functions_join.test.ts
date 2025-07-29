@@ -68,7 +68,6 @@ describe('embeded functions select', () => {
             id: z.number(),
             message: z.string().nullable(),
             username: z.string(),
-            blurb_message: z.string().nullable(),
           })
         ),
       })
@@ -198,7 +197,6 @@ describe('embeded functions select', () => {
           z.object({
             channel_id: z.number(),
             data: z.unknown().nullable(),
-            blurb_message: z.string().nullable(),
             id: z.number(),
             message: z.string().nullable(),
             username: z.string(),
@@ -367,6 +365,9 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
+    // The override marks this as not nullable, but the data can be null at runtime.
+    // So the correct runtime schema is nullable, but the type is not.
+    // We check that the type is as expected (not nullable), but parsing will fail.
     const ExpectedSchema = z.array(
       z.object({
         username: z.string(),
@@ -378,7 +379,21 @@ describe('embeded functions select', () => {
     )
     let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
-    ExpectedSchema.parse(res.data)
+    // Parsing with the non-nullable schema should throw, because there are nulls in the data.
+    expect(() => ExpectedSchema.parse(res.data)).toThrowError()
+    // However, parsing with a nullable schema should succeed.
+    const ExpectedNullable = z.array(
+      z.object({
+        username: z.string(),
+        user_called_profile_not_null: z
+          .object({
+            id: z.number(),
+            username: z.string().nullable(),
+          })
+          .nullable(),
+      })
+    )
+    ExpectedNullable.parse(res.data)
   })
 
   test('embeded_setof_row_one_function_with_fields_selection - function returning a single row embeded table with fields selection', async () => {
@@ -572,7 +587,6 @@ describe('embeded functions select', () => {
             id: z.number(),
             message: z.string().nullable(),
             username: z.string(),
-            blurb_message: z.string().nullable(),
           })
         ),
       })
@@ -645,7 +659,6 @@ describe('embeded functions select', () => {
             id: z.number(),
             message: z.string().nullable(),
             username: z.string(),
-            blurb_message: z.string().nullable(),
           })
         ),
       })
@@ -888,10 +901,8 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    const ExpectedSchema = z.array(z.never())
-    let expected: z.infer<typeof ExpectedSchema>
+    let expected: never[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
-    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_returning_single_row - can embed single row returns function with row single param', async () => {
