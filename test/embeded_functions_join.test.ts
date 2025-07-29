@@ -3,11 +3,10 @@ import { Database } from './types.override'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
 import { z } from 'zod'
+import { RequiredDeep } from 'type-fest'
 
 const REST_URL = 'http://localhost:3000'
 export const postgrest = new PostgrestClient<Database>(REST_URL)
-
-type Schema = Database['public']
 
 describe('embeded functions select', () => {
   test('embeded_setof_function - function returning a setof embeded table', async () => {
@@ -59,20 +58,22 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    const ExpectedSchema = z.array(z.object({
-      id: z.number(),
-      all_channels_messages: z.array(z.object(
-        {
-          channel_id: z.number(),
-          data: z.unknown().nullable(),
-          id: z.number(),
-          message: z.string().nullable(),
-          username: z.string(),
-          blurb_message: z.string().nullable();
-      }
-      ))
-    }))
-    let expected: z.infer<typeof ExpectedSchema>
+    const ExpectedSchema = z.array(
+      z.object({
+        id: z.number(),
+        all_channels_messages: z.array(
+          z.object({
+            channel_id: z.number(),
+            data: z.unknown().nullable(),
+            id: z.number(),
+            message: z.string().nullable(),
+            username: z.string(),
+            blurb_message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     ExpectedSchema.parse(res.data)
   })
@@ -119,13 +120,22 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      id: number
-      all_channels_messages: Array<Pick<Schema['Tables']['messages']['Row'], 'id' | 'message'>>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        id: z.number(),
+        all_channels_messages: z.array(
+          z.object({
+            id: z.number(),
+            message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
-  
+
   test('embeded_setof_function_double_definition - function double definition returning a setof embeded table', async () => {
     const res = await postgrest.from('users').select('username, all_user_messages:get_messages(*)')
     expect(res).toMatchInlineSnapshot(`
@@ -181,11 +191,24 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      all_user_messages: Array<Schema['Tables']['messages']['Row']>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        all_user_messages: z.array(
+          z.object({
+            channel_id: z.number(),
+            data: z.unknown().nullable(),
+            blurb_message: z.string().nullable(),
+            id: z.number(),
+            message: z.string().nullable(),
+            username: z.string(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_setof_function_double_definition_fields_selection - function double definition returning a setof embeded table with fields selection', async () => {
@@ -236,11 +259,20 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      all_user_messages: Array<Pick<Schema['Tables']['messages']['Row'], 'id' | 'message'>>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        all_user_messages: z.array(
+          z.object({
+            id: z.number(),
+            message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_setof_row_one_function - function returning a single row embeded table', async () => {
@@ -281,11 +313,20 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      user_called_profile: Schema['Tables']['user_profiles']['Row'] | null
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        user_called_profile: z
+          .object({
+            id: z.number(),
+            username: z.string().nullable(),
+          })
+          .nullable(),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_setof_row_one_function_not_nullable - function returning a single row embeded table not nullable', async () => {
@@ -326,11 +367,18 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      user_called_profile_not_null: Schema['Tables']['user_profiles']['Row']
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        user_called_profile_not_null: z.object({
+          id: z.number(),
+          username: z.string().nullable(),
+        }),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_setof_row_one_function_with_fields_selection - function returning a single row embeded table with fields selection', async () => {
@@ -370,11 +418,19 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      user_called_profile: Pick<Schema['Tables']['user_profiles']['Row'], 'username'> | null
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        user_called_profile: z
+          .object({
+            username: z.string().nullable(),
+          })
+          .nullable(),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_setof_function_with_fields_selection_with_sub_linking - function embedded table with fields selection and sub linking', async () => {
@@ -431,18 +487,24 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      id: number
-      all_channels_messages: Array<{
-        id: number
-        message: string | null
-        channels: {
-          id: number
-          slug: string | null
-        }
-      }>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        id: z.number(),
+        all_channels_messages: z.array(
+          z.object({
+            id: z.number(),
+            message: z.string().nullable(),
+            channels: z.object({
+              id: z.number(),
+              slug: z.string().nullable(),
+            }),
+          })
+        ),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_with_table_row_input - function with table row input', async () => {
@@ -500,11 +562,24 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      user_messages: Array<Schema['Tables']['messages']['Row']>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        user_messages: z.array(
+          z.object({
+            channel_id: z.number(),
+            data: z.unknown().nullable(),
+            id: z.number(),
+            message: z.string().nullable(),
+            username: z.string(),
+            blurb_message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_with_view_row_input - function with view row input', async () => {
@@ -560,11 +635,24 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string | null
-      active_user_messages: Array<Schema['Tables']['messages']['Row']>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string().nullable(),
+        active_user_messages: z.array(
+          z.object({
+            channel_id: z.number(),
+            data: z.unknown().nullable(),
+            id: z.number(),
+            message: z.string().nullable(),
+            username: z.string(),
+            blurb_message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_returning_view - function returning view', async () => {
@@ -624,11 +712,23 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      recent_messages: Array<Schema['Views']['recent_messages']['Row']>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        recent_messages: z.array(
+          z.object({
+            channel_id: z.number().nullable(),
+            data: z.unknown().nullable(),
+            id: z.number().nullable(),
+            message: z.string().nullable(),
+            username: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_with_view_input_returning_view - function with view input returning view', async () => {
@@ -684,11 +784,23 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string | null
-      recent_messages: Array<Schema['Views']['recent_messages']['Row']>
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string().nullable(),
+        recent_messages: z.array(
+          z.object({
+            channel_id: z.number().nullable(),
+            data: z.unknown().nullable(),
+            id: z.number().nullable(),
+            message: z.string().nullable(),
+            username: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: RequiredDeep<z.infer<typeof ExpectedSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_with_blurb_message - function with blurb_message', async () => {
@@ -742,13 +854,21 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      username: string
-      user_messages: Array<
-        Pick<Schema['Tables']['messages']['Row'], 'id' | 'message' | 'blurb_message'>
-      >
-    }>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        user_messages: z.array(
+          z.object({
+            id: z.number(),
+            message: z.string().nullable(),
+            blurb_message: z.string().nullable(),
+          })
+        ),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_returning_row - Cannot embed an function that is not a setofOptions one', async () => {
@@ -768,8 +888,10 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: never[]
+    const ExpectedSchema = z.array(z.never())
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_returning_single_row - can embed single row returns function with row single param', async () => {
@@ -808,14 +930,20 @@ describe('embeded functions select', () => {
       }
     `)
     let result: Exclude<typeof res.data, null>
-    let expected: {
-      id: number
-      user: {
-        status: 'ONLINE' | 'OFFLINE' | null
-        username: string
-      } | null
-    }[]
+    const ExpectedSchema = z.array(
+      z.object({
+        id: z.number(),
+        user: z
+          .object({
+            status: z.enum(['ONLINE', 'OFFLINE'] as const).nullable(),
+            username: z.string(),
+          })
+          .nullable(),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 
   test('embeded_function_returning_set_of_rows - function returning set of rows', async () => {

@@ -1,16 +1,65 @@
-//@ts-nocheck
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
 import { expectType } from 'tsd'
 import { TypeEqual } from 'ts-expect'
 import { SelectQueryError } from '../src/select-query-parser/utils'
+import { z } from 'zod'
+import { RequiredDeep } from 'type-fest'
 
 const REST_URL = 'http://localhost:3000'
 export const postgrest = new PostgrestClient<Database>(REST_URL)
 
-type Schema = Database['public']
 // TODO: blurb_message is a computed field on the messages table not included in the messages postgres record results
-type UsersWithoutBlurb = Omit<Schema['Tables']['messages']['Row'], 'blurb_message'>
+const MessagesWithoutBlurbSchema = z.object({
+  channel_id: z.number(),
+  data: z.unknown().nullable(),
+  id: z.number(),
+  message: z.string().nullable(),
+  username: z.string(),
+})
+
+const UserProfileSchema = z.object({
+  id: z.number(),
+  username: z.string().nullable(),
+})
+
+const RecentMessagesSchema = z.object({
+  channel_id: z.number().nullable(),
+  data: z.unknown().nullable(),
+  id: z.number().nullable(),
+  message: z.string().nullable(),
+  username: z.string().nullable(),
+})
+
+const SelectWithUsersSchema = z.object({
+  channel_id: z.number().nullable(),
+  message: z.string().nullable(),
+  users: z
+    .object({
+      catchphrase: z.unknown(),
+      username: z.string(),
+    })
+    .nullable(),
+})
+
+const SelectWithUsersProfileSchema = z.object({
+  id: z.number(),
+  username: z.string().nullable(),
+  users: z
+    .object({
+      catchphrase: z.unknown(),
+      username: z.string(),
+    })
+    .nullable(),
+})
+
+const FunctionReturningRowSchema = z.object({
+  age_range: z.unknown(),
+  catchphrase: z.unknown(),
+  data: z.unknown(),
+  status: z.enum(['ONLINE', 'OFFLINE'] as const).nullable(),
+  username: z.string(),
+})
 
 describe('advanced rpc', () => {
   test('function returning a setof embeded table', async () => {
@@ -18,7 +67,7 @@ describe('advanced rpc', () => {
       channel_row: { id: 1, data: null, slug: null },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -37,6 +86,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('function double definition returning a setof embeded table', async () => {
@@ -50,7 +100,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -90,6 +140,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('function returning a single row embeded table', async () => {
@@ -103,7 +154,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Schema['Tables']['user_profiles']['Row']
+    let expected: z.infer<typeof UserProfileSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -119,6 +170,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    UserProfileSchema.parse(res.data)
   })
 
   test('function with scalar input', async () => {
@@ -127,7 +179,7 @@ describe('advanced rpc', () => {
     })
     // Type assertion
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     // Runtime result
     expect(res).toMatchInlineSnapshot(`
@@ -168,6 +220,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('function with table row input', async () => {
@@ -181,7 +234,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -221,6 +274,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('function with view row input', async () => {
@@ -234,7 +288,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -274,6 +328,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('function returning view', async () => {
@@ -287,7 +342,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<Schema['Views']['recent_messages']['Row']>
+    let expected: RequiredDeep<z.infer<typeof RecentMessagesSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -327,6 +382,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    RecentMessagesSchema.array().parse(res.data)
   })
 
   test('function with scalar input returning view', async () => {
@@ -334,7 +390,7 @@ describe('advanced rpc', () => {
       search_username: 'supabot',
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<Schema['Views']['recent_messages']['Row']>
+    let expected: RequiredDeep<z.infer<typeof RecentMessagesSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -374,6 +430,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    RecentMessagesSchema.array().parse(res.data)
   })
 
   test('function with scalar input with followup select', async () => {
@@ -383,14 +440,7 @@ describe('advanced rpc', () => {
       })
       .select('channel_id, message, users(username, catchphrase)')
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      channel_id: number | null
-      message: string | null
-      users: {
-        catchphrase: unknown
-        username: string
-      } | null
-    }>
+    let expected: z.infer<typeof SelectWithUsersSchema>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -434,6 +484,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    SelectWithUsersSchema.array().parse(res.data)
   })
 
   test('function with row input with followup select', async () => {
@@ -449,14 +500,7 @@ describe('advanced rpc', () => {
       })
       .select('id, username, users(username, catchphrase)')
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      id: number
-      username: string | null
-      users: {
-        catchphrase: unknown
-        username: string
-      } | null
-    }>
+    let expected: RequiredDeep<z.infer<typeof SelectWithUsersProfileSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -476,6 +520,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    SelectWithUsersProfileSchema.array().parse(res.data)
   })
 
   test('should be able to filter before and after select rpc', async () => {
@@ -664,7 +709,7 @@ describe('advanced rpc', () => {
       profile_id: 1,
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<Schema['Tables']['user_profiles']['Row']>
+    let expected: z.infer<typeof UserProfileSchema>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -680,6 +725,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    UserProfileSchema.array().parse(res.data)
   })
 
   test('resolvable function with channel_id and search params', async () => {
@@ -688,7 +734,7 @@ describe('advanced rpc', () => {
       search: 'Hello World 👋',
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -707,6 +753,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('resolvable function with user_row param', async () => {
@@ -720,7 +767,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: Array<UsersWithoutBlurb>
+    let expected: RequiredDeep<z.infer<typeof MessagesWithoutBlurbSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -760,6 +807,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    MessagesWithoutBlurbSchema.array().parse(res.data)
   })
 
   test('polymorphic function with text param', async () => {
@@ -908,7 +956,7 @@ describe('advanced rpc', () => {
     //     Returns: string
     //   }
     // A type error would be raised at higher level (argument providing) time though
-    let expected: string | number
+    let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -968,9 +1016,7 @@ describe('advanced rpc', () => {
     let result: Exclude<typeof res.data, null>
     // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
     // A type error would be raised at higher level (argument providing) time though
-    let expected:
-      | string
-      | SelectQueryError<'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default( => int4), polymorphic_function_with_unnamed_default(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
+    let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1030,9 +1076,7 @@ describe('advanced rpc', () => {
     let result: Exclude<typeof res.data, null>
     // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
     // A type error would be raised at higher level (argument providing) time though
-    let expected:
-      | string
-      | SelectQueryError<'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
+    let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1072,9 +1116,7 @@ describe('advanced rpc', () => {
     let result: Exclude<typeof res.data, null>
     // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
     // A type error would be raised at higher level (argument providing) time though
-    let expected:
-      | string
-      | SelectQueryError<'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
+    let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1119,13 +1161,7 @@ describe('advanced rpc', () => {
   test('function returning row', async () => {
     const res = await postgrest.rpc('function_returning_row')
     let result: Exclude<typeof res.data, null>
-    let expected: {
-      age_range: unknown
-      catchphrase: unknown
-      data: unknown
-      status: 'ONLINE' | 'OFFLINE' | null
-      username: string
-    }
+    let expected: RequiredDeep<z.infer<typeof FunctionReturningRowSchema>>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1142,18 +1178,13 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    FunctionReturningRowSchema.parse(res.data)
   })
 
   test('function returning set of rows', async () => {
     const res = await postgrest.rpc('function_returning_set_of_rows')
     let result: Exclude<typeof res.data, null>
-    let expected: Array<{
-      age_range: unknown
-      catchphrase: unknown
-      data: unknown
-      status: 'ONLINE' | 'OFFLINE' | null
-      username: string
-    }>
+    let expected: RequiredDeep<z.infer<typeof FunctionReturningRowSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1207,5 +1238,6 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
+    FunctionReturningRowSchema.array().parse(res.data)
   })
 })
