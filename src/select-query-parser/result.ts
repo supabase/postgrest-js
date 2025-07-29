@@ -376,6 +376,7 @@ type ProcessEmbeddedResourceResult<
     relation: GenericRelationship & {
       match: 'refrel' | 'col' | 'fkname' | 'func'
       isNotNullable?: boolean
+      referencedRelation: string
     }
     direction: string
   },
@@ -385,7 +386,11 @@ type ProcessEmbeddedResourceResult<
   ClientOptions,
   Schema,
   Resolved['referencedTable']['Row'],
-  Field['name'],
+  // For embeded function selection, the source of truth is the 'referencedRelation'
+  // coming from the SetofOptions.to parameter
+  Resolved['relation']['match'] extends 'func'
+    ? Resolved['relation']['referencedRelation']
+    : Field['name'],
   Resolved['referencedTable']['Relationships'],
   Field['children'] extends undefined
     ? []
