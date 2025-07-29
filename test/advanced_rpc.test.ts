@@ -154,7 +154,7 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: z.infer<typeof UserProfileSchema>
+    let expected: z.infer<typeof UserProfileSchema>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -170,7 +170,7 @@ describe('advanced rpc', () => {
         "statusText": "OK",
       }
     `)
-    UserProfileSchema.parse(res.data)
+    UserProfileSchema.array().parse(res.data)
   })
 
   test('function with scalar input', async () => {
@@ -440,7 +440,7 @@ describe('advanced rpc', () => {
       })
       .select('channel_id, message, users(username, catchphrase)')
     let result: Exclude<typeof res.data, null>
-    let expected: z.infer<typeof SelectWithUsersSchema>[]
+    let expected: RequiredDeep<z.infer<typeof SelectWithUsersSchema>>[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -938,24 +938,11 @@ describe('advanced rpc', () => {
     `)
   })
 
-  test('polymorphic function with unnamed params definition call with bool param', async () => {
+  test('polymorphic function with unnamed params definition call with string param', async () => {
     const res = await postgrest.rpc('polymorphic_function_with_no_params_or_unnamed', {
-      // @ts-expect-error should not have generated a type definition for the boolean
-      '': true,
+      '': '',
     })
     let result: Exclude<typeof res.data, null>
-    // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
-    // property call:
-    // polymorphic_function_with_no_params_or_unnamed:
-    // | {
-    //     Args: Record<PropertyKey, never>
-    //     Returns: number
-    //   }
-    // | {
-    //     Args: { '': string }
-    //     Returns: string
-    //   }
-    // A type error would be raised at higher level (argument providing) time though
     let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
@@ -1009,22 +996,22 @@ describe('advanced rpc', () => {
   })
 
   test('polymorphic function with unnamed default int param', async () => {
-    const res = await postgrest.rpc('polymorphic_function_with_unnamed_default', {
-      //@ts-expect-error the type definition for empty params should be text
-      '': 123,
-    })
+    const res = await postgrest.rpc('polymorphic_function_with_unnamed_default', undefined)
     let result: Exclude<typeof res.data, null>
-    // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
-    // A type error would be raised at higher level (argument providing) time though
     let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": "foo",
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
+        "data": null,
+        "error": Object {
+          "code": "PGRST203",
+          "details": null,
+          "hint": "Try renaming the parameters or the function itself in the database so function overloading can be resolved",
+          "message": "Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default(), public.polymorphic_function_with_unnamed_default( => text)",
+        },
+        "status": 300,
+        "statusText": "Multiple Choices",
       }
     `)
   })
@@ -1069,22 +1056,22 @@ describe('advanced rpc', () => {
   })
 
   test('polymorphic function with unnamed default overload int param', async () => {
-    const res = await postgrest.rpc('polymorphic_function_with_unnamed_default_overload', {
-      //@ts-expect-error the type definition for empty params should be text
-      '': 123,
-    })
+    const res = await postgrest.rpc('polymorphic_function_with_unnamed_default_overload', undefined)
     let result: Exclude<typeof res.data, null>
-    // TODO: since this call use an invalid type definition, we can't distinguish between the "no values" or the "empty"
-    // A type error would be raised at higher level (argument providing) time though
     let expected: string
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": "foo",
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
+        "data": null,
+        "error": Object {
+          "code": "PGRST203",
+          "details": null,
+          "hint": "Try renaming the parameters or the function itself in the database so function overloading can be resolved",
+          "message": "Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default_overload(), public.polymorphic_function_with_unnamed_default_overload( => text)",
+        },
+        "status": 300,
+        "statusText": "Multiple Choices",
       }
     `)
   })
@@ -1130,15 +1117,7 @@ describe('advanced rpc', () => {
   })
 
   test('function with blurb_message', async () => {
-    // @ts-expect-error the function types doesn't exist and should fail to be retrieved by cache
-    // for direct rpc call
-    const res = await postgrest.rpc('blurb_messages', {
-      channel_id: 1,
-      data: null,
-      id: 1,
-      message: 'Hello World 👋',
-      username: 'supabot',
-    })
+    const res = await postgrest.rpc('blurb_message')
     let result: Exclude<typeof res.data, null>
     let expected: never
     expectType<TypeEqual<typeof result, typeof expected>>(true)
@@ -1148,9 +1127,38 @@ describe('advanced rpc', () => {
         "data": null,
         "error": Object {
           "code": "PGRST202",
-          "details": "Searched for the function public.blurb_messages with parameters channel_id, data, id, message, username or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.",
+          "details": "Searched for the function public.blurb_message without parameters or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.",
           "hint": "Perhaps you meant to call the function public.get_messages",
-          "message": "Could not find the function public.blurb_messages(channel_id, data, id, message, username) in the schema cache",
+          "message": "Could not find the function public.blurb_message without parameters in the schema cache",
+        },
+        "status": 404,
+        "statusText": "Not Found",
+      }
+    `)
+  })
+  test('function with blurb_message with params', async () => {
+    const res = await postgrest.rpc('blurb_message', {
+      '': {
+        channel_id: 1,
+        data: null,
+        id: 1,
+        message: null,
+        username: 'test',
+        blurb_message: null,
+      },
+    })
+    let result: Exclude<typeof res.data, null>
+    let expected: SelectQueryError<'the function public.blurb_message with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache'>
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": null,
+        "error": Object {
+          "code": "PGRST202",
+          "details": "Searched for the function public.blurb_message with parameter  or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.",
+          "hint": "Perhaps you meant to call the function public.get_messages",
+          "message": "Could not find the function public.blurb_message() in the schema cache",
         },
         "status": 404,
         "statusText": "Not Found",

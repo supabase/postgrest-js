@@ -9,6 +9,7 @@ import {
   GenericSetofOption,
 } from './types'
 import { FindMatchingFunctionByArgs, IsAny } from './select-query-parser/utils'
+import { LastOf } from './select-query-parser/types'
 
 type ExactMatch<T, S> = [T] extends [S] ? ([S] extends [T] ? true : false) : false
 
@@ -20,20 +21,21 @@ type ExtractExactFunction<Fns, Args> = Fns extends infer F
     : never
   : never
 
+type IsNever<T> = [T] extends [never] ? true : false
+
 export type GetRpcFunctionFilterBuilderByArgs<
   Schema extends GenericSchema,
   FnName extends string & keyof Schema['Functions'],
   Args
 > = {
   0: Schema['Functions'][FnName]
-  // This is here to handle the case where the args is exactly {} and fallback to the empty
-  // args function definition if there is one in such case
-  1: [keyof Args] extends [never]
+  // If the Args is exactly never (function call without any params)
+  1: IsNever<Args> extends true
     ? ExtractExactFunction<Schema['Functions'][FnName], Args>
     : // Otherwise, we attempt to match with one of the function definition in the union based
     // on the function arguments provided
     Args extends GenericFunction['Args']
-    ? FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>
+    ? LastOf<FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>>
     : // If we can't find a matching function by args, we try to find one by function name
     ExtractExactFunction<Schema['Functions'][FnName], Args> extends GenericFunction
     ? ExtractExactFunction<Schema['Functions'][FnName], Args>
@@ -197,7 +199,7 @@ export default class PostgrestClient<
    */
   rpc<
     FnName extends string & keyof Schema['Functions'],
-    Args extends Schema['Functions'][FnName]['Args'] = {},
+    Args extends Schema['Functions'][FnName]['Args'] = never,
     FilterBuilder extends GetRpcFunctionFilterBuilderByArgs<
       Schema,
       FnName,

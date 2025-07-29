@@ -68,7 +68,7 @@ export type GenericSetofOption = {
 }
 
 export type GenericFunction = {
-  Args: Record<string, unknown>
+  Args: Record<string, unknown> | never
   Returns: unknown
   SetofOptions?: GenericSetofOption
 }

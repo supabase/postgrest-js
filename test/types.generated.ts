@@ -545,10 +545,12 @@ export type Database = {
     Functions: {
       blurb_message: {
         Args: { '': Database['public']['Tables']['messages']['Row'] }
-        Returns: string
+        Returns: {
+          error: true
+        } & 'the function public.blurb_message with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache'
       }
       function_returning_row: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           age_range: unknown | null
           catchphrase: unknown | null
@@ -558,7 +560,7 @@ export type Database = {
         }
       }
       function_returning_set_of_rows: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           age_range: unknown | null
           catchphrase: unknown | null
@@ -659,6 +661,11 @@ export type Database = {
           message: string | null
           username: string | null
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'recent_messages'
+          isOneToOne: false
+        }
       }
       get_status: {
         Args: { name_param: string }
@@ -701,7 +708,7 @@ export type Database = {
         Returns: {
           id: number
           username: string | null
-        }
+        }[]
         SetofOptions: {
           from: 'users'
           to: 'user_profiles'
@@ -764,27 +771,36 @@ export type Database = {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
-      polymorphic_function_with_different_return:
-        | { Args: { '': boolean }; Returns: number }
-        | { Args: { '': number }; Returns: number }
-        | { Args: { '': string }; Returns: string }
+      polymorphic_function_with_different_return: { Args: { '': string }; Returns: string }
       polymorphic_function_with_no_params_or_unnamed:
-        | { Args: Record<PropertyKey, never>; Returns: number }
-        | { Args: { '': boolean }; Returns: number }
+        | { Args: never; Returns: number }
         | { Args: { '': string }; Returns: string }
       polymorphic_function_with_unnamed_default:
-        | { Args: Record<PropertyKey, never>; Returns: number }
-        | { Args: { ''?: number }; Returns: number }
-        | { Args: { ''?: string }; Returns: string }
+        | {
+            Args: { ''?: string }
+            Returns: string
+          }
+        | {
+            Args: never
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default( => int4), polymorphic_function_with_unnamed_default(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
       polymorphic_function_with_unnamed_default_overload:
-        | { Args: Record<PropertyKey, never>; Returns: number }
-        | { Args: { ''?: number }; Returns: number }
-        | { Args: { ''?: string }; Returns: string }
-        | { Args: { ''?: boolean }; Returns: number }
-      polymorphic_function_with_unnamed_integer: {
-        Args: { '': number }
-        Returns: number
-      }
+        | {
+            Args: never
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: { ''?: string }
+            Returns: string
+          }
+      // polymorphic_function_with_unnamed_integer: {
+      //   Args:  { ''?: any };
+      //   Returns: number
+      // }
       polymorphic_function_with_unnamed_json: {
         Args: { '': Json }
         Returns: number
@@ -798,7 +814,7 @@ export type Database = {
         Returns: number
       }
       postgrest_resolvable_with_override_function:
-        | { Args: Record<PropertyKey, never>; Returns: undefined }
+        | { Args: never; Returns: undefined }
         | { Args: { a: string }; Returns: number }
         | { Args: { b: number }; Returns: string }
         | {
@@ -834,9 +850,19 @@ export type Database = {
             }
           }
       postgrest_unresolvable_function:
-        | { Args: Record<PropertyKey, never>; Returns: undefined }
-        | { Args: { a: string }; Returns: number }
-        | { Args: { a: number }; Returns: string }
+        | { Args: never; Returns: undefined }
+        | {
+            Args: { a: string }
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: { a: number }
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
       set_users_offline: {
         Args: { name_param: string }
         Returns: {
@@ -847,7 +873,7 @@ export type Database = {
           username: string
         }[]
       }
-      void_func: { Args: Record<PropertyKey, never>; Returns: undefined }
+      void_func: { Args: never; Returns: undefined }
     }
     Enums: {
       user_status: 'ONLINE' | 'OFFLINE'
