@@ -708,7 +708,7 @@ export type Database = {
         Returns: {
           id: number
           username: string | null
-        }[]
+        }
         SetofOptions: {
           from: 'users'
           to: 'user_profiles'

@@ -154,23 +154,21 @@ describe('advanced rpc', () => {
       },
     })
     let result: Exclude<typeof res.data, null>
-    let expected: z.infer<typeof UserProfileSchema>[]
+    let expected: z.infer<typeof UserProfileSchema>
     expectType<TypeEqual<typeof result, typeof expected>>(true)
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [
-          Object {
-            "id": 1,
-            "username": "supabot",
-          },
-        ],
+        "data": Object {
+          "id": 1,
+          "username": "supabot",
+        },
         "error": null,
         "status": 200,
         "statusText": "OK",
       }
     `)
-    UserProfileSchema.array().parse(res.data)
+    UserProfileSchema.parse(res.data)
   })
 
   test('function with scalar input', async () => {
@@ -505,16 +503,14 @@ describe('advanced rpc', () => {
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [
-          Object {
-            "id": 1,
+        "data": Object {
+          "id": 1,
+          "username": "supabot",
+          "users": Object {
+            "catchphrase": "'cat' 'fat'",
             "username": "supabot",
-            "users": Object {
-              "catchphrase": "'cat' 'fat'",
-              "username": "supabot",
-            },
           },
-        ],
+        },
         "error": null,
         "status": 200,
         "statusText": "OK",
@@ -536,7 +532,7 @@ describe('advanced rpc', () => {
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [],
+        "data": null,
         "error": null,
         "status": 200,
         "statusText": "OK",
@@ -554,7 +550,7 @@ describe('advanced rpc', () => {
     expect(res2).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [],
+        "data": null,
         "error": null,
         "status": 200,
         "statusText": "OK",
@@ -572,15 +568,13 @@ describe('advanced rpc', () => {
     expect(res3).toMatchInlineSnapshot(`
       Object {
         "count": null,
-        "data": Array [
-          Object {
+        "data": Object {
+          "username": "supabot",
+          "users": Object {
+            "catchphrase": "'cat' 'fat'",
             "username": "supabot",
-            "users": Object {
-              "catchphrase": "'cat' 'fat'",
-              "username": "supabot",
-            },
           },
-        ],
+        },
         "error": null,
         "status": 200,
         "statusText": "OK",

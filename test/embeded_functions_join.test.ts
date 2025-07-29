@@ -357,19 +357,31 @@ describe('embeded functions select', () => {
             "username": "supabot",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "id": null,
+              "username": null,
+            },
             "username": "kiwicopple",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "id": null,
+              "username": null,
+            },
             "username": "awailas",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "id": null,
+              "username": null,
+            },
             "username": "jsonuser",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "id": null,
+              "username": null,
+            },
             "username": "dragarcia",
           },
         ],
@@ -479,19 +491,27 @@ describe('embeded functions select', () => {
             "username": "supabot",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "username": null,
+            },
             "username": "kiwicopple",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "username": null,
+            },
             "username": "awailas",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "username": null,
+            },
             "username": "jsonuser",
           },
           Object {
-            "user_called_profile": null,
+            "user_called_profile": Object {
+              "username": null,
+            },
             "username": "dragarcia",
           },
         ],

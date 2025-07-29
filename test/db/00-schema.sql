@@ -170,11 +170,10 @@ create table public.cornercase (
 
 -- Function that returns a single user profile for a user
 CREATE OR REPLACE FUNCTION public.get_user_profile(user_row users)
-RETURNS SETOF user_profiles
+RETURNS user_profiles
 LANGUAGE SQL STABLE
-ROWS 1
 AS $$
-  SELECT * FROM public.user_profiles WHERE username = user_row.username;
+  SELECT * FROM public.user_profiles WHERE username = user_row.username LIMIT 1;
 $$;
 
 -- Same definition, but will be used with a type override to pretend this can't ever return null
