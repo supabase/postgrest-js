@@ -77,7 +77,6 @@ test('RPC call with get: true and complex arg types', async () => {
       { get: true }
     )
     .select('username')
-  console.log({ res: JSON.stringify(res, null, 2) })
   expect(res).toMatchInlineSnapshot(`
     Object {
       "count": null,
