@@ -97,6 +97,11 @@ CREATE TABLE public.product_categories (
   PRIMARY KEY (product_id, category_id)
 );
 
+-- COMPOSITE TYPE
+CREATE TYPE "public"."column_sort" AS (
+	"column_name" "text",
+	"descending" boolean
+);
 
 -- STORED FUNCTION
 CREATE FUNCTION public.get_status(name_param text)
@@ -108,6 +113,39 @@ CREATE FUNCTION public.get_username_and_status(name_param text)
 RETURNS TABLE(username text, status user_status) AS $$
   SELECT username, status from users WHERE username=name_param;
 $$ LANGUAGE SQL IMMUTABLE;
+
+CREATE FUNCTION public.get_username_and_status_dynamic(order_by public.column_sort[] default NULL)
+RETURNS TABLE(username text, status user_status) AS $$
+BEGIN
+    RETURN QUERY
+    EXECUTE format(
+        $sql$
+            SELECT username, status
+            FROM users
+            %s
+            %s
+        $sql$,
+        CASE
+            WHEN order_by IS NOT NULL AND cardinality(order_by) > 0 THEN
+                'ORDER BY ' || (
+                    SELECT string_agg(
+                        format('%I %s', (x).column_name,
+                            CASE WHEN (x).descending THEN 'DESC' ELSE 'ASC' END
+                        ), ', '
+                    )
+                    FROM unnest(order_by) AS x
+                    WHERE (x).column_name IN (
+                        SELECT column_name
+                        FROM information_schema.columns
+                        WHERE table_schema = 'public'
+                        AND table_name = 'users'
+                    )
+                )
+            ELSE ''
+        END
+    ) USING params;
+END;
+$$ LANGUAGE plpgsql STABLE;
 
 CREATE FUNCTION public.offline_user(name_param text)
 RETURNS user_status AS $$

@@ -158,8 +158,31 @@ export default class PostgrestClient<
         // params with undefined value needs to be filtered out, otherwise it'll
         // show up as `?param=undefined`
         .filter(([_, value]) => value !== undefined)
-        // array values need special syntax
-        .map(([name, value]) => [name, Array.isArray(value) ? `{${value.join(',')}}` : `${value}`])
+        .map(([name, value]) => [
+          name,
+          Array.isArray(value)
+            ? `{${value
+                .map((v) => {
+                  if (typeof v === 'object' && v !== null) {
+                    // Format as PostgreSQL composite type with proper escaping
+                    const vals = Object.values(v)
+                    const escapedVals = vals.map((val) => {
+                      if (val === null || val === undefined) {
+                        return 'null'
+                      }
+                      const str = String(val)
+                      // Escape quotes in the value
+                      return `\\"${str.replace(/"/g, '""')}\\"`
+                    })
+                    // Wrap the entire record in quotes: "(\"value1\",\"value2\")"
+                    return `"(${escapedVals.join(',')})"`
+                  } else {
+                    return String(v)
+                  }
+                })
+                .join(',')}}`
+            : String(value),
+        ])
         .forEach(([name, value]) => {
           url.searchParams.append(name, value)
         })

@@ -34,6 +34,17 @@ export type Database = MergeDeep<
       }
     }
     public: {
+      Functions: {
+        get_username_and_status_dynamic: {
+          Args: {
+            order_by: Database['public']['CompositeTypes']['column_sort'][]
+          }
+          Returns: {
+            username: string
+            status: Database['public']['Enums']['user_status']
+          }[]
+        }
+      }
       Tables: {
         users: {
           Row: {

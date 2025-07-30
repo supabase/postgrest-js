@@ -67,6 +67,54 @@ test('RPC call with star select', async () => {
   ExpectedSchema.parse(res.data)
 })
 
+test('RPC call with get: true and complex arg types', async () => {
+  const res = await postgrest
+    .rpc(
+      'get_username_and_status_dynamic',
+      {
+        order_by: [{ column_name: 'username', descending: true }],
+      },
+      { get: true }
+    )
+    .select('username')
+  console.log({ res: JSON.stringify(res, null, 2) })
+  expect(res).toMatchInlineSnapshot(`
+    Object {
+      "count": null,
+      "data": Array [
+        Object {
+          "username": "supabot",
+        },
+        Object {
+          "username": "kiwicopple",
+        },
+        Object {
+          "username": "jsonuser",
+        },
+        Object {
+          "username": "dragarcia",
+        },
+        Object {
+          "username": "awailas",
+        },
+      ],
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
+  // check our result types match the runtime result
+  let result: Exclude<typeof res.data, null>
+  const ExpectedSchema = z.array(
+    z.object({
+      username: z.string(),
+    })
+  )
+  let expected: z.infer<typeof ExpectedSchema>
+  expectType<TypeEqual<typeof result, typeof expected>>(true)
+  ExpectedSchema.parse(res.data)
+})
+
 test('RPC call with single field select', async () => {
   const res = await postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select('username')
   expect(res).toMatchInlineSnapshot(`
