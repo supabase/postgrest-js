@@ -176,7 +176,7 @@ AS $$
   SELECT * FROM public.user_profiles WHERE username = user_row.username LIMIT 1;
 $$;
 
--- Same definition, but will be used with a type override to pretend this can't ever return null
+-- Same definition, but will be used with a database.override to pretend this can't ever return null
 CREATE OR REPLACE FUNCTION public.get_user_profile_non_nullable(user_row users)
 RETURNS SETOF user_profiles
 LANGUAGE SQL STABLE
@@ -339,4 +339,21 @@ language sql
 stable
 as $$
   select * from public.users;
+$$;
+
+
+-- Function that returns a single element
+CREATE OR REPLACE FUNCTION public.function_using_table_returns(user_row users)
+RETURNS user_profiles
+LANGUAGE SQL STABLE
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username LIMIT 1;
+$$;
+
+CREATE OR REPLACE FUNCTION public.function_using_setof_rows_one(user_row users)
+RETURNS SETOF user_profiles
+LANGUAGE SQL STABLE
+ROWS 1
+AS $$
+  SELECT * FROM public.user_profiles WHERE username = user_row.username LIMIT 1;
 $$;

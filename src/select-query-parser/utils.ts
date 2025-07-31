@@ -473,7 +473,10 @@ export type ResolveForwardRelationship<
                 match: 'func'
                 isNotNullable: FoundEmbededFunctionJoinTableRelation['isNotNullable'] extends true
                   ? true
-                  : false
+                  : FoundEmbededFunctionJoinTableRelation['isSetofReturn'] extends true
+                  ? false
+                  : true
+                isSetofReturn: FoundEmbededFunctionJoinTableRelation['isSetofReturn']
               }
               direction: 'forward'
               from: CurrentTableOrView

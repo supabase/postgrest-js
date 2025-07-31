@@ -61,6 +61,7 @@ export type GenericNonUpdatableView = {
 export type GenericView = GenericUpdatableView | GenericNonUpdatableView
 
 export type GenericSetofOption = {
+  isSetofReturn?: boolean | undefined
   isOneToOne?: boolean | undefined
   isNotNullable?: boolean | undefined
   to: string

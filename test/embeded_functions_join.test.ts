@@ -341,44 +341,98 @@ describe('embeded functions select', () => {
     ExpectedSchema.parse(res.data)
   })
 
-  test('embeded_setof_row_one_function - function returning a single row embeded table', async () => {
+  test('embeded_function_using_setof_rows_one - function returning a setof single row embeded table', async () => {
     const res = await postgrest
       .from('users')
-      .select('username, user_called_profile:get_user_profile(*)')
+      .select('username, setof_rows_one:function_using_setof_rows_one(*)')
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
         "data": Array [
           Object {
-            "user_called_profile": Object {
+            "setof_rows_one": Object {
               "id": 1,
               "username": "supabot",
             },
             "username": "supabot",
           },
           Object {
-            "user_called_profile": Object {
+            "setof_rows_one": null,
+            "username": "kiwicopple",
+          },
+          Object {
+            "setof_rows_one": null,
+            "username": "awailas",
+          },
+          Object {
+            "setof_rows_one": null,
+            "username": "jsonuser",
+          },
+          Object {
+            "setof_rows_one": null,
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+    let result: Exclude<typeof res.data, null>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        setof_rows_one: z
+          .object({
+            id: z.number(),
+            username: z.string().nullable(),
+          })
+          .nullable(),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
+  })
+
+  test('embeded_function_using_table_returns - function returns row embeded table', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('username, returns_row:function_using_table_returns(*)')
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "returns_row": Object {
+              "id": 1,
+              "username": "supabot",
+            },
+            "username": "supabot",
+          },
+          Object {
+            "returns_row": Object {
               "id": null,
               "username": null,
             },
             "username": "kiwicopple",
           },
           Object {
-            "user_called_profile": Object {
+            "returns_row": Object {
               "id": null,
               "username": null,
             },
             "username": "awailas",
           },
           Object {
-            "user_called_profile": Object {
+            "returns_row": Object {
               "id": null,
               "username": null,
             },
             "username": "jsonuser",
           },
           Object {
-            "user_called_profile": Object {
+            "returns_row": Object {
               "id": null,
               "username": null,
             },
@@ -394,12 +448,10 @@ describe('embeded functions select', () => {
     const ExpectedSchema = z.array(
       z.object({
         username: z.string(),
-        user_called_profile: z
-          .object({
-            id: z.number(),
-            username: z.string().nullable(),
-          })
-          .nullable(),
+        returns_row: z.object({
+          id: z.number().nullable(),
+          username: z.string().nullable(),
+        }),
       })
     )
     let expected: z.infer<typeof ExpectedSchema>
@@ -524,11 +576,9 @@ describe('embeded functions select', () => {
     const ExpectedSchema = z.array(
       z.object({
         username: z.string(),
-        user_called_profile: z
-          .object({
-            username: z.string().nullable(),
-          })
-          .nullable(),
+        user_called_profile: z.object({
+          username: z.string().nullable(),
+        }),
       })
     )
     let expected: z.infer<typeof ExpectedSchema>
@@ -1032,12 +1082,10 @@ describe('embeded functions select', () => {
     const ExpectedSchema = z.array(
       z.object({
         id: z.number(),
-        user: z
-          .object({
-            status: z.enum(['ONLINE', 'OFFLINE'] as const).nullable(),
-            username: z.string(),
-          })
-          .nullable(),
+        user: z.object({
+          status: z.enum(['ONLINE', 'OFFLINE'] as const).nullable(),
+          username: z.string().nullable(),
+        }),
       })
     )
     let expected: z.infer<typeof ExpectedSchema>
@@ -1047,7 +1095,7 @@ describe('embeded functions select', () => {
 
   test('embeded_function_returning_set_of_rows - function returning set of rows', async () => {
     const res = await postgrest
-      .from('channels')
+      .from('messages')
       .select('id, users:function_returning_set_of_rows(*)')
     expect(res).toMatchInlineSnapshot(`
       Object {
@@ -1055,9 +1103,9 @@ describe('embeded functions select', () => {
         "data": null,
         "error": Object {
           "code": "PGRST200",
-          "details": "Searched for a foreign key relationship between 'channels' and 'function_returning_set_of_rows' in the schema 'public', but no matches were found.",
+          "details": "Searched for a foreign key relationship between 'messages' and 'function_returning_set_of_rows' in the schema 'public', but no matches were found.",
           "hint": null,
-          "message": "Could not find a relationship between 'channels' and 'function_returning_set_of_rows' in the schema cache",
+          "message": "Could not find a relationship between 'messages' and 'function_returning_set_of_rows' in the schema cache",
         },
         "status": 400,
         "statusText": "Bad Request",
@@ -1066,5 +1114,123 @@ describe('embeded functions select', () => {
     let result: Exclude<typeof res.data, null>
     let expected: never[]
     expectType<TypeEqual<typeof result, typeof expected>>(true)
+  })
+
+  test('function_using_setof_rows_one', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('username, profile:function_using_table_returns(*)')
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "profile": Object {
+              "id": 1,
+              "username": "supabot",
+            },
+            "username": "supabot",
+          },
+          Object {
+            "profile": Object {
+              "id": null,
+              "username": null,
+            },
+            "username": "kiwicopple",
+          },
+          Object {
+            "profile": Object {
+              "id": null,
+              "username": null,
+            },
+            "username": "awailas",
+          },
+          Object {
+            "profile": Object {
+              "id": null,
+              "username": null,
+            },
+            "username": "jsonuser",
+          },
+          Object {
+            "profile": Object {
+              "id": null,
+              "username": null,
+            },
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+    let result: Exclude<typeof res.data, null>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        profile: z.object({
+          id: z.number().nullable(),
+          username: z.string().nullable(),
+        }),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
+  })
+
+  test('function_using_table_returns', async () => {
+    const res = await postgrest
+      .from('users')
+      .select('username, profile:function_using_setof_rows_one(*)')
+    expect(res).toMatchInlineSnapshot(`
+      Object {
+        "count": null,
+        "data": Array [
+          Object {
+            "profile": Object {
+              "id": 1,
+              "username": "supabot",
+            },
+            "username": "supabot",
+          },
+          Object {
+            "profile": null,
+            "username": "kiwicopple",
+          },
+          Object {
+            "profile": null,
+            "username": "awailas",
+          },
+          Object {
+            "profile": null,
+            "username": "jsonuser",
+          },
+          Object {
+            "profile": null,
+            "username": "dragarcia",
+          },
+        ],
+        "error": null,
+        "status": 200,
+        "statusText": "OK",
+      }
+    `)
+    let result: Exclude<typeof res.data, null>
+    const ExpectedSchema = z.array(
+      z.object({
+        username: z.string(),
+        profile: z
+          .object({
+            id: z.number(),
+            username: z.string().nullable(),
+          })
+          .nullable(),
+      })
+    )
+    let expected: z.infer<typeof ExpectedSchema>
+    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    ExpectedSchema.parse(res.data)
   })
 })

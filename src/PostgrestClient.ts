@@ -54,7 +54,13 @@ export type GetRpcFunctionFilterBuilderByArgs<
           : Fn['Returns'] extends Record<string, unknown>
           ? Fn['Returns']
           : never
-        Result: Fn['Returns']
+        Result: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['isSetofReturn'] extends true
+            ? Fn['SetofOptions']['isOneToOne'] extends true
+              ? Fn['Returns'][]
+              : Fn['Returns']
+            : Fn['Returns']
+          : Fn['Returns']
         RelationName: Fn['SetofOptions'] extends GenericSetofOption
           ? Fn['SetofOptions']['to']
           : FnName

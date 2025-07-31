@@ -377,6 +377,7 @@ type ProcessEmbeddedResourceResult<
       match: 'refrel' | 'col' | 'fkname' | 'func'
       isNotNullable?: boolean
       referencedRelation: string
+      isSetofReturn?: boolean
     }
     direction: string
   },
@@ -407,7 +408,14 @@ type ProcessEmbeddedResourceResult<
           : Resolved['relation']['isOneToOne'] extends true
           ? Resolved['relation']['match'] extends 'func'
             ? Resolved['relation']['isNotNullable'] extends true
-              ? ProcessedChildren
+              ? Resolved['relation']['isSetofReturn'] extends true
+                ? ProcessedChildren
+                : // TODO: This shouldn't be necessary but is due in an inconsitency in PostgREST v12/13 where if a function
+                  // is declared with RETURNS <table-name> instead of RETURNS SETOF <table-name> ROWS 1
+                  // In case where there is no object matching the relations, the object will be returned with all the properties within it
+                  // set to null, we mimic this buggy behavior for type safety an issue is opened on postgREST here:
+                  // https://github.com/PostgREST/postgrest/issues/4234
+                  { [P in keyof ProcessedChildren]: ProcessedChildren[P] | null }
               : ProcessedChildren | null
             : ProcessedChildren | null
           : ProcessedChildren[]

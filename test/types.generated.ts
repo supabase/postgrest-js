@@ -558,6 +558,12 @@ export type Database = {
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       function_returning_set_of_rows: {
         Args: never
@@ -568,6 +574,12 @@ export type Database = {
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       function_returning_single_row: {
         Args: { messages: Database['public']['Tables']['messages']['Row'] }
@@ -582,6 +594,33 @@ export type Database = {
           from: 'messages'
           to: 'users'
           isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      function_using_setof_rows_one: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: true
+        }
+      }
+      function_using_table_returns: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       function_with_array_param: {
@@ -607,9 +646,26 @@ export type Database = {
           from: 'active_users'
           to: 'messages'
           isOneToOne: false
+          isSetofReturn: true
         }
       }
       get_messages:
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
         | {
             Args: {
               channel_row: Database['public']['Tables']['channels']['Row']
@@ -625,21 +681,7 @@ export type Database = {
               from: 'channels'
               to: 'messages'
               isOneToOne: false
-            }
-          }
-        | {
-            Args: { user_row: Database['public']['Tables']['users']['Row'] }
-            Returns: {
-              channel_id: number
-              data: Json | null
-              id: number
-              message: string | null
-              username: string
-            }[]
-            SetofOptions: {
-              from: 'users'
-              to: 'messages'
-              isOneToOne: false
+              isSetofReturn: true
             }
           }
       get_messages_by_username: {
@@ -651,6 +693,12 @@ export type Database = {
           message: string | null
           username: string
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'messages'
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_recent_messages_by_username: {
         Args: { search_username: string }
@@ -665,6 +713,7 @@ export type Database = {
           from: '*'
           to: 'recent_messages'
           isOneToOne: false
+          isSetofReturn: true
         }
       }
       get_status: {
@@ -686,6 +735,7 @@ export type Database = {
           from: 'active_users'
           to: 'recent_messages'
           isOneToOne: true
+          isSetofReturn: true
         }
       }
       get_user_messages: {
@@ -701,6 +751,7 @@ export type Database = {
           from: 'users'
           to: 'messages'
           isOneToOne: false
+          isSetofReturn: true
         }
       }
       get_user_profile: {
@@ -713,6 +764,7 @@ export type Database = {
           from: 'users'
           to: 'user_profiles'
           isOneToOne: true
+          isSetofReturn: false
         }
       }
       get_user_profile_non_nullable: {
@@ -725,6 +777,7 @@ export type Database = {
           from: 'users'
           to: 'user_profiles'
           isOneToOne: true
+          isSetofReturn: true
         }
       }
       get_user_recent_messages:
@@ -741,6 +794,7 @@ export type Database = {
               from: 'users'
               to: 'recent_messages'
               isOneToOne: false
+              isSetofReturn: true
             }
           }
         | {
@@ -758,6 +812,7 @@ export type Database = {
               from: 'active_users'
               to: 'recent_messages'
               isOneToOne: false
+              isSetofReturn: true
             }
           }
       get_username_and_status: {
@@ -771,36 +826,29 @@ export type Database = {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
-      polymorphic_function_with_different_return: { Args: { '': string }; Returns: string }
+      polymorphic_function_with_different_return: {
+        Args: { '': string }
+        Returns: string
+      }
       polymorphic_function_with_no_params_or_unnamed:
         | { Args: never; Returns: number }
         | { Args: { '': string }; Returns: string }
       polymorphic_function_with_unnamed_default:
         | {
-            Args: { ''?: string }
-            Returns: string
-          }
-        | {
             Args: never
             Returns: {
               error: true
-            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default( => int4), polymorphic_function_with_unnamed_default(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+            } & 'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default(), public.polymorphic_function_with_unnamed_default( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
           }
+        | { Args: { ''?: string }; Returns: string }
       polymorphic_function_with_unnamed_default_overload:
         | {
             Args: never
             Returns: {
               error: true
-            } & 'Could not choose the best candidate function between: polymorphic_function_with_unnamed_default_overload( => int4), polymorphic_function_with_unnamed_default_overload(). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+            } & 'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default_overload(), public.polymorphic_function_with_unnamed_default_overload( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
           }
-        | {
-            Args: { ''?: string }
-            Returns: string
-          }
-      // polymorphic_function_with_unnamed_integer: {
-      //   Args:  { ''?: any };
-      //   Returns: number
-      // }
+        | { Args: { ''?: string }; Returns: string }
       polymorphic_function_with_unnamed_json: {
         Args: { '': Json }
         Returns: number
@@ -814,7 +862,6 @@ export type Database = {
         Returns: number
       }
       postgrest_resolvable_with_override_function:
-        | { Args: never; Returns: undefined }
         | { Args: { a: string }; Returns: number }
         | { Args: { b: number }; Returns: string }
         | {
@@ -823,16 +870,12 @@ export type Database = {
               id: number
               username: string | null
             }[]
-          }
-        | {
-            Args: { cid: number; search?: string }
-            Returns: {
-              channel_id: number
-              data: Json | null
-              id: number
-              message: string | null
-              username: string
-            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'user_profiles'
+              isOneToOne: false
+              isSetofReturn: true
+            }
           }
         | {
             Args: { user_row: Database['public']['Tables']['users']['Row'] }
@@ -847,22 +890,40 @@ export type Database = {
               from: 'users'
               to: 'messages'
               isOneToOne: false
+              isSetofReturn: true
             }
           }
-      postgrest_unresolvable_function:
+        | {
+            Args: { cid: number; search?: string }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
         | { Args: never; Returns: undefined }
+      postgrest_unresolvable_function:
         | {
             Args: { a: string }
             Returns: {
               error: true
-            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+            } & 'Could not choose the best candidate function between: public.postgrest_unresolvable_function(a => int4), public.postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
           }
         | {
             Args: { a: number }
             Returns: {
               error: true
-            } & 'Could not choose the best candidate function between: postgrest_unresolvable_function(a => int4), postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+            } & 'Could not choose the best candidate function between: public.postgrest_unresolvable_function(a => int4), public.postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
           }
+        | { Args: never; Returns: undefined }
       set_users_offline: {
         Args: { name_param: string }
         Returns: {
@@ -872,6 +933,12 @@ export type Database = {
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       void_func: { Args: never; Returns: undefined }
     }
