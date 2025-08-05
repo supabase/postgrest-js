@@ -167,89 +167,6 @@ export type RPCCallNodes<
     : SelectQueryError<'Invalid first node in RPC call'>
   : Prettify<Acc>
 
-type SplitArray<
-  T extends readonly unknown[],
-  N extends number,
-  Acc extends readonly unknown[] = []
-> = Acc['length'] extends N
-  ? [Acc, T]
-  : T extends readonly [infer Head, ...infer Tail]
-  ? SplitArray<Tail, N, [...Acc, Head]>
-  : [Acc, T]
-
-type ProcessBatch<
-  ClientOptions extends ClientServerOptions,
-  Schema extends GenericSchema,
-  Row extends Record<string, unknown>,
-  RelationName extends string,
-  Relationships extends GenericRelationship[],
-  Batch extends Ast.Node[],
-  Acc extends Record<string, unknown>
-> = Batch extends [infer Head, ...infer Tail]
-  ? Head extends Ast.Node
-    ? Tail extends Ast.Node[]
-      ? ProcessNode<
-          ClientOptions,
-          Schema,
-          Row,
-          RelationName,
-          Relationships,
-          Head
-        > extends infer Result
-        ? Result extends Record<string, unknown>
-          ? ProcessBatch<
-              ClientOptions,
-              Schema,
-              Row,
-              RelationName,
-              Relationships,
-              Tail,
-              Omit<Acc, keyof Result> & Result
-            >
-          : Result
-        : SelectQueryError<'Node processing failed'>
-      : Acc
-    : Acc
-  : Acc
-
-type ProcessNodesBatched<
-  ClientOptions extends ClientServerOptions,
-  Schema extends GenericSchema,
-  Row extends Record<string, unknown>,
-  RelationName extends string,
-  Relationships extends GenericRelationship[],
-  Nodes extends Ast.Node[],
-  Acc extends Record<string, unknown> = {}
-> = Nodes extends []
-  ? Prettify<Acc>
-  : SplitArray<Nodes, 5> extends [infer Batch, infer Remaining]
-  ? Batch extends Ast.Node[]
-    ? Remaining extends Ast.Node[]
-      ? ProcessBatch<
-          ClientOptions,
-          Schema,
-          Row,
-          RelationName,
-          Relationships,
-          Batch,
-          Acc
-        > extends infer BatchResult
-        ? BatchResult extends Record<string, unknown>
-          ? ProcessNodesBatched<
-              ClientOptions,
-              Schema,
-              Row,
-              RelationName,
-              Relationships,
-              Remaining,
-              BatchResult
-            >
-          : BatchResult
-        : SelectQueryError<'Batch processing failed'>
-      : SelectQueryError<'Invalid remaining nodes'>
-    : SelectQueryError<'Invalid batch nodes'>
-  : SelectQueryError<'Array splitting failed'>
-
 /**
  * Recursively processes an array of Nodes and accumulates the resulting TypeScript type.
  *
@@ -266,9 +183,48 @@ export type ProcessNodes<
   Row extends Record<string, unknown>,
   RelationName extends string,
   Relationships extends GenericRelationship[],
-  Nodes extends Ast.Node[]
+  Nodes extends Ast.Node[],
+  Acc extends Record<string, unknown> = {} // Acc is now an object
 > = CheckDuplicateEmbededReference<Schema, RelationName, Relationships, Nodes> extends false
-  ? ProcessNodesBatched<ClientOptions, Schema, Row, RelationName, Relationships, Nodes>
+  ? Nodes extends [infer FirstNode, ...infer RestNodes]
+    ? FirstNode extends Ast.Node
+      ? RestNodes extends Ast.Node[]
+        ? ProcessNode<
+            ClientOptions,
+            Schema,
+            Row,
+            RelationName,
+            Relationships,
+            FirstNode
+          > extends infer FieldResult
+          ? FieldResult extends Record<string, unknown>
+            ? ProcessNodes<
+                ClientOptions,
+                Schema,
+                Row,
+                RelationName,
+                Relationships,
+                RestNodes,
+                // TODO:
+                // This SHOULD be `Omit<Acc, keyof FieldResult> & FieldResult` since in the case where the key
+                // is present in the Acc already, the intersection will create bad intersection types
+                // (eg: `{ a: number } & { a: { property } }` will become `{ a: number & { property } }`)
+                // but using Omit here explode the inference complexity resulting in "infinite recursion error" from typescript
+                // very early (see: 'Check that selecting many fields doesn't yield an possibly infinite recursion error') test
+                // in this case we can't get above ~10 fields before reaching the recursion error
+                // If someone find a better way to do this, please do it !
+                // It'll also allow to fix those two tests:
+                // - `'join over a 1-M relation with both nullables and non-nullables fields using column name hinting on nested relation'`
+                // - `'self reference relation via column''`
+                Acc & FieldResult
+              >
+            : FieldResult extends SelectQueryError<infer E>
+            ? SelectQueryError<E>
+            : SelectQueryError<'Could not retrieve a valid record or error value'>
+          : SelectQueryError<'Processing node failed.'>
+        : SelectQueryError<'Invalid rest nodes array type in ProcessNodes'>
+      : SelectQueryError<'Invalid first node type in ProcessNodes'>
+    : Prettify<Acc>
   : Prettify<CheckDuplicateEmbededReference<Schema, RelationName, Relationships, Nodes>>
 
 /**

@@ -194,7 +194,9 @@ const postgrest = new PostgrestClient<Database>(REST_URL)
 {
   const result = await postgrest
     .from('users')
-    // Maximum reached was one hundred seventy six fields before the recursion too deep error
+    // Maximum reached was one hundred seventy six fields
+    // Without the Omit<Acc, keyof FieldResult> & FieldResult
+    // With it, it raise as soon as after 12 fields only
     .select(
       `username,
       catchphrase,

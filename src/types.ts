@@ -194,7 +194,7 @@ type MergeExplicit<New, Row> = {
     : never
 }
 
-export type MergeDeep<New, Row> = Simplify<
+type MergeDeep<New, Row> = Simplify<
   MergeExplicit<New, Row> &
     // Intersection here is to restore dynamic keys into the merging result
     // eg:
