@@ -41,7 +41,7 @@
     "test:run": "jest --runInBand --coverage",
     "test:update": "run-s db:clean db:run db:generate-test-types && jest --runInBand --updateSnapshot && run-s db:clean",
     "test:types": "run-s build && tsd --files 'test/**/*.test*.ts'",
-    "test:types:watch": "chokidar 'src/select-query-parser/**/*.ts' 'test/**/*.ts' -c 'npm run test:types'",
+    "test:types:watch": "chokidar 'src/**/*.ts' 'test/**/*.ts' -c 'npm run test:types'",
     "type-check": "tsc --noEmit --project tsconfig.json",
     "type-check:test": "tsc --noEmit --project tsconfig.test.json",
     "db:clean": "cd test/db && docker compose down --volumes",
