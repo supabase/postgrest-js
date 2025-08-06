@@ -1,6 +1,4 @@
 # docker-compose.yml
-
-version: '3'
 services:
   rest13:
     image: postgrest/postgrest:v13.0.0
@@ -43,7 +41,8 @@ services:
       POSTGRES_HOST: /var/run/postgresql
       POSTGRES_PORT: 5432
   pgmeta:
-    image: supabase/postgres-meta:v0.91.5
+    # TODO: use postgres-meta once https://github.com/supabase/postgres-meta/pull/971 is published
+    image: local-pg-meta
     ports:
       - '8080:8080'
     environment:

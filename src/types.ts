@@ -1,8 +1,81 @@
 import PostgrestError from './PostgrestError'
 import { ContainsNull } from './select-query-parser/types'
-import { IsAny, SelectQueryError } from './select-query-parser/utils'
+import { FindMatchingFunctionByArgs, IsAny, SelectQueryError } from './select-query-parser/utils'
+import { LastOf } from './select-query-parser/types'
 
 export type Fetch = typeof fetch
+
+type ExactMatch<T, S> = [T] extends [S] ? ([S] extends [T] ? true : false) : false
+
+type ExtractExactFunction<Fns, Args> = Fns extends infer F
+  ? F extends GenericFunction
+    ? ExactMatch<F['Args'], Args> extends true
+      ? F
+      : never
+    : never
+  : never
+
+type IsNever<T> = [T] extends [never] ? true : false
+
+export type GetRpcFunctionFilterBuilderByArgs<
+  Schema extends GenericSchema,
+  FnName extends string & keyof Schema['Functions'],
+  Args
+> = {
+  0: Schema['Functions'][FnName]
+  // If the Args is exactly never (function call without any params)
+  1: IsAny<Schema> extends true
+    ? any
+    : IsNever<Args> extends true
+    ? ExtractExactFunction<Schema['Functions'][FnName], Args>
+    : // Otherwise, we attempt to match with one of the function definition in the union based
+    // on the function arguments provided
+    Args extends GenericFunction['Args']
+    ? LastOf<FindMatchingFunctionByArgs<Schema['Functions'][FnName], Args>>
+    : // If we can't find a matching function by args, we try to find one by function name
+    ExtractExactFunction<Schema['Functions'][FnName], Args> extends GenericFunction
+    ? ExtractExactFunction<Schema['Functions'][FnName], Args>
+    : any
+}[1] extends infer Fn
+  ? // If we are dealing with an non-typed client everything is any
+    IsAny<Fn> extends true
+    ? { Row: any; Result: any; RelationName: FnName; Relationships: null }
+    : // Otherwise, we use the arguments based function definition narrowing to get the rigt value
+    Fn extends GenericFunction
+    ? {
+        Row: Fn['Returns'] extends any[]
+          ? Fn['Returns'][number] extends Record<string, unknown>
+            ? Fn['Returns'][number]
+            : never
+          : Fn['Returns'] extends Record<string, unknown>
+          ? Fn['Returns']
+          : never
+        Result: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['isSetofReturn'] extends true
+            ? Fn['SetofOptions']['isOneToOne'] extends true
+              ? Fn['Returns'][]
+              : Fn['Returns']
+            : Fn['Returns']
+          : Fn['Returns']
+        RelationName: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['to']
+          : FnName
+        Relationships: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['to'] extends keyof Schema['Tables']
+            ? Schema['Tables'][Fn['SetofOptions']['to']]['Relationships']
+            : Schema['Views'][Fn['SetofOptions']['to']]['Relationships']
+          : null
+      }
+    : // If we failed to find the function by argument, we still pass with any but also add an overridable
+    Fn extends false
+    ? {
+        Row: any
+        Result: { error: true } & "Couldn't infer function definition matching provided arguments"
+        RelationName: FnName
+        Relationships: null
+      }
+    : never
+  : never
 
 /**
  * Response format
@@ -60,9 +133,18 @@ export type GenericNonUpdatableView = {
 
 export type GenericView = GenericUpdatableView | GenericNonUpdatableView
 
+export type GenericSetofOption = {
+  isSetofReturn?: boolean | undefined
+  isOneToOne?: boolean | undefined
+  isNotNullable?: boolean | undefined
+  to: string
+  from: string
+}
+
 export type GenericFunction = {
-  Args: Record<string, unknown>
+  Args: Record<string, unknown> | never
   Returns: unknown
+  SetofOptions?: GenericSetofOption
 }
 
 export type GenericSchema = {
