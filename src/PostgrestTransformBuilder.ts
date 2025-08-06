@@ -35,7 +35,11 @@ export default class PostgrestTransformBuilder<
     ClientOptions,
     Schema,
     Row,
-    NewResultOne[],
+    Method extends 'RPC'
+      ? Result extends unknown[]
+        ? NewResultOne[]
+        : NewResultOne
+      : NewResultOne[],
     RelationName,
     Relationships,
     Method
@@ -60,7 +64,11 @@ export default class PostgrestTransformBuilder<
       ClientOptions,
       Schema,
       Row,
-      NewResultOne[],
+      Method extends 'RPC'
+        ? Result extends unknown[]
+          ? NewResultOne[]
+          : NewResultOne
+        : NewResultOne[],
       RelationName,
       Relationships,
       Method
