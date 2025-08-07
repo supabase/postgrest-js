@@ -1,7 +1,7 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
 import { Database as DatabasePostgrest13 } from './types.override-with-options-postgrest13'
-import { expectType } from 'tsd'
+import { expectType } from './types'
 import { InvalidMethodError } from '../src/PostgrestFilterBuilder'
 import { z } from 'zod'
 import { RequiredDeep } from 'type-fest'

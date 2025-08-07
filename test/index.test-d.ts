@@ -1,5 +1,5 @@
 import { TypeEqual } from 'ts-expect'
-import { expectType } from 'tsd'
+import { expectType } from './types'
 import { PostgrestClient, PostgrestError } from '../src/index'
 import { Prettify } from '../src/types'
 import { Json } from '../src/select-query-parser/types'

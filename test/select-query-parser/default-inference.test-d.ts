@@ -1,5 +1,5 @@
 import { PostgrestClient } from '../../src/index'
-import { expectType } from 'tsd'
+import { expectType } from '../types'
 import { TypeEqual } from 'ts-expect'
 
 const REST_URL = 'http://localhost:3000'

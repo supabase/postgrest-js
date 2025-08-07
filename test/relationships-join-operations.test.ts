@@ -1,6 +1,6 @@
 import { PostgrestClient } from '../src/index'
 import { Database, CustomUserDataTypeSchema } from './types.override'
-import { expectType } from 'tsd'
+import { expectType } from './types'
 import { TypeEqual } from 'ts-expect'
 import { z } from 'zod'
 import { RequiredDeep } from 'type-fest'

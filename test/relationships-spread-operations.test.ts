@@ -1,7 +1,7 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
 import { Database as DatabaseWithOptions13 } from './types.override-with-options-postgrest13'
-import { expectType } from 'tsd'
+import { expectType } from './types'
 import { TypeEqual } from 'ts-expect'
 import { z } from 'zod'
 

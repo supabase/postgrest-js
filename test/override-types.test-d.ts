@@ -1,4 +1,4 @@
-import { expectType } from 'tsd'
+import { expectType } from './types'
 import { TypeEqual } from 'ts-expect'
 import { PostgrestClient } from '../src'
 import { CustomUserDataType, Database } from './types.override'
