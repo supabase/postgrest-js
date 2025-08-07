@@ -60,11 +60,11 @@ describe('maxAffected', () => {
       resUpsert
     )
     expectType<InvalidMethodError<'maxAffected method only available on update or delete'>>(
-      // @ts-expect-error update method shouldn't return an error
+      //@ts-expect-error InvalidMethodError<"maxAffected method only available on update or delete">
       resUpdate
     )
     expectType<InvalidMethodError<'maxAffected method only available on update or delete'>>(
-      // @ts-expect-error delete method shouldn't return an error
+      // @ts-expect-error InvalidMethodError<"maxAffected method only available on update or delete">
       resDelete
     )
   })
