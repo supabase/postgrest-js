@@ -1,5 +1,4 @@
-import { TypeEqual } from 'ts-expect'
-import { expectType } from './types'
+import { expectType, TypeEqual } from './types'
 import { PostgrestClient, PostgrestError } from '../src/index'
 import { Prettify } from '../src/types'
 import { Json } from '../src/select-query-parser/types'
@@ -32,14 +31,14 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 // `.eq()`, '.neq()' and `.in()` validate provided filter value when column is an enum.
 // Behaves the same for simple columns, as well as relationship filters.
 {
-  // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter of type '"ONLINE" | "OFFLINE"'
+  // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter
   postgrest.from('users').select().eq('status', 'invalid')
   // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter of type '"ONLINE" | "OFFLINE" | null'
   postgrest.from('users').select().neq('status', 'invalid')
   // @ts-expect-error Type '"invalid"' is not assignable to type '"ONLINE" | "OFFLINE" | null'
   postgrest.from('users').select().in('status', ['invalid'])
 
-  // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter of type '"ONLINE" | "OFFLINE"'
+  // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter
   postgrest.from('best_friends').select('users!first_user(status)').eq('users.status', 'invalid')
   // @ts-expect-error Argument of type '"invalid"' is not assignable to parameter of type '"ONLINE" | "OFFLINE" | null'
   postgrest.from('best_friends').select('users!first_user(status)').neq('users.status', 'invalid')

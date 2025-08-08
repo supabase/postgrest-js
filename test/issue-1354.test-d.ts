@@ -1,4 +1,4 @@
-import { expectType } from './types'
+import { expectType, TypeEqual } from './types'
 import { PostgrestClient } from '../src/index'
 import type { MergeDeep } from 'type-fest'
 
