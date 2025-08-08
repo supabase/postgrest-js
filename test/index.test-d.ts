@@ -291,14 +291,17 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
     throw new Error(result.error.message)
   }
   expectType<
-    {
-      baz: number
-      en: 'ONE' | 'TWO' | 'THREE'
-      bar: {
+    TypeEqual<
+      typeof result.data,
+      {
         baz: number
-      }
-    }[]
-  >(result.data)
+        en: 'ONE' | 'TWO' | 'THREE'
+        bar: {
+          baz: number
+        }
+      }[]
+    >
+  >(true)
 }
 // Check that client options __InternalSupabase isn't considered like the other schemas
 {

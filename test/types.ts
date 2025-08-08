@@ -1,5 +1,3 @@
-import { expect } from 'tstyche'
-
 // Copied from ts-expect
 // https://github.com/TypeStrong/ts-expect/blob/master/src/index.ts#L23-L27
 export type TypeEqual<Target, Value> = (<T>() => T extends Target ? 1 : 2) extends <
@@ -8,6 +6,6 @@ export type TypeEqual<Target, Value> = (<T>() => T extends Target ? 1 : 2) exten
   ? true
   : false
 
-export function expectType<T>(expression: T) {
-  return expect(expression).type.toBe<T>()
+export function expectType<T>(_expression: T) {
+  return
 }
