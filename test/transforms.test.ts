@@ -12,6 +12,15 @@ test('order', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
+          "age_range": null,
+          "catchphrase": null,
+          "data": null,
+          "status": "OFFLINE",
+          "username": "testuser",
+        },
+        Object {
+          "__typename": "users",
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
           "data": null,
@@ -19,6 +28,7 @@ test('order', async () => {
           "username": "supabot",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
           "catchphrase": "'bat' 'cat'",
           "data": null,
@@ -26,6 +36,7 @@ test('order', async () => {
           "username": "kiwicopple",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
           "catchphrase": "'json' 'test'",
           "data": Object {
@@ -40,6 +51,7 @@ test('order', async () => {
           "username": "jsonuser",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
           "catchphrase": "'fat' 'rat'",
           "data": null,
@@ -47,6 +59,7 @@ test('order', async () => {
           "username": "dragarcia",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
           "catchphrase": "'bat' 'rat'",
           "data": null,
@@ -72,6 +85,7 @@ test('order on multiple columns', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "messages",
           "channel_id": 3,
           "data": null,
           "id": 4,
@@ -79,6 +93,7 @@ test('order on multiple columns', async () => {
           "username": "supabot",
         },
         Object {
+          "__typename": "messages",
           "channel_id": 2,
           "data": null,
           "id": 2,
@@ -86,6 +101,7 @@ test('order on multiple columns', async () => {
           "username": "supabot",
         },
         Object {
+          "__typename": "messages",
           "channel_id": 1,
           "data": null,
           "id": 1,
@@ -107,6 +123,7 @@ test('limit', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
           "data": null,
@@ -128,6 +145,7 @@ test('range', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
           "catchphrase": "'bat' 'cat'",
           "data": null,
@@ -135,6 +153,7 @@ test('range', async () => {
           "username": "kiwicopple",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
           "catchphrase": "'bat' 'rat'",
           "data": null,
@@ -142,6 +161,7 @@ test('range', async () => {
           "username": "awailas",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
           "catchphrase": "'json' 'test'",
           "data": Object {
@@ -169,6 +189,7 @@ test('single', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "age_range": "[1,2)",
         "catchphrase": "'cat' 'fat'",
         "data": null,
@@ -188,6 +209,7 @@ test('single on insert', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "age_range": null,
         "catchphrase": null,
         "data": null,
@@ -245,6 +267,7 @@ test('select on insert', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
       ],
@@ -266,6 +289,7 @@ test('select on rpc', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "status": "ONLINE",
         },
       ],
@@ -286,7 +310,8 @@ test('csv', async () => {
     kiwicopple,,\\"[25,35)\\",OFFLINE,\\"'bat' 'cat'\\"
     awailas,,\\"[25,35)\\",ONLINE,\\"'bat' 'rat'\\"
     jsonuser,\\"{\\"\\"foo\\"\\": {\\"\\"bar\\"\\": {\\"\\"nested\\"\\": \\"\\"value\\"\\"}, \\"\\"baz\\"\\": \\"\\"string value\\"\\"}}\\",\\"[20,30)\\",ONLINE,\\"'json' 'test'\\"
-    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"",
+    dragarcia,,\\"[20,30)\\",ONLINE,\\"'fat' 'rat'\\"
+    testuser,,,OFFLINE,",
       "error": null,
       "status": 200,
       "statusText": "OK",
@@ -300,6 +325,7 @@ test('geojson', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "shops",
         "features": Array [
           Object {
             "geometry": Object {
@@ -370,6 +396,7 @@ test('explain with json/text format', async () => {
       "data": Array [
         Object {
           "Plan": Any<Object>,
+          "__typename": "users",
         },
       ],
       "error": null,
@@ -408,6 +435,7 @@ test('explain with options', async () => {
             "effective_cache_size": "128MB",
             "search_path": "\\"public\\", \\"extensions\\"",
           },
+          "__typename": "users",
         },
       ],
       "error": null,
@@ -438,6 +466,7 @@ test('rollback insert/upsert', async () => {
     .single()
   expect(res2.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "age_range": "[20,25)",
       "catchphrase": "'cat' 'fat'",
       "data": null,
@@ -461,6 +490,7 @@ test('rollback insert/upsert', async () => {
     .single()
   expect(res3.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "age_range": "[20,25)",
       "catchphrase": "'cat' 'fat'",
       "data": null,
@@ -478,6 +508,7 @@ test('rollback update/rpc', async () => {
   const res1 = await postgrest.from('users').select('status').eq('username', 'dragarcia').single()
   expect(res1.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "status": "ONLINE",
     }
   `)
@@ -491,6 +522,7 @@ test('rollback update/rpc', async () => {
     .single()
   expect(res2.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "status": "OFFLINE",
     }
   `)
@@ -501,6 +533,7 @@ test('rollback update/rpc', async () => {
   const res4 = await postgrest.from('users').select('status').eq('username', 'dragarcia').single()
   expect(res4.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "status": "ONLINE",
     }
   `)
@@ -510,6 +543,7 @@ test('rollback delete', async () => {
   const res1 = await postgrest.from('users').select('username').eq('username', 'dragarcia').single()
   expect(res1.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "username": "dragarcia",
     }
   `)
@@ -523,6 +557,7 @@ test('rollback delete', async () => {
     .single()
   expect(res2.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "username": "dragarcia",
     }
   `)
@@ -530,6 +565,7 @@ test('rollback delete', async () => {
   const res3 = await postgrest.from('users').select('username').eq('username', 'dragarcia').single()
   expect(res3.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "username": "dragarcia",
     }
   `)

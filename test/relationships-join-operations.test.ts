@@ -54,6 +54,7 @@ test('!inner relationship', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "messages",
         "channels": Object {
           "channel_details": Object {
             "details": "Details for public channel",
@@ -90,6 +91,7 @@ test('!inner relationship on nullable relation', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 1,
             "name": "Sunset Resort",
@@ -97,6 +99,7 @@ test('!inner relationship on nullable relation', async () => {
           "id": 1,
         },
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 1,
             "name": "Sunset Resort",
@@ -104,6 +107,7 @@ test('!inner relationship on nullable relation', async () => {
           "id": 2,
         },
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 2,
             "name": "Mountain View Hotel",
@@ -111,6 +115,7 @@ test('!inner relationship on nullable relation', async () => {
           "id": 3,
         },
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 3,
             "name": "Beachfront Inn",
@@ -118,6 +123,7 @@ test('!inner relationship on nullable relation', async () => {
           "id": 5,
         },
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 1,
             "name": "Sunset Resort",
@@ -125,6 +131,7 @@ test('!inner relationship on nullable relation', async () => {
           "id": 6,
         },
         Object {
+          "__typename": "booking",
           "hotel": Object {
             "id": 4,
             "name": null,
@@ -158,6 +165,7 @@ test('!left oneToOne', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channel_details",
         "channels": Object {
           "data": null,
           "id": 1,
@@ -187,6 +195,7 @@ test('!left oneToMany', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channel_id": 1,
@@ -234,6 +243,7 @@ test('!left zeroToOne', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "user_profiles",
         "users": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -272,6 +282,7 @@ test('join over a 1-1 relation with both nullables and non-nullables fields usin
     Object {
       "count": null,
       "data": Object {
+        "__typename": "best_friends",
         "first_user": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -327,6 +338,7 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "first_friend_of": Array [
           Object {
             "first_user": "supabot",
@@ -376,6 +388,7 @@ test('join on 1-M relation', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "first_friend_of": Array [
           Object {
             "first_user": "supabot",
@@ -423,6 +436,7 @@ test('join on 1-1 relation with nullables', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "best_friends",
         "first_user": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -476,6 +490,7 @@ test('join over a 1-1 relation with both nullablesand non-nullables fields with 
     Object {
       "count": null,
       "data": Object {
+        "__typename": "best_friends",
         "first_user": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -530,6 +545,7 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "first_friend_of": Array [
           Object {
             "first_user": "supabot",
@@ -576,6 +592,7 @@ test('join over a 1-M relation with both nullables and non-nullables fields usin
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "first_friend_of": Array [
           Object {
             "first_user": Object {
@@ -652,20 +669,21 @@ test('!left join on one to 0-1 non-empty relation', async () => {
   expect(Array.isArray(res.data?.user_profiles)).toBe(true)
   expect(res.data?.user_profiles[0].username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
-        Object {
-          "count": null,
-          "data": Object {
-            "user_profiles": Array [
-              Object {
-                "username": "supabot",
-              },
-            ],
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "user_profiles": Array [
+          Object {
+            "username": "supabot",
           },
-          "error": null,
-          "status": 200,
-          "statusText": "OK",
-        }
-      `)
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -687,20 +705,21 @@ test('join on one to 0-1 non-empty relation via column name', async () => {
   expect(Array.isArray(res.data?.user_profiles)).toBe(true)
   expect(res.data?.user_profiles[0].username).not.toBeNull()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "user_profiles": Array [
-            Object {
-              "username": "supabot",
-            },
-          ],
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "user_profiles": Array [
+          Object {
+            "username": "supabot",
+          },
+        ],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -722,18 +741,19 @@ test('!left join on zero to one with null relation', async () => {
   expect(res.data?.users).toBeNull()
 
   expect(res).toMatchInlineSnapshot(`
-        Object {
-          "count": null,
-          "data": Object {
-            "id": 2,
-            "username": null,
-            "users": null,
-          },
-          "error": null,
-          "status": 200,
-          "statusText": "OK",
-        }
-      `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "id": 2,
+        "username": null,
+        "users": null,
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -760,20 +780,21 @@ test('!left join on zero to one with valid relation', async () => {
   expect(res.data?.users?.status).not.toBeNull()
 
   expect(res).toMatchInlineSnapshot(`
-        Object {
-          "count": null,
-          "data": Object {
-            "id": 1,
-            "username": "supabot",
-            "users": Object {
-              "status": "ONLINE",
-            },
-          },
-          "error": null,
-          "status": 200,
-          "statusText": "OK",
-        }
-      `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "id": 1,
+        "username": "supabot",
+        "users": Object {
+          "status": "ONLINE",
+        },
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -795,6 +816,7 @@ test('!left join on zero to one empty relation', async () => {
     .single()
   expect(res.data).toMatchInlineSnapshot(`
     Object {
+      "__typename": "users",
       "user_profiles": Array [],
     }
   `)
@@ -822,25 +844,26 @@ test('join on 1-M relation with selective fk hinting', async () => {
   expect(Array.isArray(res.data?.second_friend_of)).toBe(true)
   expect(Array.isArray(res.data?.third_wheel_of)).toBe(true)
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "first_friend_of": Array [
-            Object {
-              "id": 1,
-            },
-            Object {
-              "id": 2,
-            },
-          ],
-          "second_friend_of": Array [],
-          "third_wheel_of": Array [],
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "first_friend_of": Array [
+          Object {
+            "id": 1,
+          },
+          Object {
+            "id": 2,
+          },
+        ],
+        "second_friend_of": Array [],
+        "third_wheel_of": Array [],
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -856,22 +879,23 @@ test('join on 1-M relation with selective fk hinting', async () => {
 test('join select via column', async () => {
   const res = await postgrest.from('user_profiles').select('username(*)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "username": Object {
-            "age_range": "[1,2)",
-            "catchphrase": "'cat' 'fat'",
-            "data": null,
-            "status": "ONLINE",
-            "username": "supabot",
-          },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "username": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
         },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -887,18 +911,19 @@ test('join select via column', async () => {
 test('join select via column selective', async () => {
   const res = await postgrest.from('user_profiles').select('username(status)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "username": Object {
-            "status": "ONLINE",
-          },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "username": Object {
+          "status": "ONLINE",
         },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -912,22 +937,23 @@ test('join select via column selective', async () => {
 test('join select via column and alias', async () => {
   const res = await postgrest.from('user_profiles').select('user:username(*)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "user": Object {
-            "age_range": "[1,2)",
-            "catchphrase": "'cat' 'fat'",
-            "data": null,
-            "status": "ONLINE",
-            "username": "supabot",
-          },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "user": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
         },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -943,22 +969,23 @@ test('join select via column and alias', async () => {
 test('join select via unique table relationship', async () => {
   const res = await postgrest.from('user_profiles').select('users(*)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "users": Object {
-            "age_range": "[1,2)",
-            "catchphrase": "'cat' 'fat'",
-            "data": null,
-            "status": "ONLINE",
-            "username": "supabot",
-          },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "user_profiles",
+        "users": Object {
+          "age_range": "[1,2)",
+          "catchphrase": "'cat' 'fat'",
+          "data": null,
+          "status": "ONLINE",
+          "username": "supabot",
         },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
 
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
@@ -977,6 +1004,7 @@ test('join select via view name relationship', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "user_profiles",
         "updatable_view": Object {
           "non_updatable_column": 1,
           "username": "supabot",
@@ -1008,6 +1036,7 @@ test('join select via column with string templating', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "status": "ONLINE",
         "username": "supabot",
       },
@@ -1033,6 +1062,7 @@ test('join with column hinting', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "best_friends",
         "users": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -1068,6 +1098,7 @@ test('inner join on many relation', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channels",
         "id": 1,
         "messages": Array [
           Object {

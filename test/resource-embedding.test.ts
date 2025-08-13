@@ -15,6 +15,7 @@ test('embedded select', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "messages": Array [
             Object {
               "channel_id": 1,
@@ -40,15 +41,23 @@ test('embedded select', async () => {
           ],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
+          "messages": Array [],
+        },
+        Object {
+          "__typename": "users",
           "messages": Array [],
         },
       ],
@@ -86,6 +95,7 @@ test('embedded select with computed field explicit selection', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "messages": Array [
             Object {
               "blurb_message": "Hel",
@@ -114,15 +124,23 @@ test('embedded select with computed field explicit selection', async () => {
           ],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
           "messages": Array [],
         },
         Object {
+          "__typename": "users",
+          "messages": Array [],
+        },
+        Object {
+          "__typename": "users",
           "messages": Array [],
         },
       ],
@@ -165,6 +183,7 @@ describe('embedded filters', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 1,
@@ -176,15 +195,23 @@ describe('embedded filters', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -223,6 +250,7 @@ describe('embedded filters', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 1,
@@ -241,15 +269,23 @@ describe('embedded filters', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -290,6 +326,7 @@ describe('embedded filters', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 1,
@@ -308,15 +345,23 @@ describe('embedded filters', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -358,6 +403,7 @@ describe('embedded transforms', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 3,
@@ -383,15 +429,23 @@ describe('embedded transforms', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -432,6 +486,7 @@ describe('embedded transforms', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 3,
@@ -457,15 +512,23 @@ describe('embedded transforms', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -505,6 +568,7 @@ describe('embedded transforms', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 1,
@@ -516,15 +580,23 @@ describe('embedded transforms', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],
@@ -564,6 +636,7 @@ describe('embedded transforms', () => {
         "count": null,
         "data": Array [
           Object {
+            "__typename": "users",
             "messages": Array [
               Object {
                 "channel_id": 2,
@@ -575,15 +648,23 @@ describe('embedded transforms', () => {
             ],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
             "messages": Array [],
           },
           Object {
+            "__typename": "users",
+            "messages": Array [],
+          },
+          Object {
+            "__typename": "users",
             "messages": Array [],
           },
         ],

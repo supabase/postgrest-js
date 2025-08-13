@@ -21,6 +21,7 @@ test('select with aggregate count and spread', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -75,6 +76,7 @@ test('spread resource with single column in select query', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -129,6 +131,7 @@ test('spread resource with all columns in select query', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -187,6 +190,7 @@ test('select with aggregate sum and spread', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -243,6 +247,7 @@ test('select with aggregate sum and spread on nested relation', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -301,6 +306,7 @@ test('select with spread on nested relation', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "messages",
         "channels": Object {
           "details": "Details for public channel",
           "details_id": 1,
@@ -337,6 +343,7 @@ test('select spread on many relation postgrest13', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channels",
         "channel_id": 1,
         "id": Array [
           1,
@@ -371,6 +378,7 @@ test('select spread on many relation postgrest13FromDatabaseTypes', async () => 
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channels",
         "channel_id": 1,
         "id": Array [
           1,

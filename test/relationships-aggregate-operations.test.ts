@@ -10,21 +10,22 @@ export const postgrest = new PostgrestClient<Database>(REST_URL)
 test('select with aggregate count function', async () => {
   const res = await postgrest.from('users').select('username, messages(count)').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "count": 3,
-            },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "count": 3,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -46,21 +47,22 @@ test('select with aggregate count on a column function', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "count": 3,
-            },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "count": 3,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -82,21 +84,22 @@ test('select with aggregate count function and alias', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "message_count": 3,
-            },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "message_count": 3,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -118,33 +121,34 @@ test('select with aggregate nested count function', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "channels": Object {
-                "count": 1,
-              },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "count": 1,
             },
-            Object {
-              "channels": Object {
-                "count": 1,
-              },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
             },
-            Object {
-              "channels": Object {
-                "count": 1,
-              },
+          },
+          Object {
+            "channels": Object {
+              "count": 1,
             },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -168,33 +172,34 @@ test('select with aggregate nested count function and alias', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "channels": Object {
-                "channel_count": 1,
-              },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "channel_count": 1,
             },
-            Object {
-              "channels": Object {
-                "channel_count": 1,
-              },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
             },
-            Object {
-              "channels": Object {
-                "channel_count": 1,
-              },
+          },
+          Object {
+            "channels": Object {
+              "channel_count": 1,
             },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -214,21 +219,22 @@ test('select with aggregate nested count function and alias', async () => {
 test('select with aggregate sum function', async () => {
   const res = await postgrest.from('users').select('username, messages(id.sum())').limit(1).single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "sum": 7,
-            },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "sum": 7,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -250,21 +256,22 @@ test('select with aggregate aliased sum function', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "sum_id": 7,
-            },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "sum_id": 7,
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),
@@ -286,33 +293,34 @@ test('select with aggregate sum function on nested relation', async () => {
     .limit(1)
     .single()
   expect(res).toMatchInlineSnapshot(`
-      Object {
-        "count": null,
-        "data": Object {
-          "messages": Array [
-            Object {
-              "channels": Object {
-                "sum": 1,
-              },
+    Object {
+      "count": null,
+      "data": Object {
+        "__typename": "users",
+        "messages": Array [
+          Object {
+            "channels": Object {
+              "sum": 1,
             },
-            Object {
-              "channels": Object {
-                "sum": 2,
-              },
+          },
+          Object {
+            "channels": Object {
+              "sum": 2,
             },
-            Object {
-              "channels": Object {
-                "sum": 3,
-              },
+          },
+          Object {
+            "channels": Object {
+              "sum": 3,
             },
-          ],
-          "username": "supabot",
-        },
-        "error": null,
-        "status": 200,
-        "statusText": "OK",
-      }
-    `)
+          },
+        ],
+        "username": "supabot",
+      },
+      "error": null,
+      "status": 200,
+      "statusText": "OK",
+    }
+  `)
   let result: Exclude<typeof res.data, null>
   const ExpectedSchema = z.object({
     username: z.string(),

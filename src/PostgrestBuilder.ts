@@ -108,6 +108,19 @@ export default abstract class PostgrestBuilder<
     if (this.method !== 'GET' && this.method !== 'HEAD') {
       this.headers.set('Content-Type', 'application/json')
     }
+    const tableName = this.url.pathname.split('/').pop() || 'unknown'
+
+    // Add __typename to data if it's an object or array of objects
+    const addTypename = (data: any): any => {
+      if (Array.isArray(data)) {
+        return data.map((item) =>
+          typeof item === 'object' && item !== null ? { ...item, __typename: tableName } : item
+        )
+      } else if (typeof data === 'object' && data !== null) {
+        return { ...data, __typename: tableName }
+      }
+      return data
+    }
 
     // NOTE: Invoke w/o `this` to avoid illegal invocation error.
     // https://github.com/supabase/postgrest-js/pull/247
@@ -163,7 +176,7 @@ export default abstract class PostgrestBuilder<
             status = 406
             statusText = 'Not Acceptable'
           } else if (data.length === 1) {
-            data = data[0]
+            data = addTypename(data[0])
           } else {
             data = null
           }
@@ -203,10 +216,9 @@ export default abstract class PostgrestBuilder<
           throw new PostgrestError(error)
         }
       }
-
       const postgrestResponse = {
         error,
-        data,
+        data: addTypename(data),
         count,
         status,
         statusText,

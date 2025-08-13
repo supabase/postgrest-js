@@ -32,6 +32,7 @@ test('nested query with selective fields', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "id": 1,
@@ -78,6 +79,7 @@ test('nested query with multiple levels and selective fields', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channels": Object {
@@ -140,6 +142,7 @@ test('query with multiple one-to-many relationships', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "id": 1,
@@ -180,6 +183,7 @@ test('many-to-one relationship', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "messages",
         "user": Object {
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
@@ -208,6 +212,7 @@ test('one-to-many relationship', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "channel_id": 1,
@@ -262,6 +267,7 @@ test('one-to-many relationship with selective columns', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "messages": Array [
           Object {
             "data": null,
@@ -296,6 +302,7 @@ test('one-to-one relationship', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channels",
         "channel_details": Object {
           "details": "Details for public channel",
           "id": 1,
@@ -321,6 +328,7 @@ test('select with type casting query', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "best_friends",
         "id": "1",
       },
       "error": null,
@@ -341,6 +349,7 @@ test('multiple times the same column in selection', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "channels",
         "id": 1,
       },
       "error": null,
@@ -361,6 +370,7 @@ test('embed resource with no fields', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "messages",
         "message": "Hello World 👋",
       },
       "error": null,
@@ -386,6 +396,7 @@ test('select JSON accessor', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "users",
         "bar": Object {
           "nested": "value",
         },
@@ -417,6 +428,7 @@ test('self reference relation', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "collections",
         "collections": Array [
           Object {
             "description": "Child of Root",
@@ -467,6 +479,7 @@ test('self reference relation via column', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "collections",
         "description": "Child of Root",
         "id": 2,
         "parent_id": Object {
@@ -510,6 +523,7 @@ test('many-to-many with join table', async () => {
     Object {
       "count": null,
       "data": Object {
+        "__typename": "products",
         "categories": Array [
           Object {
             "description": "Electronic devices and gadgets",

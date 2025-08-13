@@ -16,6 +16,7 @@ test('RPC call with no params', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "status": "ONLINE",
           "username": "supabot",
         },
@@ -45,6 +46,7 @@ test('RPC call with star select', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "status": "ONLINE",
           "username": "supabot",
         },
@@ -74,6 +76,7 @@ test('RPC call with single field select', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "username": "supabot",
         },
       ],
@@ -101,6 +104,7 @@ test('RPC call with multiple fields select', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "status": "ONLINE",
           "username": "supabot",
         },
@@ -130,6 +134,7 @@ test('RPC call with field aliasing', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "name": "supabot",
         },
       ],
@@ -157,6 +162,7 @@ test('RPC call with field casting', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "status": "ONLINE",
         },
       ],
@@ -186,6 +192,7 @@ test('RPC call with field aggregate', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "get_username_and_status",
           "count": 1,
           "status": "ONLINE",
         },

@@ -10,15 +10,19 @@ test('not', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
       ],
@@ -39,10 +43,12 @@ test('or', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "status": "ONLINE",
           "username": "supabot",
         },
         Object {
+          "__typename": "users",
           "status": "OFFLINE",
           "username": "kiwicopple",
         },
@@ -61,6 +67,7 @@ test('eq', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -78,15 +85,19 @@ test('neq', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "kiwicopple",
         },
         Object {
+          "__typename": "users",
           "username": "awailas",
         },
         Object {
+          "__typename": "users",
           "username": "jsonuser",
         },
         Object {
+          "__typename": "users",
           "username": "dragarcia",
         },
       ],
@@ -104,9 +115,11 @@ test('gt', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "messages",
           "id": 2,
         },
         Object {
+          "__typename": "messages",
           "id": 4,
         },
       ],
@@ -124,12 +137,15 @@ test('gte', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "messages",
           "id": 1,
         },
         Object {
+          "__typename": "messages",
           "id": 2,
         },
         Object {
+          "__typename": "messages",
           "id": 4,
         },
       ],
@@ -147,6 +163,7 @@ test('lt', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "messages",
           "id": 1,
         },
       ],
@@ -164,9 +181,11 @@ test('lte', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "messages",
           "id": 1,
         },
         Object {
+          "__typename": "messages",
           "id": 2,
         },
       ],
@@ -184,6 +203,7 @@ test('like', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -204,6 +224,7 @@ test('likeAllOf', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -224,9 +245,11 @@ test('likeAnyOf', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
         Object {
+          "__typename": "users",
           "username": "kiwicopple",
         },
       ],
@@ -244,6 +267,7 @@ test('ilike', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -264,6 +288,7 @@ test('ilikeAllOf', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -284,9 +309,11 @@ test('ilikeAnyOf', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
         Object {
+          "__typename": "users",
           "username": "kiwicopple",
         },
       ],
@@ -304,15 +331,19 @@ test('is', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "data": null,
         },
         Object {
+          "__typename": "users",
           "data": null,
         },
         Object {
+          "__typename": "users",
           "data": null,
         },
         Object {
+          "__typename": "users",
           "data": null,
         },
       ],
@@ -331,18 +362,23 @@ test('in', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "OFFLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
         Object {
+          "__typename": "users",
           "status": "ONLINE",
         },
       ],
@@ -360,6 +396,7 @@ test('contains', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
         },
       ],
@@ -380,6 +417,7 @@ test('contains with json', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "data": Object {
             "foo": Object {
               "bar": Object {
@@ -407,6 +445,7 @@ test('contains with array', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "cornercase",
           "array_column": Array [
             "test",
             "one",
@@ -427,6 +466,7 @@ test('containedBy', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
         },
       ],
@@ -476,6 +516,7 @@ test('rangeLt', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
         },
       ],
@@ -493,9 +534,11 @@ test('rangeGt', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
       ],
@@ -513,15 +556,19 @@ test('rangeGte', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
         },
       ],
@@ -539,6 +586,7 @@ test('rangeLte', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
         },
       ],
@@ -556,12 +604,15 @@ test('rangeAdjacent', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[25,35)",
         },
       ],
@@ -579,9 +630,11 @@ test('overlaps', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
         },
         Object {
+          "__typename": "users",
           "age_range": "[20,30)",
         },
       ],
@@ -602,6 +655,7 @@ test('overlaps with array', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "cornercase",
           "array_column": Array [
             "test",
             "one",
@@ -625,6 +679,7 @@ test('textSearch', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "catchphrase": "'cat' 'fat'",
         },
       ],
@@ -645,6 +700,7 @@ test('textSearch with plainto_tsquery', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "catchphrase": "'cat' 'fat'",
         },
       ],
@@ -665,9 +721,11 @@ test('textSearch with phraseto_tsquery', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "catchphrase": "'cat' 'fat'",
         },
         Object {
+          "__typename": "users",
           "catchphrase": "'bat' 'cat'",
         },
       ],
@@ -688,6 +746,7 @@ test('textSearch with websearch_to_tsquery', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "catchphrase": "'cat' 'fat'",
         },
       ],
@@ -712,6 +771,7 @@ test('multiple filters', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "age_range": "[1,2)",
           "catchphrase": "'cat' 'fat'",
           "data": null,
@@ -733,6 +793,7 @@ test('filter', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "username": "supabot",
         },
       ],
@@ -753,6 +814,7 @@ test('match', async () => {
       "count": null,
       "data": Array [
         Object {
+          "__typename": "users",
           "status": "ONLINE",
           "username": "supabot",
         },
