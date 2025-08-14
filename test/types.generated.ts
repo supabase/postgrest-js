@@ -67,6 +67,13 @@ export type Database = {
             foreignKeyName: 'best_friends_first_user_fkey'
             columns: ['first_user']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_first_user_fkey'
+            columns: ['first_user']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -88,6 +95,13 @@ export type Database = {
             foreignKeyName: 'best_friends_second_user_fkey'
             columns: ['second_user']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_second_user_fkey'
+            columns: ['second_user']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -103,6 +117,13 @@ export type Database = {
             columns: ['second_user']
             isOneToOne: false
             referencedRelation: 'users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'best_friends_third_wheel_fkey'
+            columns: ['third_wheel']
+            isOneToOne: false
+            referencedRelation: 'active_users'
             referencedColumns: ['username']
           },
           {
@@ -304,6 +325,13 @@ export type Database = {
             foreignKeyName: 'messages_username_fkey'
             columns: ['username']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -410,6 +438,13 @@ export type Database = {
             foreignKeyName: 'user_profiles_username_fkey'
             columns: ['username']
             isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'user_profiles_username_fkey'
+            columns: ['username']
+            isOneToOne: false
             referencedRelation: 'non_updatable_view'
             referencedColumns: ['username']
           },
@@ -455,11 +490,81 @@ export type Database = {
       }
     }
     Views: {
+      active_users: {
+        Row: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string | null
+        }
+        Insert: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: Json | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username?: string | null
+        }
+        Update: {
+          age_range?: unknown | null
+          catchphrase?: unknown | null
+          data?: Json | null
+          status?: Database['public']['Enums']['user_status'] | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       non_updatable_view: {
         Row: {
           username: string | null
         }
         Relationships: []
+      }
+      recent_messages: {
+        Row: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'messages_channel_id_fkey'
+            columns: ['channel_id']
+            isOneToOne: false
+            referencedRelation: 'channels'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'active_users'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'non_updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'updatable_view'
+            referencedColumns: ['username']
+          },
+          {
+            foreignKeyName: 'messages_username_fkey'
+            columns: ['username']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['username']
+          }
+        ]
       }
       updatable_view: {
         Row: {
@@ -480,7 +585,83 @@ export type Database = {
     Functions: {
       blurb_message: {
         Args: { '': Database['public']['Tables']['messages']['Row'] }
-        Returns: string
+        Returns: {
+          error: true
+        } & 'the function public.blurb_message with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache'
+      }
+      function_returning_row: {
+        Args: never
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      function_returning_set_of_rows: {
+        Args: never
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      function_returning_single_row: {
+        Args: { messages: Database['public']['Tables']['messages']['Row'] }
+        Returns: {
+          age_range: unknown | null
+          catchphrase: unknown | null
+          data: Json | null
+          status: Database['public']['Enums']['user_status'] | null
+          username: string
+        }
+        SetofOptions: {
+          from: 'messages'
+          to: 'users'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      function_using_setof_rows_one: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: true
+        }
+      }
+      function_using_table_returns: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       function_with_array_param: {
         Args: { param: string[] }
@@ -490,10 +671,190 @@ export type Database = {
         Args: { param?: string }
         Returns: string
       }
+      get_active_user_messages: {
+        Args: {
+          active_user_row: Database['public']['Views']['active_users']['Row']
+        }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: 'active_users'
+          to: 'messages'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_messages:
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | {
+            Args: {
+              channel_row: Database['public']['Tables']['channels']['Row']
+            }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'channels'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+      get_messages_by_username: {
+        Args: { search_username: string }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: '*'
+          to: 'messages'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_recent_messages_by_username: {
+        Args: { search_username: string }
+        Returns: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }[]
+        SetofOptions: {
+          from: '*'
+          to: 'recent_messages'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_status: {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
+      get_user_first_message: {
+        Args: {
+          active_user_row: Database['public']['Views']['active_users']['Row']
+        }
+        Returns: {
+          channel_id: number | null
+          data: Json | null
+          id: number | null
+          message: string | null
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'active_users'
+          to: 'recent_messages'
+          isOneToOne: true
+          isSetofReturn: true
+        }
+      }
+      get_user_messages: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          channel_id: number
+          data: Json | null
+          id: number
+          message: string | null
+          username: string
+        }[]
+        SetofOptions: {
+          from: 'users'
+          to: 'messages'
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_user_profile: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_user_profile_non_nullable: {
+        Args: { user_row: Database['public']['Tables']['users']['Row'] }
+        Returns: {
+          id: number
+          username: string | null
+        }
+        SetofOptions: {
+          from: 'users'
+          to: 'user_profiles'
+          isOneToOne: true
+          isSetofReturn: true
+        }
+      }
+      get_user_recent_messages:
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number | null
+              data: Json | null
+              id: number | null
+              message: string | null
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'recent_messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | {
+            Args: {
+              active_user_row: Database['public']['Views']['active_users']['Row']
+            }
+            Returns: {
+              channel_id: number | null
+              data: Json | null
+              id: number | null
+              message: string | null
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: 'active_users'
+              to: 'recent_messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
       get_username_and_status: {
         Args: { name_param: string }
         Returns: {
@@ -505,6 +866,104 @@ export type Database = {
         Args: { name_param: string }
         Returns: Database['public']['Enums']['user_status']
       }
+      polymorphic_function_with_different_return: {
+        Args: { '': string }
+        Returns: string
+      }
+      polymorphic_function_with_no_params_or_unnamed:
+        | { Args: never; Returns: number }
+        | { Args: { '': string }; Returns: string }
+      polymorphic_function_with_unnamed_default:
+        | {
+            Args: never
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default(), public.polymorphic_function_with_unnamed_default( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | { Args: { ''?: string }; Returns: string }
+      polymorphic_function_with_unnamed_default_overload:
+        | {
+            Args: never
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default_overload(), public.polymorphic_function_with_unnamed_default_overload( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | { Args: { ''?: string }; Returns: string }
+      polymorphic_function_with_unnamed_json: {
+        Args: { '': Json }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_jsonb: {
+        Args: { '': Json }
+        Returns: number
+      }
+      polymorphic_function_with_unnamed_text: {
+        Args: { '': string }
+        Returns: number
+      }
+      postgrest_resolvable_with_override_function:
+        | { Args: { a: string }; Returns: number }
+        | { Args: { b: number }; Returns: string }
+        | {
+            Args: { profile_id: number }
+            Returns: {
+              id: number
+              username: string | null
+            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'user_profiles'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | {
+            Args: { user_row: Database['public']['Tables']['users']['Row'] }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: 'users'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | {
+            Args: { cid: number; search?: string }
+            Returns: {
+              channel_id: number
+              data: Json | null
+              id: number
+              message: string | null
+              username: string
+            }[]
+            SetofOptions: {
+              from: '*'
+              to: 'messages'
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
+        | { Args: never; Returns: undefined }
+      postgrest_unresolvable_function:
+        | {
+            Args: { a: string }
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: public.postgrest_unresolvable_function(a => int4), public.postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | {
+            Args: { a: number }
+            Returns: {
+              error: true
+            } & 'Could not choose the best candidate function between: public.postgrest_unresolvable_function(a => int4), public.postgrest_unresolvable_function(a => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'
+          }
+        | { Args: never; Returns: undefined }
       set_users_offline: {
         Args: { name_param: string }
         Returns: {
@@ -514,11 +973,14 @@ export type Database = {
           status: Database['public']['Enums']['user_status'] | null
           username: string
         }[]
+        SetofOptions: {
+          from: '*'
+          to: 'users'
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
-      void_func: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      void_func: { Args: never; Returns: undefined }
     }
     Enums: {
       user_status: 'ONLINE' | 'OFFLINE'

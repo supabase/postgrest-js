@@ -1,5 +1,5 @@
 import { TypeEqual } from 'ts-expect'
-import { expectError, expectType } from 'tsd'
+import { expectType } from 'tsd'
 import { PostgrestClient, PostgrestError } from '../src/index'
 import { Prettify } from '../src/types'
 import { Json } from '../src/select-query-parser/types'
@@ -12,48 +12,50 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // table invalid type
 {
-  expectError(postgrest.from(42))
-  expectError(postgrest.from('nonexistent_table'))
+  // @ts-expect-error should be error
+  postgrest.from(42)
+  // @ts-expect-error should be error
+  postgrest.from('nonexistent_table')
 }
 
 // `null` can't be used with `.eq()`
 {
   postgrest.from('users').select().eq('username', 'foo')
-  expectError(postgrest.from('users').select().eq('username', null))
+  // @ts-expect-error should be error
+  postgrest.from('users').select().eq('username', null)
 
   const nullableVar = 'foo' as string | null
-  expectError(postgrest.from('users').select().eq('username', nullableVar))
+  // @ts-expect-error should be error
+  postgrest.from('users').select().eq('username', nullableVar)
 }
 
 // `.eq()`, '.neq()' and `.in()` validate provided filter value when column is an enum.
 // Behaves the same for simple columns, as well as relationship filters.
 {
-  expectError(postgrest.from('users').select().eq('status', 'invalid'))
-  expectError(postgrest.from('users').select().neq('status', 'invalid'))
-  expectError(postgrest.from('users').select().in('status', ['invalid']))
+  // @ts-expect-error should be error
+  postgrest.from('users').select().eq('status', 'invalid')
+  // @ts-expect-error should be error
+  postgrest.from('users').select().neq('status', 'invalid')
+  // @ts-expect-error should be error
+  postgrest.from('users').select().in('status', ['invalid'])
 
-  expectError(
-    postgrest.from('best_friends').select('users!first_user(status)').eq('users.status', 'invalid')
-  )
-  expectError(
-    postgrest.from('best_friends').select('users!first_user(status)').neq('users.status', 'invalid')
-  )
-  expectError(
-    postgrest
-      .from('best_friends')
-      .select('users!first_user(status)')
-      .in('users.status', ['invalid'])
-  )
+  // @ts-expect-error should be error
+  postgrest.from('best_friends').select('users!first_user(status)').eq('users.status', 'invalid')
+  // @ts-expect-error should be error
+  postgrest.from('best_friends').select('users!first_user(status)').neq('users.status', 'invalid')
+  postgrest
+    .from('best_friends')
+    .select('users!first_user(status)')
+    // @ts-expect-error should be error
+    .in('users.status', ['invalid'])
+
   // Validate deeply nested embedded tables
-  expectError(
-    postgrest.from('users').select('messages(channels(*))').eq('messages.channels.id', 'invalid')
-  )
-  expectError(
-    postgrest.from('users').select('messages(channels(*))').neq('messages.channels.id', 'invalid')
-  )
-  expectError(
-    postgrest.from('users').select('messages(channels(*))').in('messages.channels.id', ['invalid'])
-  )
+  // @ts-expect-error should be error
+  postgrest.from('users').select('messages(channels(*))').eq('messages.channels.id', 'invalid')
+  // @ts-expect-error should be error
+  postgrest.from('users').select('messages(channels(*))').neq('messages.channels.id', 'invalid')
+  // @ts-expect-error should be error
+  postgrest.from('users').select('messages(channels(*))').in('messages.channels.id', ['invalid'])
 
   {
     const result = await postgrest.from('users').select('status').eq('status', 'ONLINE')
@@ -147,12 +149,14 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
 
 // cannot update non-updatable views
 {
-  expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
+  // @ts-expect-error should be error
+  postgrest.from('updatable_view').update({ non_updatable_column: 0 })
 }
 
 // cannot update non-updatable columns
 {
-  expectError(postgrest.from('updatable_view').update({ non_updatable_column: 0 }))
+  // @ts-expect-error should be error
+  postgrest.from('updatable_view').update({ non_updatable_column: 0 })
 }
 
 // spread resource with single column in select query
@@ -194,15 +198,6 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
   }
   expectType<Json>(result.data.bar)
   expectType<string>(result.data.baz)
-}
-
-// rpc return type
-{
-  const result = await postgrest.rpc('get_status')
-  if (result.error) {
-    throw new Error(result.error.message)
-  }
-  expectType<'ONLINE' | 'OFFLINE'>(result.data)
 }
 
 // PostgrestBuilder's children retains class when using inherited methods
@@ -297,9 +292,28 @@ const postgrestWithOptions = new PostgrestClient<DatabaseWithOptions>(REST_URL)
     }[]
   >(result.data)
 }
+
 // Check that client options __InternalSupabase isn't considered like the other schemas
 {
   await postgrestWithOptions
     // @ts-expect-error supabase internal shouldn't be available as one of the selectable schema
     .schema('__InternalSupabase')
+}
+
+// Json string Accessor with custom types overrides
+{
+  const result = await postgrest
+    .schema('personal')
+    .from('users')
+    .select('data->bar->>baz, data->>en, data->>bar')
+  if (result.error) {
+    throw new Error(result.error.message)
+  }
+  expectType<
+    {
+      baz: string
+      en: 'ONE' | 'TWO' | 'THREE'
+      bar: string
+    }[]
+  >(result.data)
 }
