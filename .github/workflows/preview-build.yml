@@ -15,10 +15,12 @@ on:
 
 jobs:
   build-preview:
-    # Only run if PR has the 'trigger: preview' label
+    # Only run if PR has the 'trigger: preview' label and is on the correct repository
     if: |
+      github.repository == 'supabase/postgrest-js' &&
       contains(github.event.pull_request.labels.*.name, 'trigger: preview')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       preview-url: ${{ steps.preview.outputs.url }}
       pr-number: ${{ github.event.pull_request.number }}
