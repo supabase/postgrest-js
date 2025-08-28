@@ -15,9 +15,10 @@ on:
 
 jobs:
   build-preview:
-    # Only run if PR has the 'trigger: preview' label and is on the correct repository
+    # Only run if PR has the 'trigger: preview' label, is on the correct repository, and targets master branch
     if: |
       github.repository == 'supabase/postgrest-js' &&
+      github.event.pull_request.base.ref == 'master' &&
       contains(github.event.pull_request.labels.*.name, 'trigger: preview')
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -46,17 +47,11 @@ jobs:
       
       - name: Build
         run: npm run build
-      
-      - name: Run tests
-        run: npm test
-        continue-on-error: true # Don't fail preview on test failures
-      
       - name: Create preview release
         id: preview
         run: |
-          set -e
           echo "Creating preview release..."
-          OUTPUT=$(npx pkg-pr-new@latest publish --compact 2>&1)
+          OUTPUT=$(npx pkg-pr-new@latest publish --compact 2>&1 || true)
           echo "Full output:"
           echo "$OUTPUT"
           
@@ -65,6 +60,7 @@ jobs:
           
           if [ -z "$PREVIEW_URL" ]; then
             echo "Error: Failed to extract preview URL from pkg-pr-new output"
+            echo "Output was: $OUTPUT"
             exit 1
           fi
           
