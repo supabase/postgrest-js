@@ -4,7 +4,6 @@ import {
   Fetch,
   GenericSchema,
   ClientServerOptions,
-  GetGenericDatabaseWithOptions,
   GetRpcFunctionFilterBuilderByArgs,
 } from './types'
 
@@ -20,16 +19,23 @@ import {
  */
 export default class PostgrestClient<
   Database = any,
-  ClientOptions extends ClientServerOptions = GetGenericDatabaseWithOptions<
-    Database,
-    { PostgrestVersion: '12' }
-  >['options'],
+  ClientOptions extends ClientServerOptions = Database extends {
+    __InternalSupabase: infer I extends ClientServerOptions
+  }
+    ? I
+    : {},
   SchemaName extends string &
-    keyof GetGenericDatabaseWithOptions<Database>['db'] = 'public' extends keyof GetGenericDatabaseWithOptions<Database>['db']
+    keyof Omit<Database, '__InternalSupabase'> = 'public' extends keyof Omit<
+    Database,
+    '__InternalSupabase'
+  >
     ? 'public'
-    : string & keyof GetGenericDatabaseWithOptions<Database>['db'],
-  Schema extends GenericSchema = GetGenericDatabaseWithOptions<Database>['db'][SchemaName] extends GenericSchema
-    ? GetGenericDatabaseWithOptions<Database>['db'][SchemaName]
+    : string & keyof Omit<Database, '__InternalSupabase'>,
+  Schema extends GenericSchema = Omit<
+    Database,
+    '__InternalSupabase'
+  >[SchemaName] extends GenericSchema
+    ? Omit<Database, '__InternalSupabase'>[SchemaName]
     : any
 > {
   url: string
@@ -92,7 +98,7 @@ export default class PostgrestClient<
    *
    * @param schema - The schema to query
    */
-  schema<DynamicSchema extends string & keyof GetGenericDatabaseWithOptions<Database>['db']>(
+  schema<DynamicSchema extends string & keyof Omit<Database, '__InternalSupabase'>>(
     schema: DynamicSchema
   ): PostgrestClient<
     Database,

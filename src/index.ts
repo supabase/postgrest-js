@@ -28,8 +28,7 @@ export type {
   PostgrestResponseSuccess,
   PostgrestSingleResponse,
   PostgrestMaybeSingleResponse,
-  ClientServerOptions,
-  GetGenericDatabaseWithOptions,
+  ClientServerOptions as PostgrestClientOptions,
   GetRpcFunctionFilterBuilderByArgs,
 } from './types'
 // https://github.com/supabase/postgrest-js/issues/551
