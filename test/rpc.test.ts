@@ -4,9 +4,9 @@ import { expectType, TypeEqual } from './types'
 import { z } from 'zod'
 
 const REST_URL = 'http://localhost:3000'
-export const postgrest = new PostgrestClient<Database>(REST_URL)
+const postgrest = new PostgrestClient<Database>(REST_URL)
 
-export const RPC_NAME = 'get_username_and_status'
+const RPC_NAME = 'get_username_and_status'
 
 test('RPC call with no params', async () => {
   const res = await postgrest.rpc(RPC_NAME, { name_param: 'supabot' }).select()

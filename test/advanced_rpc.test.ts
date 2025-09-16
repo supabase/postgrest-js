@@ -1,13 +1,12 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
-import { expectType } from 'tsd'
-import { TypeEqual } from 'ts-expect'
+import { TypeEqual, expectType } from './types'
 import { SelectQueryError } from '../src/select-query-parser/utils'
 import { z } from 'zod'
 import { RequiredDeep } from 'type-fest'
 
 const REST_URL = 'http://localhost:3000'
-export const postgrest = new PostgrestClient<Database>(REST_URL)
+const postgrest = new PostgrestClient<Database>(REST_URL)
 
 const MessagesWithoutBlurbSchema = z.object({
   channel_id: z.number(),
@@ -526,11 +525,11 @@ describe('advanced rpc', () => {
   test('should be able to filter before and after select rpc', async () => {
     const res = await postgrest
       .rpc('get_user_profile', {
-        //@ts-expect-error will complain about missing the rest of the params
+        //@ts-expect-error Type '{ username: string; }' is missing the following properties from type '{ age_range: unknown; catchphrase: unknown; data: unknown; status: "ONLINE" | "OFFLINE" | null; username: string; }': age_range, catchphrase, data, status
         user_row: { username: 'supabot' },
       })
       .select('id, username, users(username, catchphrase)')
-      //@ts-expect-error will complain about missing the rest of the params
+      //@ts-expect-error Property 'eq' does not exist on type
       .eq('username', 'nope')
 
     expect(res).toMatchInlineSnapshot(`
@@ -544,7 +543,7 @@ describe('advanced rpc', () => {
     `)
     const res2 = await postgrest
       .rpc('get_user_profile', {
-        //@ts-expect-error will complain about missing the rest of the params
+        //@ts-expect-error Type '{ username: string; }' is missing the following properties from type
         user_row: { username: 'supabot' },
       })
       // should also be able to fitler before the select
@@ -562,7 +561,7 @@ describe('advanced rpc', () => {
     `)
     const res3 = await postgrest
       .rpc('get_user_profile', {
-        //@ts-expect-error will complain about missing the rest of the params
+        //@ts-expect-error Type '{ username: string; }' is missing the following properties from type
         user_row: { username: 'supabot' },
       })
       // should also be able to fitler before the select
@@ -830,7 +829,7 @@ describe('advanced rpc', () => {
 
   test('polymorphic function with bool param', async () => {
     const res = await postgrest.rpc('polymorphic_function_with_different_return', {
-      // @ts-expect-error should not have a function with a single unnamed params that isn't json/jsonb/text in types definitions
+      // @ts-expect-error Type 'boolean' is not assignable to type 'string'
       '': true,
     })
     expect(res).toMatchInlineSnapshot(`
@@ -846,7 +845,7 @@ describe('advanced rpc', () => {
 
   test('polymorphic function with unnamed int param', async () => {
     const res = await postgrest.rpc(
-      // @ts-expect-error should not have a function with a single unnamed params that isn't json/jsonb/text in types definitions
+      // @ts-expect-error Argument of type '"polymorphic_function_with_unnamed_integer"' is not assignable to parameter of type '"blurb_message" | "function_returning_row" | "function_returning_set_of_rows"
       'polymorphic_function_with_unnamed_integer',
       {
         '': 1,
@@ -1000,8 +999,8 @@ describe('advanced rpc', () => {
     let result: Exclude<typeof res.data, null>
     // TODO: there is no ways for now to distinguish between a valid optional argument or a missing one if the argument is unnamed
     let expected: SelectQueryError<'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default(), public.polymorphic_function_with_unnamed_default( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
-    //@ts-expect-error
-    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    // this should be true
+    expectType<TypeEqual<typeof result, typeof expected>>(false)
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1062,8 +1061,8 @@ describe('advanced rpc', () => {
     let result: Exclude<typeof res.data, null>
     // TODO: there is no ways for now to distinguish between a valid optional argument or a missing one if the argument is unnamed
     let expected: SelectQueryError<'Could not choose the best candidate function between: public.polymorphic_function_with_unnamed_default_overload(), public.polymorphic_function_with_unnamed_default_overload( => text). Try renaming the parameters or the function itself in the database so function overloading can be resolved'>
-    //@ts-expect-error
-    expectType<TypeEqual<typeof result, typeof expected>>(true)
+    // this should be true
+    expectType<TypeEqual<typeof result, typeof expected>>(false)
     expect(res).toMatchInlineSnapshot(`
       Object {
         "count": null,
@@ -1100,7 +1099,7 @@ describe('advanced rpc', () => {
 
   test('polymorphic function with unnamed default overload bool param', async () => {
     const res = await postgrest.rpc('polymorphic_function_with_unnamed_default_overload', {
-      //@ts-expect-error
+      //@ts-expect-error Type 'boolean' is not assignable to type 'string'
       '': true,
     })
     let result: Exclude<typeof res.data, null>

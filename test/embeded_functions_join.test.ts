@@ -1,12 +1,11 @@
 import { PostgrestClient } from '../src/index'
 import { Database } from './types.override'
-import { expectType } from 'tsd'
-import { TypeEqual } from 'ts-expect'
+import { expectType, TypeEqual } from './types'
 import { z } from 'zod'
 import { RequiredDeep } from 'type-fest'
 
 const REST_URL = 'http://localhost:3000'
-export const postgrest = new PostgrestClient<Database>(REST_URL)
+const postgrest = new PostgrestClient<Database>(REST_URL)
 
 describe('embeded functions select', () => {
   test('embeded_setof_function - function returning a setof embeded table', async () => {
