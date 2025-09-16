@@ -1,0 +1,14 @@
+{
+  "include": ["**/*.ts", "../types.generated.ts", "../../src/**/*.ts"],
+  "compilerOptions": {
+    "target": "ES2015",
+    "downlevelIteration": true,
+    "noEmit": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
