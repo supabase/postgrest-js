@@ -1,5 +1,5 @@
 import PostgrestError from './PostgrestError'
-import { ContainsNull } from './select-query-parser/types'
+import { ContainsNull, TablesAndViews } from './select-query-parser/types'
 import { FindMatchingFunctionByArgs, IsAny, SelectQueryError } from './select-query-parser/utils'
 import { LastOf } from './select-query-parser/types'
 
@@ -43,7 +43,11 @@ export type GetRpcFunctionFilterBuilderByArgs<
     : // Otherwise, we use the arguments based function definition narrowing to get the rigt value
     Fn extends GenericFunction
     ? {
-        Row: Fn['Returns'] extends any[]
+        Row: Fn['SetofOptions'] extends GenericSetofOption
+          ? Fn['SetofOptions']['isSetofReturn'] extends true
+            ? TablesAndViews<Schema>[Fn['SetofOptions']['to']]['Row']
+            : TablesAndViews<Schema>[Fn['SetofOptions']['to']]['Row']
+          : Fn['Returns'] extends any[]
           ? Fn['Returns'][number] extends Record<string, unknown>
             ? Fn['Returns'][number]
             : never
