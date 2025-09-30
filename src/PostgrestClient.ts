@@ -1,6 +1,13 @@
 import PostgrestQueryBuilder from './PostgrestQueryBuilder'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import { Fetch, GenericSchema, ClientServerOptions } from './types'
+import {
+  Fetch,
+  GenericSchema,
+  ClientServerOptions,
+  PostgrestQueryBuilderOptions,
+  PostgrestQueryBuilderOptionsWithSchema,
+} from './types'
+import { mergeHeaders } from './utils'
 
 /**
  * PostgREST client.
@@ -50,15 +57,7 @@ export default class PostgrestClient<
    */
   constructor(
     url: string,
-    {
-      headers = {},
-      schema,
-      fetch,
-    }: {
-      headers?: HeadersInit
-      schema?: SchemaName
-      fetch?: Fetch
-    } = {}
+    { headers = {}, schema, fetch }: PostgrestQueryBuilderOptionsWithSchema<SchemaName> = {}
   ) {
     this.url = url
     this.headers = new Headers(headers)
@@ -68,21 +67,29 @@ export default class PostgrestClient<
   from<
     TableName extends string & keyof Schema['Tables'],
     Table extends Schema['Tables'][TableName]
-  >(relation: TableName): PostgrestQueryBuilder<ClientOptions, Schema, Table, TableName>
+  >(
+    relation: TableName,
+    options?: PostgrestQueryBuilderOptions
+  ): PostgrestQueryBuilder<ClientOptions, Schema, Table, TableName>
   from<ViewName extends string & keyof Schema['Views'], View extends Schema['Views'][ViewName]>(
-    relation: ViewName
+    relation: ViewName,
+    options?: PostgrestQueryBuilderOptions
   ): PostgrestQueryBuilder<ClientOptions, Schema, View, ViewName>
   /**
    * Perform a query on a table or a view.
    *
    * @param relation - The table or view name to query
    */
-  from(relation: string): PostgrestQueryBuilder<ClientOptions, Schema, any, any> {
+  from(
+    relation: string,
+    options?: PostgrestQueryBuilderOptions
+  ): PostgrestQueryBuilder<ClientOptions, Schema, any, any> {
     const url = new URL(`${this.url}/${relation}`)
+
     return new PostgrestQueryBuilder(url, {
-      headers: new Headers(this.headers),
+      headers: mergeHeaders(this.headers, options?.headers),
       schema: this.schemaName,
-      fetch: this.fetch,
+      fetch: options?.fetch ?? this.fetch,
     })
   }
 

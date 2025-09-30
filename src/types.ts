@@ -31,6 +31,16 @@ export type PostgrestSingleResponse<T> = PostgrestResponseSuccess<T> | Postgrest
 export type PostgrestMaybeSingleResponse<T> = PostgrestSingleResponse<T | null>
 export type PostgrestResponse<T> = PostgrestSingleResponse<T[]>
 
+export type PostgrestQueryBuilderOptions = {
+  headers?: HeadersInit
+  fetch?: Fetch
+}
+
+export type PostgrestQueryBuilderOptionsWithSchema<TSchema extends string> =
+  PostgrestQueryBuilderOptions & {
+    schema?: TSchema
+  }
+
 export type GenericRelationship = {
   foreignKeyName: string
   columns: string[]
