@@ -6,13 +6,18 @@
  */
 
 export function mergeHeaders(left: Headers, right?: HeadersInit): HeadersInit {
-    if (!right) return left;
+  if (!right) return left
 
-    const merged = new Headers(left);
-    const rightEntries = (right instanceof Headers) ? right.entries() : Array.isArray(right) ? right : Object.entries(right);
-    for (const [key, value] of rightEntries) {
-        merged.set(key, value);
-    }
+  const merged = new Headers(left)
+  const rightEntries =
+    right instanceof Headers
+      ? right.entries()
+      : Array.isArray(right)
+      ? right
+      : Object.entries(right)
+  for (const [key, value] of rightEntries) {
+    merged.set(key, value)
+  }
 
-    return merged;
+  return merged
 }

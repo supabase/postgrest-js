@@ -36,9 +36,10 @@ export type PostgrestQueryBuilderOptions = {
   fetch?: Fetch
 }
 
-export type PostgrestQueryBuilderOptionsWithSchema<TSchema extends string> = PostgrestQueryBuilderOptions & {
-  schema?: TSchema
-}
+export type PostgrestQueryBuilderOptionsWithSchema<TSchema extends string> =
+  PostgrestQueryBuilderOptions & {
+    schema?: TSchema
+  }
 
 export type GenericRelationship = {
   foreignKeyName: string

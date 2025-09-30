@@ -1,6 +1,12 @@
 import PostgrestQueryBuilder from './PostgrestQueryBuilder'
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
-import { Fetch, GenericSchema, ClientServerOptions, PostgrestQueryBuilderOptions, PostgrestQueryBuilderOptionsWithSchema } from './types'
+import {
+  Fetch,
+  GenericSchema,
+  ClientServerOptions,
+  PostgrestQueryBuilderOptions,
+  PostgrestQueryBuilderOptionsWithSchema,
+} from './types'
 import { mergeHeaders } from './utils'
 
 /**
@@ -51,11 +57,7 @@ export default class PostgrestClient<
    */
   constructor(
     url: string,
-    {
-      headers = {},
-      schema,
-      fetch,
-    }: PostgrestQueryBuilderOptionsWithSchema<SchemaName> = {}
+    { headers = {}, schema, fetch }: PostgrestQueryBuilderOptionsWithSchema<SchemaName> = {}
   ) {
     this.url = url
     this.headers = new Headers(headers)
@@ -78,7 +80,10 @@ export default class PostgrestClient<
    *
    * @param relation - The table or view name to query
    */
-  from(relation: string, options?: PostgrestQueryBuilderOptions): PostgrestQueryBuilder<ClientOptions, Schema, any, any> {
+  from(
+    relation: string,
+    options?: PostgrestQueryBuilderOptions
+  ): PostgrestQueryBuilder<ClientOptions, Schema, any, any> {
     const url = new URL(`${this.url}/${relation}`)
 
     return new PostgrestQueryBuilder(url, {

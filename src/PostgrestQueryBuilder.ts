@@ -1,6 +1,13 @@
 import PostgrestFilterBuilder from './PostgrestFilterBuilder'
 import { GetResult } from './select-query-parser/result'
-import { ClientServerOptions, Fetch, GenericSchema, GenericTable, GenericView, PostgrestQueryBuilderOptions, PostgrestQueryBuilderOptionsWithSchema } from './types'
+import {
+  ClientServerOptions,
+  Fetch,
+  GenericSchema,
+  GenericTable,
+  GenericView,
+  PostgrestQueryBuilderOptionsWithSchema,
+} from './types'
 
 export default class PostgrestQueryBuilder<
   ClientOptions extends ClientServerOptions,
@@ -17,11 +24,7 @@ export default class PostgrestQueryBuilder<
 
   constructor(
     url: URL,
-    {
-      headers = {},
-      schema,
-      fetch,
-    }: PostgrestQueryBuilderOptionsWithSchema<string>
+    { headers = {}, schema, fetch }: PostgrestQueryBuilderOptionsWithSchema<string>
   ) {
     this.url = url
     this.headers = new Headers(headers)
