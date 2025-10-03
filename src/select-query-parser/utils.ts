@@ -1,3 +1,4 @@
+import { GenericFunction, GenericSetofOption } from '../types'
 import { Ast } from './parser'
 import {
   AggregateFunctions,
@@ -452,6 +453,36 @@ export type ResolveForwardRelationship<
             from: CurrentTableOrView
             type: 'found-by-join-table'
           }
+        : ResolveEmbededFunctionJoinTableRelationship<
+            Schema,
+            CurrentTableOrView,
+            Field['name']
+          > extends infer FoundEmbededFunctionJoinTableRelation
+        ? FoundEmbededFunctionJoinTableRelation extends GenericSetofOption
+          ? {
+              referencedTable: TablesAndViews<Schema>[FoundEmbededFunctionJoinTableRelation['to']]
+              relation: {
+                foreignKeyName: `${Field['name']}_${CurrentTableOrView}_${FoundEmbededFunctionJoinTableRelation['to']}_forward`
+                columns: []
+                isOneToOne: FoundEmbededFunctionJoinTableRelation['isOneToOne'] extends true
+                  ? true
+                  : false
+                referencedColumns: []
+                referencedRelation: FoundEmbededFunctionJoinTableRelation['to']
+              } & {
+                match: 'func'
+                isNotNullable: FoundEmbededFunctionJoinTableRelation['isNotNullable'] extends true
+                  ? true
+                  : FoundEmbededFunctionJoinTableRelation['isSetofReturn'] extends true
+                  ? false
+                  : true
+                isSetofReturn: FoundEmbededFunctionJoinTableRelation['isSetofReturn']
+              }
+              direction: 'forward'
+              from: CurrentTableOrView
+              type: 'found-by-embeded-function'
+            }
+          : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
         : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
       : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
     : SelectQueryError<`could not find the relation between ${CurrentTableOrView} and ${Field['name']}`>
@@ -494,6 +525,19 @@ type ResolveJoinTableRelationship<
       : never
     : never
 }[keyof TablesAndViews<Schema>]
+
+type ResolveEmbededFunctionJoinTableRelationship<
+  Schema extends GenericSchema,
+  CurrentTableOrView extends keyof TablesAndViews<Schema> & string,
+  FieldName extends string
+> = FindMatchingFunctionBySetofFrom<
+  Schema['Functions'][FieldName],
+  CurrentTableOrView
+> extends infer Fn
+  ? Fn extends GenericFunction
+    ? Fn['SetofOptions']
+    : false
+  : false
 
 export type FindJoinTableRelationship<
   Schema extends GenericSchema,
@@ -577,6 +621,50 @@ export type IsStringUnion<T> = string extends T
   ? [T] extends [never]
     ? false
     : true
+  : false
+
+// Functions matching utils
+export type IsMatchingArgs<
+  FnArgs extends GenericFunction['Args'],
+  PassedArgs extends GenericFunction['Args']
+> = [FnArgs] extends [Record<PropertyKey, never>]
+  ? PassedArgs extends Record<PropertyKey, never>
+    ? true
+    : false
+  : keyof PassedArgs extends keyof FnArgs
+  ? PassedArgs extends FnArgs
+    ? true
+    : false
+  : false
+
+export type MatchingFunctionArgs<
+  Fn extends GenericFunction,
+  Args extends GenericFunction['Args']
+> = Fn extends { Args: infer A extends GenericFunction['Args'] }
+  ? IsMatchingArgs<A, Args> extends true
+    ? Fn
+    : never
+  : never
+
+export type FindMatchingFunctionByArgs<
+  FnUnion,
+  Args extends GenericFunction['Args']
+> = FnUnion extends infer Fn extends GenericFunction ? MatchingFunctionArgs<Fn, Args> : never
+
+type MatchingFunctionBySetofFrom<
+  Fn extends GenericFunction,
+  TableName extends string
+> = Fn['SetofOptions'] extends GenericSetofOption
+  ? TableName extends Fn['SetofOptions']['from']
+    ? Fn
+    : never
+  : never
+
+type FindMatchingFunctionBySetofFrom<
+  FnUnion,
+  TableName extends string
+> = FnUnion extends infer Fn extends GenericFunction
+  ? MatchingFunctionBySetofFrom<Fn, TableName>
   : false
 
 type ComputedField<

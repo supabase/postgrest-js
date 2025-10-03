@@ -1,11 +1,96 @@
-import { Database as OriginalDatabase } from './types.generated'
-export type Json = unknown
+import { expectType, TypeEqual } from './types'
+import { PostgrestClient } from '../src/index'
 
-export type Database = OriginalDatabase & {
-  // This is a dummy non existent schema to allow automatically passing down options
-  // to the instanciated client at type levels from the introspected database
-  __InternalSupabase: {
-    PostgrestVersion: '13.0.12'
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
+export type Database = {
+  public: {
+    Tables: {
+      countries: {
+        Row: {
+          id: number
+          name: string
+          country_alpha_locations:
+            | Database['public']['Tables']['country_alpha_locations']['Row']
+            | null
+        }
+        Insert: {
+          id?: never
+          name: string
+        }
+        Update: {
+          id?: never
+          name?: string
+        }
+        Relationships: []
+      }
+      country_alpha_locations: {
+        Row: {
+          alpha2: string
+          id: number
+          location: string
+        }
+        Insert: {
+          alpha2: string
+          id?: never
+          location: string
+        }
+        Update: {
+          alpha2?: string
+          id?: never
+          location?: string
+        }
+        Relationships: []
+      }
+      country_alphas: {
+        Row: {
+          alpha2: string
+          alpha3: string
+          country_id: number
+          id: number
+        }
+        Insert: {
+          alpha2: string
+          alpha3: string
+          country_id: number
+          id?: never
+        }
+        Update: {
+          alpha2?: string
+          alpha3?: string
+          country_id?: number
+          id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'country_alphas_country_id_fkey'
+            columns: ['country_id']
+            isOneToOne: true
+            referencedRelation: 'countries'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      country_alpha_locations: {
+        Args: { '': Database['public']['Tables']['countries']['Row'] }
+        Returns: {
+          alpha2: string
+          id: number
+          location: string
+        }[]
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
@@ -23,7 +108,9 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
@@ -47,7 +134,9 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
@@ -70,7 +159,9 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
@@ -93,7 +184,9 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
   ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
@@ -108,21 +201,48 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
   ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
   : never
 
 export const Constants = {
-  personal: {
-    Enums: {
-      user_status: ['ONLINE', 'OFFLINE'],
-    },
+  graphql_public: {
+    Enums: {},
   },
   public: {
-    Enums: {
-      user_status: ['ONLINE', 'OFFLINE'],
-    },
+    Enums: {},
   },
 } as const
+
+const postgrest = new PostgrestClient<Database>('http://localhost:3000')
+
+// Basic types
+{
+  const { data } = await postgrest.from('countries').select(
+    `name,
+  country_alphas!inner (
+    alpha2,
+    alpha3
+  ),
+  country_alpha_locations!inner(location)
+  `
+  )
+  // .eq('name', 'Canada')
+  // .single()
+
+  let expected: {
+    name: string
+    country_alphas: {
+      alpha2: string
+      alpha3: string
+    }
+    country_alpha_locations: {
+      location: string
+    } | null
+  } | null
+  expectType<TypeEqual<typeof data, typeof expected>>(true)
+}
