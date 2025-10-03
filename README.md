@@ -1,4 +1,31 @@
-# `postgrest-js`
+# ⚠️ REPOSITORY DEPRECATED - MOVED TO MONOREPO
+
+> **🚨 This repository has been moved and will be archived on October 10, 2025**
+>
+> **All development has moved to the [Supabase JS Monorepo](https://github.com/supabase/supabase-js)**
+>
+> **If you're looking for the README of `postgrest-js`, you can find it at:**  
+> **https://github.com/supabase/supabase-js/tree/master/packages/core/postgrest-js**
+>
+> ### What happened?
+> This repository was merged into the main Supabase JS monorepo for better coordination, testing, and releases.
+>
+> ### What you need to do:
+> - **📖 For documentation**: Visit the [new postgrest-js location](https://github.com/supabase/supabase-js/tree/master/packages/core/postgrest-js)
+> - **🐛 For issues**: Create them in the [supabase-js repository](https://github.com/supabase/supabase-js/issues)
+> - **🔧 For contributions**: See the [Contributing Guide](https://github.com/supabase/supabase-js/blob/master/CONTRIBUTING.md)
+> - **📚 For migration help**: Read the [Migration Guide](https://github.com/supabase/supabase-js/blob/master/docs/MIGRATION.md)
+>
+> ### If you have open work:
+> - **Uncommitted changes**: Manually transport your work to the monorepo (file structure is the same under `packages/core/postgrest-js/`)
+> - **Open PRs**: Tag a maintainer in your PR and we'll help you migrate it
+> - **Issues**: Will be transported to the supabase-js repository
+>
+> **⚠️ This is the old repository. Please use the [supabase-js monorepo](https://github.com/supabase/supabase-js) going forward.**
+
+---
+
+# `postgrest-js` (DEPRECATED - USE MONOREPO)
 
 [![Build](https://github.com/supabase/postgrest-js/workflows/CI/badge.svg)](https://github.com/supabase/postgrest-js/actions?query=branch%3Amaster)
 [![Package](https://img.shields.io/npm/v/@supabase/postgrest-js)](https://www.npmjs.com/package/@supabase/postgrest-js)
