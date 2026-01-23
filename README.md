@@ -1,7 +1,5 @@
 # `postgrest-js` has a new home
 
-**🚨 This repository has been moved and will be archived on October 10, 2025**
-
 **All development has moved to the [Supabase JS Monorepo](https://github.com/supabase/supabase-js)**
 
 **If you're looking for the README of `postgrest-js`, you can find it at:**  
@@ -12,7 +10,7 @@ This repository was merged into the main Supabase JS monorepo for better coordin
 
 ### What you need to do as a contributor:
 
-- **📖 For documentation**: Visit the [new realtime-js location](https://github.com/supabase/supabase-js/tree/master/packages/core/postgrest-js)
+- **📖 For documentation**: Visit the [new postgrest-js location](https://github.com/supabase/supabase-js/tree/master/packages/core/postgrest-js)
 - **🐛 For issues**: Create them in the [supabase-js repository](https://github.com/supabase/supabase-js/issues)
 - **🔧 For contributions**: See the [Contributing Guide](https://github.com/supabase/supabase-js/blob/master/CONTRIBUTING.md)
 - **📚 For migration help**: Read the [Migration Guide](https://github.com/supabase/supabase-js/blob/master/docs/MIGRATION.md)
